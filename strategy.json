@@ -1,0 +1,147 @@
+{
+  "ammo_classification": {
+    "FE010005": { "Category": "Shotgun_Heavy", "Power": 5 }
+,
+    "FE01001C": { "Category": "Exotic", "Power": 4 }
+,
+    "FE010022": { "Category": "StandardBallistic_Medium", "Power": 2 }
+,
+    "FE010029": { "Category": "MilitaryGrade", "Power": 4 }
+,
+    "FE010030": { "Category": "AdvancedBallistic", "Power": 3 }
+,
+    "FE010058": { "Category": "Energy_Advanced", "Power": 4 }
+,
+    "FE010061": { "Category": "Exotic", "Power": 4 }
+,
+    "FE01006D": { "Category": "Energy_Advanced", "Power": 4 }
+,
+    "FE010075": { "Category": "Energy_Advanced", "Power": 4 }
+,
+    "FE0100BB": { "Category": "MilitaryGrade", "Power": 4 }
+,
+    "FE0106C8": { "Category": "Primitive", "Power": 1 }
+,
+    "FE0106C9": { "Category": "Primitive", "Power": 1 }
+,
+    "FE0106CA": { "Category": "StandardBallistic_Medium", "Power": 2 }
+,
+    "FE0106CB": { "Category": "Exotic", "Power": 4 }
+,
+    "FE0106CC": { "Category": "MilitaryGrade", "Power": 5 }
+,
+    "FE0106D6": { "Category": "AdvancedBallistic", "Power": 3 }
+,
+    "FE0106D7": { "Category": "AdvancedBallistic", "Power": 3 }
+,
+    "FE0106D8": { "Category": "AdvancedBallistic", "Power": 3 }
+,
+    "FE0106DD": { "Category": "Energy_Advanced", "Power": 4 }
+,
+    "FE0106E2": { "Category": "AdvancedBallistic", "Power": 3 }
+,
+    "FE0106E3": { "Category": "MilitaryGrade", "Power": 4 }
+,
+    "FE0106E4": { "Category": "MilitaryGrade", "Power": 5 }
+,
+    "FE0106EE": { "Category": "StandardBallistic_Medium", "Power": 2 }
+,
+    "FE010716": { "Category": "StandardBallistic_Medium", "Power": 2 }
+,
+    "FE010717": { "Category": "AdvancedBallistic", "Power": 3 }
+,
+    "FE010796": { "Category": "Shotgun_Standard", "Power": 2 }
+,
+    "FE0107A1": { "Category": "StandardBallistic_Medium", "Power": 2 }
+,
+    "FE0107A2": { "Category": "AdvancedBallistic", "Power": 3 }
+,
+    "FE0107EE": { "Category": "Primitive", "Power": 1 }
+,
+    "FE0107EF": { "Category": "MilitaryGrade", "Power": 5 }
+,
+    "FE0107F0": { "Category": "Primitive", "Power": 1 }
+,
+    "FE0107F3": { "Category": "MilitaryGrade", "Power": 5 }
+,
+    "FE0107F4": { "Category": "Primitive", "Power": 1 }
+,
+    "FE010812": { "Category": "StandardBallistic_Low", "Power": 1 }
+,
+    "FE010FA8": { "Category": "Energy_Standard", "Power": 3 }
+,
+    "FE010FAA": { "Category": "AdvancedBallistic", "Power": 3 }
+,
+    "FE010FAC": { "Category": "Shotgun_Standard", "Power": 2 }
+,
+    "FE010FAE": { "Category": "MilitaryGrade", "Power": 4 }
+,
+    "FE010FAF": { "Category": "StandardBallistic_Low", "Power": 1 }
+,
+    "FE010FB0": { "Category": "StandardBallistic_Low", "Power": 1 }
+,
+    "FE010FB1": { "Category": "StandardBallistic_Low", "Power": 1 }
+,
+    "FE010FB2": { "Category": "StandardBallistic_Medium", "Power": 2 }
+,
+    "FE010FC6": { "Category": "Explosive", "Power": 3 }
+,
+    "FE010FC7": { "Category": "Explosive", "Power": 3 }
+,
+    "FE010FC8": { "Category": "Explosive", "Power": 4 }
+,
+    "FE010FCA": { "Category": "StandardBallistic_Medium", "Power": 2 }
+,
+    "FE010FD3": { "Category": "Energy_Standard", "Power": 2 }
+,
+    "FE010001": { "Category": "Shotgun_Heavy", "Power": 4 }
+
+  },
+  "allocation_matrix": {
+    "Raiders": {
+      "Primitive": 0.5,
+      "StandardBallistic_Low": 0.7,
+      "Shotgun_Standard": 0.6,
+      "StandardBallistic_Medium": 0.4,
+      "AdvancedBallistic": 0.2,
+      "Explosive": 0.1
+    },
+    "Gunners": {
+      "StandardBallistic_Medium": 0.6,
+      "AdvancedBallistic": 0.8,
+      "MilitaryGrade": 0.7,
+      "Energy_Standard": 0.5,
+      "Energy_Advanced": 0.3,
+      "Exotic": 0.1
+    },
+    "Institute": {
+      "Energy_Standard": 0.7,
+      "Energy_Advanced": 0.9,
+      "Exotic": 0.4
+    },
+    "BrotherhoodOfSteel": {
+      "AdvancedBallistic": 0.6,
+      "MilitaryGrade": 0.8,
+      "Energy_Standard": 0.7,
+      "Energy_Advanced": 0.5,
+      "Explosive": 0.3,
+      "Exotic": 0.2
+    },
+    "SuperMutants": {
+      "Primitive": 0.3,
+      "StandardBallistic_Low": 0.5,
+      "StandardBallistic_Medium": 0.7,
+      "AdvancedBallistic": 0.6,
+      "MilitaryGrade": 0.4,
+      "Shotgun_Heavy": 0.8,
+      "Explosive": 0.2
+    }
+  },
+  "faction_leveled_lists": {
+    "Raiders": "LLI_Raider_Weapons",
+    "Gunners": "LLI_Faction_Gunner_Weapons",
+    "Institute": "LLI_Faction_Institute_Weapons",
+    "BrotherhoodOfSteel": "LLI_Faction_BoS_Weapons",
+    "SuperMutants": "LLI_Faction_SuperMutant_Weapons"
+  }
+}
