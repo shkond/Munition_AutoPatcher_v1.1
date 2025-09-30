@@ -1,4 +1,4 @@
-unit UserScript;
+﻿unit UserScript;
 
 uses 'lib/mteBase', 'lib/mteElements', 'lib/mteFiles', 'lib/mteRecords';
 

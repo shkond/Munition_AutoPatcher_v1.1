@@ -14,9 +14,7 @@ import threading
 import logging
 import queue
 import logging.handlers
-
-from config_manager import ConfigManager
-from Orchestrator import Orchestrator
+from pathlib import Path
 
 class QueueHandler(logging.Handler):
     def __init__(self, log_queue):
@@ -27,23 +25,17 @@ class QueueHandler(logging.Handler):
         self.log_queue.put(record)
 
 class Application(tk.Frame):
-    def __init__(self, master=None, log_queue=None):
+    # ★★★ 修正点: インスタンスをコンストラクタで受け取るように変更
+    def __init__(self, master, config_manager, orchestrator, log_queue):
         super().__init__(master)
         self.master = master
         self.master.title("Munitions 自動統合フレームワーク v2.5")
         self.pack(padx=10, pady=10)
 
+        self.config_manager = config_manager
+        self.orchestrator = orchestrator
         self.is_running = False
         self.log_queue = log_queue
-
-        try:
-            self.config_manager = ConfigManager('config.ini')
-        except FileNotFoundError:
-            messagebox.showerror("致命的なエラー", "設定ファイル 'config.ini' が見つかりません。\nアプリケーションを終了します。")
-            self.master.destroy()
-            return
-        
-        self.orchestrator = Orchestrator(self.config_manager)
         
         self.create_widgets()
         self.load_settings()
@@ -72,6 +64,14 @@ class Application(tk.Frame):
         self.xedit_profile_var = tk.StringVar()
         self.xedit_profile_entry = ttk.Entry(self.mo2_settings_frame, textvariable=self.xedit_profile_var, width=60)
         self.xedit_profile_entry.grid(row=1, column=1, sticky="ew", padx=5, pady=2)
+
+        # ★★★ 修正点: Overwriteフォルダ設定UIを追加 ★★★
+        ttk.Label(self.mo2_settings_frame, text="Overwriteフォルダ:").grid(row=2, column=0, sticky="w", padx=5, pady=2)
+        self.mo2_overwrite_dir_var = tk.StringVar()
+        self.mo2_overwrite_dir_entry = ttk.Entry(self.mo2_settings_frame, textvariable=self.mo2_overwrite_dir_var, width=60)
+        self.mo2_overwrite_dir_entry.grid(row=2, column=1, sticky="ew", padx=5, pady=2)
+        self.mo2_overwrite_browse_button = ttk.Button(self.mo2_settings_frame, text="参照...", command=lambda: self.browse_directory(self.mo2_overwrite_dir_var, "MO2のOverwriteフォルダを選択"))
+        self.mo2_overwrite_browse_button.grid(row=2, column=2, sticky="e", padx=5, pady=2)
         self.mo2_settings_frame.columnconfigure(1, weight=1)
 
         ttk.Label(settings_frame, text="xEdit実行ファイル:").grid(row=2, column=0, sticky="w", padx=5, pady=5)
@@ -113,7 +113,48 @@ class Application(tk.Frame):
     def browse_file(self, var, title, filetypes):
         filepath = filedialog.askopenfilename(title=title, filetypes=filetypes)
         if filepath:
-            var.set(filepath)
+            # パスを正規化して設定
+            normalized_path = Path(filepath).as_posix()
+            var.set(normalized_path)
+
+            # ★★★ MO2のOverwriteフォルダを自動検出するロジックを追加 ★★★
+            if var is self.mo2_executable_var:
+                # ★★★ 修正点: インスタンス版とポータブル版の両方に対応した、より堅牢な自動検出ロジックに変更 ★★★
+                try:
+                    mo2_exe_path = Path(normalized_path)
+                    mo2_base_dir = mo2_exe_path.parent
+                    found_path = None
+
+                    # パターン1: インスタンス版のプロファイル内を検索
+                    # MO2/profiles/<profile_name>/overwrite
+                    profiles_dir = mo2_base_dir / 'profiles'
+                    if profiles_dir.is_dir():
+                        # 現在のプロファイル名を取得
+                        current_profile = self.xedit_profile_var.get()
+                        if current_profile:
+                            profile_overwrite_path = profiles_dir / current_profile / 'overwrite'
+                            if profile_overwrite_path.is_dir():
+                                found_path = profile_overwrite_path
+
+                    # パターン2: ポータブル版の構成を検索 (パターン1で見つからない場合)
+                    # MO2/overwrite
+                    if not found_path:
+                        portable_overwrite_path = mo2_base_dir / 'overwrite'
+                        if portable_overwrite_path.is_dir():
+                            found_path = portable_overwrite_path
+                    
+                    if found_path:
+                        self.mo2_overwrite_dir_var.set(found_path.as_posix())
+                        logging.info(f"MO2のOverwriteフォルダを自動検出しました: {found_path}")
+                    else:
+                        logging.warning("MO2のOverwriteフォルダの自動検出に失敗しました。手動で設定してください。")
+                except Exception as e:
+                    logging.warning(f"Overwriteフォルダの自動検出中にエラーが発生しました: {e}")
+    def browse_directory(self, var, title):
+        """ディレクトリ選択ダイアログを開き、選択されたパスを変数に設定する"""
+        dirpath = filedialog.askdirectory(title=title)
+        if dirpath:
+            var.set(dirpath)
 
     def toggle_mo2_settings(self):
         state = "normal" if self.use_mo2_var.get() else "disabled"
@@ -125,6 +166,7 @@ class Application(tk.Frame):
             self.use_mo2_var.set(self.config_manager.get_boolean('Environment', 'use_mo2'))
             self.mo2_executable_var.set(self.config_manager.get_string('Environment', 'mo2_executable_path'))
             self.xedit_profile_var.set(self.config_manager.get_string('Environment', 'xedit_profile_name'))
+            self.mo2_overwrite_dir_var.set(self.config_manager.get_string('Environment', 'mo2_overwrite_dir'))
             self.xedit_executable_var.set(str(self.config_manager.get_path('Paths', 'xedit_executable')))
         except Exception as e:
             messagebox.showwarning("設定読み込みエラー", f"config.ini の一部設定が読み込めませんでした。\n{e}")
@@ -136,6 +178,7 @@ class Application(tk.Frame):
             self.config_manager.save_setting('Environment', 'use_mo2', str(self.use_mo2_var.get()))
             self.config_manager.save_setting('Environment', 'mo2_executable_path', self.mo2_executable_var.get())
             self.config_manager.save_setting('Environment', 'xedit_profile_name', self.xedit_profile_var.get())
+            self.config_manager.save_setting('Environment', 'mo2_overwrite_dir', self.mo2_overwrite_dir_var.get())
             self.config_manager.save_setting('Paths', 'xedit_executable', self.xedit_executable_var.get())
             logging.info("設定が config.ini に正常に保存されました。")
             return True
@@ -241,6 +284,25 @@ if __name__ == '__main__':
     setup_logging(gui_log_queue)
     
     root = tk.Tk()
-    app = Application(master=root, log_queue=gui_log_queue)
-    app.mainloop()
+    app = None  # app変数をtryブロックの外で初期化
+    
+    try:
+        # ★★★ 修正点: 循環インポートを完全に解決するため、
+        #            インスタンス生成を__main__ブロックに集約する。
+        from config_manager import ConfigManager
+        from Orchestrator import Orchestrator
 
+        config_mgr = ConfigManager('config.ini')
+        orchestrator_instance = Orchestrator(config_mgr)
+        app = Application(master=root, config_manager=config_mgr, orchestrator=orchestrator_instance, log_queue=gui_log_queue)
+    except FileNotFoundError as e:
+        messagebox.showerror("致命的なエラー", f"{e}\nアプリケーションを終了します。")
+        root.destroy()
+        # exit()はデバッグ中にIDEを終了させることがあるため、より安全な方法に
+    except Exception as e:
+        logging.critical("アプリケーションの初期化中に致命的なエラーが発生しました。", exc_info=True)
+        messagebox.showerror("致命的なエラー", f"アプリケーションの起動に失敗しました:\n{e}")
+        root.destroy()
+    
+    if app:  # appが正常に初期化された場合のみmainloopを呼び出す
+        app.mainloop()

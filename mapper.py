@@ -2,77 +2,30 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import os
 from pathlib import Path
-import sys
-
-# ConfigManagerをインポートするためにパスを追加
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-try:
-    from config_manager import ConfigManager
-except ImportError:
-    ConfigManager = None
+import argparse
+import locale
+import configparser
 
 class AmmoMapperApp:
-    def __init__(self, root_window):
+    def __init__(self, root_window, ammo_file_path, munitions_file_path, output_file_path):
         self.root = root_window
         self.root.title("Munitions Ammo Mapper")
         self.root.geometry("1000x750")
-
-        # --- ConfigManagerの初期化 ---
-        self.config_manager = None
-        try:
-            self.config_manager = ConfigManager()
-        except Exception as e:
-            messagebox.showwarning("設定ファイルエラー", 
-                                 f"config.iniの読み込みに失敗しました:\n{e}\nデフォルト設定を使用します。")
 
         # --- データ保持用の変数 ---
         self.ammo_to_map = []
         self.munitions_ammo_list = []
 
-        # --- ファイルパスをconfigから取得 ---
-        self.ammo_file_path = self._get_ammo_file_path()
-        self.munitions_file_path = self._get_munitions_file_path()
-        self.output_file_path = self._get_output_file_path()
+        # --- ファイルパスを引数から取得 ---
+        self.ammo_file_path = Path(ammo_file_path)
+        self.munitions_file_path = Path(munitions_file_path)
+        self.output_file_path = Path(output_file_path)
 
         # --- UIのセットアップ ---
         self.setup_ui()
 
         # --- データの読み込みとUIの構築 ---
         self.reload_data_and_build_ui()
-
-    def _get_ammo_file_path(self):
-        """変換元弾薬リストファイルのパスを取得"""
-        if self.config_manager:
-            try:
-                # ルートディレクトリのOutputディレクトリから取得
-                output_dir = self._get_output_file_path()
-                return output_dir / 'weapon_ammo_details.txt'
-            except Exception as e:
-                print(f"Error getting ammo file path: {e}")
-        # フォールバック
-        return Path.cwd() / 'unique_ammo_for_mapping.txt'
-
-    def _get_munitions_file_path(self):
-        """Munitions弾薬リストファイルのパスを取得"""
-        if self.config_manager:
-            try:
-                # xEditのOutputディレクトリから取得
-                output_dir = self._get_output_file_path()
-                return output_dir / 'munitions_ammo_ids.txt'
-            except Exception as e:
-                print(f"Error getting munitions file path: {e}")
-        # フォールバック
-        return Path.cwd() / 'mutitioncatalog.txt'
-
-    def _get_output_file_path(self):
-        """出力ファイルのパスを取得"""
-        if self.config_manager:
-            try:
-                return self.config_manager.get_path('Paths', 'ammo_map_file')
-            except:
-                pass
-        # フォールバック
-        return Path.cwd() / 'ammo_map.ini'
 
     def setup_ui(self):
         """GUIの基本レイアウトを設定"""
@@ -188,30 +141,23 @@ class AmmoMapperApp:
 
     def load_data(self):
         """データを読み込み"""
+        # --- Munitions弾薬リストを読み込む (INI形式) ---
         # Munitions弾薬リストを読み込む
         try:
             if not self.munitions_file_path.exists():
                 messagebox.showerror("エラー", f"'{self.munitions_file_path}' が見つかりません。\n\nxEditスクリプト '03_ExportMunitionsAmmoIDs.pas' を実行してファイルを生成してください。")
                 return False
 
-            with open(self.munitions_file_path, 'r', encoding='utf-8') as f:
-                for line in f:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    
-                    # フォーマットに応じて解析（カンマ区切りまたはタブ区切り）
-                    if ',' in line:
-                        parts = line.split(',')
-                    elif '\t' in line:
-                        parts = line.split('\t')
-                    else:
-                        continue
-                        
-                    if len(parts) >= 2:
-                        editor_id = parts[0].strip()
-                        form_id = parts[1].strip()
-                        self.munitions_ammo_list.append(f"{form_id} | {editor_id}")
+            default_encoding = locale.getpreferredencoding()
+
+            parser = configparser.ConfigParser()
+            parser.read(self.munitions_file_path, encoding=default_encoding)
+            if parser.has_section('MunitionsAmmo'):
+                for form_id, editor_id in parser.items('MunitionsAmmo'):
+                    self.munitions_ammo_list.append(f"{form_id.upper()} | {editor_id}")
+            else:
+                raise configparser.NoSectionError('MunitionsAmmo')
+
             self.munitions_ammo_list.sort()
         except Exception as e:
             messagebox.showerror("エラー", f"'{self.munitions_file_path}' の読み込みに失敗しました:\n{e}")
@@ -223,47 +169,28 @@ class AmmoMapperApp:
                 messagebox.showerror("エラー", f"'{self.ammo_file_path}' が見つかりません。\n\nxEditスクリプト '01_ExtractWeaponAmmoMapping.pas' を実行してファイルを生成してください。")
                 return False
 
-            with open(self.ammo_file_path, 'r', encoding='utf-8') as f:
-                for line in f:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    
-                    # 既存のフィルタリングロジックを維持
-                    if any(x in line for x in ['Fallout4.esm', 'Munitions - An Ammo Expansion.esl', 'DLCRobot.esm', 'DLCCoast.esm', 'DLCNukaWorld.esm']):
-                        continue
-                    
-                    # フォーマットに応じて解析（タブ区切りまたはその他）
-                    if '\t' in line:
-                        parts = line.split('\t')
-                        if len(parts) >= 2:
-                            original_form_id = parts[0].strip()
-                            editor_id = parts[1].strip()
-                            esp_name = parts[2].strip() if len(parts) > 2 else "(不明なESP)"
-                            
-                            self.ammo_to_map.append({
-                                "original_form_id": original_form_id,
-                                "esp_name": esp_name,
-                                "editor_id": editor_id,
-                                "widgets": {}
-                            })
-                    else:
-                        # 従来のフォーマット処理
-                        parts = line.split('=')
-                        if len(parts) == 2:
-                            original_form_id = parts[0].strip()
-                            details_part = parts[1].strip()
-                            
-                            details = details_part.split('|')
-                            esp_name = details[0].strip() if len(details) > 0 else "(不明なESP)"
-                            editor_id = details[1].strip() if len(details) > 1 else "(不明なEditorID)"
-                            
-                            self.ammo_to_map.append({
-                                "original_form_id": original_form_id,
-                                "esp_name": esp_name,
-                                "editor_id": editor_id,
-                                "widgets": {}
-                            })
+            parser = configparser.ConfigParser()
+            parser.read(self.ammo_file_path, encoding=default_encoding)
+
+            if not parser.has_section('UnmappedAmmo'):
+                raise configparser.NoSectionError('UnmappedAmmo')
+
+            for original_form_id, details_part in parser.items('UnmappedAmmo'):
+                details = details_part.split('|')
+                esp_name = details[0].strip() if len(details) > 0 else "(不明なESP)"
+                editor_id = details[1].strip() if len(details) > 1 else "(不明なEditorID)"
+
+                # 除外リスト
+                if any(x in esp_name for x in ['Fallout4.esm', 'Munitions - An Ammo Expansion.esl', 'DLCRobot.esm', 'DLCCoast.esm', 'DLCNukaWorld.esm']):
+                    continue
+
+                self.ammo_to_map.append({
+                    "original_form_id": original_form_id.upper(),
+                    "esp_name": esp_name,
+                    "editor_id": editor_id,
+                    "widgets": {}
+                })
+
         except Exception as e:
             messagebox.showerror("エラー", f"'{self.ammo_file_path}' の読み込みに失敗しました:\n{e}")
             return False
@@ -311,7 +238,7 @@ class AmmoMapperApp:
         error_messages = []
         
         # セクションヘッダーを追加
-        lines_to_write.append("[AmmoMap]")
+        lines_to_write.append("[UnmappedAmmo]")
         
         for index, ammo_data in enumerate(self.ammo_to_map):
             if ammo_data['widgets']['chk_var'].get():
@@ -353,5 +280,15 @@ class AmmoMapperApp:
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = AmmoMapperApp(root)
+
+    parser = argparse.ArgumentParser(description="Munitions Ammo Mapper")
+    parser.add_argument("--ammo-file", required=True, help="Path to unique_ammo_for_mapping.ini")
+    parser.add_argument("--munitions-file", required=True, help="Path to munitions_ammo_ids.ini")
+    parser.add_argument("--output-file", required=True, help="Path for the output ammo_map.ini")
+    args = parser.parse_args()
+
+    app = AmmoMapperApp(root,
+                        ammo_file_path=args.ammo_file,
+                        munitions_file_path=args.munitions_file,
+                        output_file_path=args.output_file)
     root.mainloop()

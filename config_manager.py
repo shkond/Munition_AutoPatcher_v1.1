@@ -31,8 +31,11 @@ class ConfigManager:
         self.config = configparser.ConfigParser(interpolation=configparser.BasicInterpolation())
         self.config.read(self.config_path, encoding='utf-8')
 
+        # project_rootがconfig.iniで指定されていればそれを使い、
+        # なければconfig.iniファイルのあるディレクトリを基準にする
         project_root_str = self.get_string('Paths', 'project_root', '.')
-        self.project_root = Path(project_root_str).resolve()
+        # config.ini自身の場所を基準に解決することで、より堅牢にする
+        self.project_root = (self.config_path.parent / project_root_str).resolve()
 
     def _resolve_path(self, path_str: str) -> Path:
         """
@@ -70,6 +73,11 @@ class ConfigManager:
         if use_mo2:
             settings['mo2_executable_path'] = os.path.normpath(self.get_string('Environment', 'mo2_executable_path'))
             settings['xedit_profile_name'] = self.get_string('Environment', 'xedit_profile_name')
+            settings['game_data_path'] = self.get_path('Paths', 'game_data_path')
+            # Overwriteディレクトリのパスを取得
+            # ★★★ 修正点: Orchestratorから 'overwrite_path' として参照できるようにする ★★★
+            overwrite_dir = self.get_string('Environment', 'mo2_overwrite_dir')
+            self.config.set('Paths', 'overwrite_path', overwrite_dir)
         return settings
 
     def get_parameter(self, key: str) -> str:
@@ -81,4 +89,3 @@ class ConfigManager:
         self.config.set(section, key, value)
         with open(self.config_path, 'w', encoding='utf-8') as configfile:
             self.config.write(configfile)
-

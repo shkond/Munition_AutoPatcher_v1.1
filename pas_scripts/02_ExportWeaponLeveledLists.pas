@@ -6,7 +6,7 @@ var
   jsonOutput: TStringList;
   processedLists: TStringList;
 
-// ššš C³‰ÓŠ: ³‚µ‚¢ƒwƒ‹ƒp[ŠÖ”‚É’u‚«Š·‚¦ ššš
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Cï¿½ï¿½ï¿½Óï¿½: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½wï¿½ï¿½ï¿½pï¿½[ï¿½Öï¿½ï¿½É’uï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 function EnsureTrailingSlash(const s: string): string;
 var
   lastChar: string;
@@ -91,7 +91,7 @@ begin
   ForceDirectories(outputDir);
   jsonFilePath := outputDir + 'leveled_lists.json';
   
-  jsonOutput.SaveToFile(jsonFilePath, TEncoding.UTF8);
+  jsonOutput.SaveToFile(jsonFilePath);
   AddMessage('[AutoPatcher] SUCCESS: Leveled list export finished: ' + IntToStr(processedLists.Count) + ' records -> ' + jsonFilePath);
   
   AddMessage('[AutoPatcher] Leveled list export complete.');

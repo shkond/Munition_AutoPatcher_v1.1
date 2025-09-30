@@ -1,0 +1,17 @@
+{
+  "comment": "Munitionsの弾薬を分類するためのルール。キーワードはEditorIDに対して部分一致で検索されます（大文字小文字は区別しません）。",
+  "classification_rules": [
+    { "keywords": ["Shotgun", "Gauge", "Slug"], "Category": "Shotgun_Standard", "Power": 2 },
+    { "keywords": ["Shotgun_Heavy", "12G_Magnum"], "Category": "Shotgun_Heavy", "Power": 4 },
+    { "keywords": ["5.56", "5.45", "7.62x39"], "Category": "StandardBallistic_Medium", "Power": 2 },
+    { "keywords": ["7.62x51", "308"], "Category": "AdvancedBallistic", "Power": 3 },
+    { "keywords": ["300Blackout", "300WinMag", "338Lapua"], "Category": "MilitaryGrade", "Power": 4 },
+    { "keywords": ["50BMG", "50Cal", "458SOCOM"], "Category": "MilitaryGrade", "Power": 5 },
+    { "keywords": ["22LR", "9x19", "45ACP", "10mm", "357", "44Magnum"], "Category": "StandardBallistic_Low", "Power": 1 },
+    { "keywords": ["Energy_Cell", "FusionCell"], "Category": "Energy_Standard", "Power": 2 },
+    { "keywords": ["Plasma", "EC", "Gauss"], "Category": "Energy_Advanced", "Power": 4 },
+    { "keywords": ["Explosive", "Rocket", "Missile", "Grenade", "40mm"], "Category": "Explosive", "Power": 3 },
+    { "keywords": ["Musket", "Ball"], "Category": "Primitive", "Power": 1 },
+    { "keywords": ["Exotic", "Syringer", "Cryo"], "Category": "Exotic", "Power": 4 }
+  ]
+}

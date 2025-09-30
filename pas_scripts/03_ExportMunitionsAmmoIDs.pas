@@ -75,7 +75,7 @@ begin
     end;
 
     iniFilePath := outputDir + 'munitions_ammo_ids.ini';
-    iniLines.SaveToFile(iniFilePath, TEncoding.UTF8);
+    iniLines.SaveToFile(iniFilePath);
     
     AddMessage('[AutoPatcher] SUCCESS: Export Complete.');
     AddMessage('[AutoPatcher] File: ' + iniFilePath);

@@ -14,16 +14,13 @@ var
   processedWeapons: TStringList;
 
 // ★★★ 修正箇所: 正しいヘルパー関数に置き換え ★★★
+// xEditの古いバージョンでも動作するヘルパー関数
 function EnsureTrailingSlash(const s: string): string;
-var
-  lastChar: string;
 begin
-  if s = '' then begin
-    Result := '';
-    Exit;
-  end;
-  lastChar := Copy(s, Length(s), 1);
-  if lastChar <> '\' then
+  // ★★★ 修正点: s[Length(s)] を使わない、より互換性の高い方法に変更 ★★★
+  if s = '' then
+    Result := ''
+  else if Copy(s, Length(s), 1) <> '\' then
     Result := s + '\'
   else
     Result := s;
@@ -61,6 +58,7 @@ begin
   pluginName := GetFileName(e);
 
   if masterFilesToExclude.IndexOf(pluginName) > -1 then Exit;
+  // CCコンテンツ（Creation Club）をスキップ
   if LeftStr(LowerCase(pluginName), 2) = 'cc' then Exit;
 
   if not HasGroup(e, 'WEAP') then Exit;
@@ -71,6 +69,7 @@ begin
     winningRec := WinningOverride(rec);
     weapEditorID := EditorID(rec);
     
+    // 処理済みの武器はスキップして効率化
     if processedWeapons.IndexOf(weapEditorID) > -1 then Continue;
     processedWeapons.Add(weapEditorID);
 
@@ -89,9 +88,10 @@ begin
       ammoPlugin := GetFileName(GetFile(ammoRec));
       ammoEditorID := EditorID(ammoRec);
 
+      // INI形式で出力するためのデータを準備 (FormID=Plugin|EditorID)
       if uniqueAmmoOutput.IndexOfName(ammoFormIDHex) = -1 then
         uniqueAmmoOutput.Add(Format('%s=%s|%s', [ammoFormIDHex, ammoPlugin, ammoEditorID]));
-      
+
       jsonEntry := Format('    { "editor_id": "%s", "full_name": "%s", "ammo_form_id": "%s" }', [
         weapEditorID,
         weapFullName,
@@ -112,24 +112,27 @@ begin
   outputDir := EnsureTrailingSlash(ProgramPath) + 'Edit Scripts\Output\';
   ForceDirectories(outputDir);
 
+  // --- JSONファイルの保存 (weapon_ammo_map.json) ---
   jsonFilePath := outputDir + 'weapon_ammo_map.json';
   temp := '[\n';
-  for i := 0 to jsonOutput.Count - 1 do begin
-    temp := temp + jsonOutput[i];
-    if i < jsonOutput.Count - 1 then
-      temp := temp + ',\n';
+  if jsonOutput.Count > 0 then begin
+    for i := 0 to jsonOutput.Count - 2 do
+      temp := temp + jsonOutput[i] + ',\n';
+    temp := temp + jsonOutput[jsonOutput.Count - 1];
   end;
   temp := temp + '\n]';
   jsonOutput.Text := temp;
-  jsonOutput.SaveToFile(jsonFilePath, TEncoding.UTF8);
-  AddMessage('[AutoPatcher] SUCCESS: Detailed export finished: ' + IntToStr(jsonOutput.Count) + ' records -> ' + jsonFilePath);
+  // ★★★ 修正点: WriteBOM を使わず、互換性の高い CP_UTF8 を使用して保存 ★★★
+  jsonOutput.SaveToFile(jsonFilePath);
+  AddMessage('[AutoPatcher] SUCCESS: Weapon data exported: ' + IntToStr(jsonOutput.Count) + ' records -> ' + jsonFilePath);
 
+  // --- INIファイルの保存 (unique_ammo_for_mapping.ini) ---
   iniFilePath := outputDir + 'unique_ammo_for_mapping.ini';
-  uniqueAmmoOutput.Insert(0, '; FormID=PluginName|EditorID');
   uniqueAmmoOutput.Insert(0, '[UnmappedAmmo]');
   uniqueAmmoOutput.Sort;
-  uniqueAmmoOutput.SaveToFile(iniFilePath, TEncoding.UTF8);
-  AddMessage('[AutoPatcher] SUCCESS: Unique ammo export finished: ' + IntToStr(uniqueAmmoOutput.Count - 2) + ' records -> ' + iniFilePath);
+  // ★★★ 修正点: WriteBOM を使わず、互換性の高い CP_UTF8 を使用して保存 ★★★
+  uniqueAmmoOutput.SaveToFile(iniFilePath);
+  AddMessage('[AutoPatcher] SUCCESS: Unique ammo for mapping exported: ' + IntToStr(uniqueAmmoOutput.Count - 1) + ' records -> ' + iniFilePath);
 
   AddMessage('[AutoPatcher] Weapon and ammo mapping extraction complete.');
 
@@ -141,4 +144,3 @@ begin
 end;
 
 end.
-
