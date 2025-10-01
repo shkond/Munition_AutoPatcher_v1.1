@@ -1,18 +1,22 @@
-2025-09-30 17:14:14,318 - INFO - 設定が config.ini に正常に保存されました。
-2025-09-30 17:14:14,322 - INFO - ==================== 全自動処理を開始します ====================
-2025-09-30 17:14:14,322 - INFO - ----------ステップ1: xEditからデータを抽出します----------
-2025-09-30 17:14:14,323 - INFO - スクリプト '01_ExtractWeaponAmmoMapping.pas' を 'TEMP_1759220054.pas' として準備しています...
-2025-09-30 17:14:14,324 - INFO - ライブラリフォルダ 'lib' を準備しています...
-2025-09-30 17:14:14,335 - INFO - コマンドを実行します: 'E:\MO2\ModOrganizer.exe' -p atarasiiyatu 'E:\fo4mod\xedit\xEdit.exe' -force -IKnowWhatImDoing -AllowMasterFilesEdit -script:TEMP_1759220054.pas '-L:"E:\Munition_AutoPatcher_v1.1\Output\xEdit_log_1759220054.txt"' '-d:"E:\SteamLibrary\steamapps\common\Fallout4\Data"'
-2025-09-30 17:14:14,342 - INFO - ModOrganizer.exe (PID: 3976) を起動しました。
-2025-09-30 17:14:14,342 - INFO - 'xEdit.exe' プロセスが起動するのを待機しています...
-2025-09-30 17:14:17,360 - INFO - 'xEdit.exe' (PID: 1484) を検出しました。処理完了を待機します...
-2025-09-30 17:14:23,167 - INFO - 'xEdit.exe' プロセスが終了しました。
-2025-09-30 17:14:23,167 - INFO - xEditのログファイルをポーリングで検証します...
-2025-09-30 17:14:33,179 - ERROR - xEditは終了しましたが、ログファイルで完了メッセージを確認できませんでした。
-2025-09-30 17:14:33,179 - ERROR - 考えられる原因: xEditがエラーで異常終了した可能性があります。詳細は xEdit_debug_1759220054.txt を確認してください。
-2025-09-30 17:14:33,180 - INFO - プロセスと一時ファイルをクリーンアップしています...
-2025-09-30 17:14:33,181 - INFO -  - 削除: TEMP_1759220054.pas
-2025-09-30 17:14:33,183 - INFO -  - 削除: lib フォルダ
-2025-09-30 17:14:33,183 - CRITICAL - プロセス失敗: 武器/弾薬情報の抽出中にエラーが発生しました。
-2025-09-30 17:14:33,184 - INFO - ==================== 全自動処理が終了しました ====================
+2025-10-01 19:02:31,368 - INFO - 設定が config.ini に正常に保存されました。
+2025-10-01 19:02:31,371 - INFO - ==================== 全自動処理開始 ====================
+2025-10-01 19:02:31,371 - INFO - ---------- ステップ1: xEdit 抽出 ----------
+2025-10-01 19:02:31,373 - INFO - [xEdit] 設定上の game_data_path=E:\SteamLibrary\steamapps\common\Fallout 4\Data
+2025-10-01 19:02:31,374 - INFO - [xEdit] 準備中: 01_ExtractWeaponAmmoMapping.pas -> TEMP_1759312951_588af6280421497bba50f2e275432d0c.pas
+2025-10-01 19:02:31,375 - INFO - [xEdit] 既存lib退避: E:\fo4mod\xedit\Edit Scripts\lib -> E:\fo4mod\xedit\Edit Scripts\_lib_backup_20251001_190231_1fd5a7a265a94e299b1705c0a9bb21fe
+2025-10-01 19:02:31,376 - INFO - [xEdit] ステージングlibコピー: E:\Munition_AutoPatcher_v1.1\pas_scripts\lib -> E:\fo4mod\xedit\Edit Scripts\lib
+2025-10-01 19:02:31,384 - INFO - [xEdit] MO2モード: -D は付与しません (force_data_param=False)
+2025-10-01 19:02:31,384 - INFO - [xEdit] 実行コマンド: 'E:\MO2\ModOrganizer.exe' -p new1 'E:\fo4mod\xedit\FO4Edit.exe' -force -IKnowWhatImDoing -AllowMasterFilesEdit -script:TEMP_1759312951_588af6280421497bba50f2e275432d0c.pas '-L:"E:\Munition_AutoPatcher_v1.1\Output\xEdit_session_1759312951.log"'
+2025-10-01 19:02:31,390 - INFO - [xEdit] MO2 起動 PID=10400 / xEdit プロセス検出待機
+2025-10-01 19:02:33,915 - INFO - [xEdit] xEdit 検出 PID=6240 / 完了待ち (timeout=600s)
+2025-10-01 19:07:51,457 - WARNING - [xEdit] 指定ログ未生成 → フォールバック先: FO4Edit_log.txt
+2025-10-01 19:07:51,466 - INFO - [xEdit] 成功: 01_ExtractWeaponAmmoMapping.pas exit_code=0 & メッセージ検出
+2025-10-01 19:07:51,466 - INFO - [xEdit] クリーンアップ開始
+2025-10-01 19:07:51,466 - INFO - [xEdit] 一時削除: TEMP_1759312951_588af6280421497bba50f2e275432d0c.pas
+2025-10-01 19:07:51,469 - INFO - [xEdit] lib 復元: E:\fo4mod\xedit\Edit Scripts\_lib_backup_20251001_190231_1fd5a7a265a94e299b1705c0a9bb21fe -> E:\fo4mod\xedit\Edit Scripts\lib
+2025-10-01 19:07:51,470 - INFO - [xEdit] 残存 MO2 終了: PID=10400
+2025-10-01 19:07:51,471 - INFO - [Overwrite収集] 期待ファイル: ['weapon_ammo_map.json', 'unique_ammo_for_mapping.ini']
+2025-10-01 19:07:51,473 - WARNING - [Overwrite収集] 見つからない: weapon_ammo_map.json
+2025-10-01 19:07:51,473 - WARNING - [Overwrite収集] 見つからない: unique_ammo_for_mapping.ini
+2025-10-01 19:07:51,473 - ERROR - [Overwrite収集] 必須ファイル欠落: ['weapon_ammo_map.json', 'unique_ammo_for_mapping.ini'] → 処理中断
+2025-10-01 19:07:51,638 - INFO - ==================== 全自動処理が終了しました ====================
