@@ -16,6 +16,9 @@ import queue
 import logging.handlers
 from pathlib import Path
 
+# ★★★ 追加: 管理者権限確認 ★★★
+from admin_check import is_admin, request_admin_elevation
+
 class QueueHandler(logging.Handler):
     def __init__(self, log_queue):
         super().__init__()
@@ -280,21 +283,45 @@ def setup_logging(log_queue):
     logging.basicConfig(level=logging.INFO, handlers=[file_handler, stream_handler, queue_handler])
 
 if __name__ == '__main__':
+    # ★★★ 追加: 起動時に管理者権限を確認 ★★★
+    if not is_admin():
+        response = messagebox.askyesno(
+            "管理者権限の確認",
+            "このアプリケーションは管理者権限で実行されていません。\n"
+            "ファイルの移動やコピーが失敗する可能性があります。\n\n"
+            "管理者権限で再起動しますか？\n\n"
+            "※「いいえ」を選択すると、通常権限で続行します。"
+        )
+        
+        if response:
+            # 管理者権限で再起動を試みる
+            if request_admin_elevation():
+                # 成功した場合、この行には到達しない (プロセスが終了する)
+                pass
+            else:
+                messagebox.showerror(
+                    "エラー",
+                    "管理者権限での再起動に失敗しました。\n"
+                    "手動で「管理者として実行」を選択して起動してください。"
+                )
+        else:
+            # 通常権限で続行
+            logging.warning("[警告] 管理者権限なしで続行します")
+    
     gui_log_queue = queue.Queue()
     setup_logging(gui_log_queue)
     
     root = tk.Tk()
-    app = None  # app変数をtryブロックの外で初期化
+    app = None
     
     try:
-        # ★★★ 修正点: 循環インポートを完全に解決するため、
-        #            インスタンス生成を__main__ブロックに集約する。
         from config_manager import ConfigManager
         from Orchestrator import Orchestrator
 
         config_mgr = ConfigManager('config.ini')
         orchestrator_instance = Orchestrator(config_mgr)
         app = Application(master=root, config_manager=config_mgr, orchestrator=orchestrator_instance, log_queue=gui_log_queue)
+    
     except FileNotFoundError as e:
         messagebox.showerror("致命的なエラー", f"{e}\nアプリケーションを終了します。")
         root.destroy()

@@ -11,6 +11,8 @@ import shlex
 import uuid
 from typing import Sequence, Optional, Callable
 
+# ★★★ 追加: 管理者権限確認 ★★★
+from admin_check import is_admin, check_directory_access
 
 class Orchestrator:
     """
@@ -35,7 +37,15 @@ class Orchestrator:
 
     def __init__(self, config_manager):
         self.config = config_manager
-
+        
+        # ★★★ 追加: 管理者権限の確認と警告 ★★★
+        if not is_admin():
+            logging.warning("=" * 60)
+            logging.warning("[警告] アプリケーションが管理者権限で実行されていません")
+            logging.warning("ファイルの移動やコピーが失敗する可能性があります。")
+            logging.warning("推奨: PowerShell を「管理者として実行」で起動してから実行してください")
+            logging.warning("=" * 60)
+    
     # -------------- 内部ユーティリティ --------------
 
     def _get_numeric(self, section: str, option: str, default, cast: Callable):
@@ -79,73 +89,180 @@ class Orchestrator:
             enc = locale.getpreferredencoding()
             return path.read_text(encoding=enc, errors="replace")
 
-    # -------------- Overwrite → Output 処理 --------------
+    def _candidate_output_dirs(self) -> list[Path]:
+        """
+        xEdit 実行後に成果物が置かれうる候補ディレクトリを優先順で返す。
+        - 1) MO2 overwrite/Edit Scripts/Output
+        - 2) 環境設定 mo2_overwrite_dir/Edit Scripts/Output（存在すれば）
+        - 3) xEdit 実行フォルダ/Edit Scripts/Output
+        - 4) アプリケーション output_dir（念のため）
+        """
+        candidates: list[Path] = []
+
+        # 1) overwrite_path/Edit Scripts/Output
+        try:
+            ow = self.config.get_path('Paths', 'overwrite_path') / 'Edit Scripts' / 'Output'
+            candidates.append(ow)
+        except Exception:
+            pass
+
+        # 2) Environment 側に mo2_overwrite_dir があるなら候補に追加
+        try:
+            env = self.config.get_env_settings() or {}
+            ow2 = env.get('mo2_overwrite_dir')
+            if ow2:
+                candidates.append(Path(ow2) / 'Edit Scripts' / 'Output')
+        except Exception:
+            pass
+
+        # 3) xEdit 実行フォルダ/Edit Scripts/Output
+        try:
+            xedit_out = self.config.get_path('Paths', 'xedit_executable').parent / 'Edit Scripts' / 'Output'
+            candidates.append(xedit_out)
+        except Exception:
+            pass
+
+        # 4) output_dir（再実行時などに既に存在する可能性）
+        try:
+            app_out = self.config.get_path('Paths', 'output_dir')
+            candidates.append(app_out)
+        except Exception:
+            pass
+
+        # 正規化 + 既存ディレクトリに絞る + 重複排除
+        seen = set()
+        uniq_existing: list[Path] = []
+        for d in candidates:
+            try:
+                key = str(d.resolve()).lower()
+            except Exception:
+                key = str(d).lower()
+            if key not in seen and d and d.exists():
+                seen.add(key)
+                uniq_existing.append(d)
+        return uniq_existing
 
     def _move_results_from_overwrite(self, expected_filenames: Sequence[str]) -> bool:
         """
-        MO2 Overwrite フォルダ配下 (Edit Scripts/Output) から成果物を
-        Output へコピー + 検証後に原子的 rename。
-        エラー時は Output に書きかけた一時ファイルをロールバック（削除）。
-        Overwrite 側の原ファイルは削除しない（安全性優先）。
+        期待ファイルを候補ディレクトリ（MO2 Overwrite / xEdit Output / ほか）から探索し、
+        アプリ output_dir にコピー（.part → 置換）する。
+        1つでも見つからない場合は False を返す。
         """
-        logging.info(f"[Overwrite収集] 期待ファイル: {list(expected_filenames)}")
+        expected = list(expected_filenames)
+        logging.info(f"[成果物収集] 期待ファイル: {expected}")
+
         try:
-            overwrite_path = self.config.get_path('Paths', 'overwrite_path')
             output_dir = self.config.get_path('Paths', 'output_dir')
         except (configparser.NoSectionError, configparser.NoOptionError):
-            logging.error("設定エラー: [Paths] overwrite_path/output_dir が取得できません。")
+            logging.error("設定エラー: [Paths] output_dir を取得できません。")
             return False
-
-        if not overwrite_path or not overwrite_path.is_dir():
-            logging.error(f"Overwriteフォルダ不正: {overwrite_path}")
-            return False
-
+        
+        # ★★★ 追加: 出力ディレクトリのアクセス権限確認 ★★★
         output_dir.mkdir(parents=True, exist_ok=True)
+        if not check_directory_access(output_dir, check_write=True):
+            logging.error(f"[成果物収集] 出力ディレクトリへの書き込み権限がありません: {output_dir}")
+            logging.error("[成果物収集] 対処方法: アプリケーションを管理者権限で実行してください")
+            return False
 
-        temp_created = []
-        missing = []
+        candidates = self._candidate_output_dirs()
+        if not candidates:
+            logging.error("[成果物収集] 探索候補ディレクトリがありません。設定を見直してください。")
+            return False
 
-        for filename in expected_filenames:
-            source_file = overwrite_path / "Edit Scripts" / "Output" / filename
-            dest_file = output_dir / filename
-            temp_file = output_dir / (filename + ".part")
+        logging.info("[成果物収集] 探索候補:")
+        for d in candidates:
+            logging.info(f"  - {d}")
 
-            if not source_file.is_file():
-                logging.warning(f"[Overwrite収集] 見つからない: {filename}")
+        missing: list[str] = []
+        successfully_moved: list[str] = []
+        
+        for filename in expected:
+            # 候補全てを走査して一致ファイルを集め、最も新しいものを採用
+            found_paths: list[Path] = []
+            for root in candidates:
+                p = root / filename
+                if p.is_file():
+                    found_paths.append(p)
+                    logging.debug(f"[成果物収集] 候補発見: {p}")
+
+            if not found_paths:
+                logging.warning(f"[成果物収集] 見つからない: {filename}")
                 missing.append(filename)
                 continue
 
+            # 最も新しいファイルを採用
             try:
-                logging.info(f"[Overwrite収集] コピー: {source_file} -> {temp_file}")
-                shutil.copy2(source_file, temp_file)
-                # 簡易検証（サイズ一致）
-                if source_file.stat().st_size != temp_file.stat().st_size:
-                    raise IOError(f"サイズ不一致 {source_file} -> {temp_file}")
-                # 原子的置換 (既存あれば上書き)
-                temp_file.replace(dest_file)
-                temp_created.append(dest_file)
-                logging.info(f"[Overwrite収集] 確定: {dest_file.name}")
+                src = max(found_paths, key=lambda x: x.stat().st_mtime)
+                logging.info(f"[成果物収集] 最新ファイル選択: {src}")
             except Exception as e:
-                logging.error(f"[Overwrite収集] コピー中エラー: {filename}: {e}")
-                # 後続失敗扱い
+                logging.warning(f"[成果物収集] mtime比較失敗: {e} → 最初の候補を使用")
+                src = found_paths[0]
+
+            dest = output_dir / filename
+            temp = output_dir / (filename + ".part")
+
+            try:
+                # ★★★ 追加: ソースファイルの読み取り権限確認 ★★★
+                if not src.exists():
+                    raise FileNotFoundError(f"ソースファイルが存在しません: {src}")
+                
+                src_size = src.stat().st_size
+                logging.debug(f"[成果物収集]   元ファイルサイズ: {src_size} bytes")
+                
+                logging.info(f"[成果物収集] 取得: {src} -> {dest}")
+                shutil.copy2(src, temp)
+                
+                # サイズ/mtime 簡易検証
+                temp_size = temp.stat().st_size
+                if src_size != temp_size:
+                    raise IOError(f"サイズ不一致 src={src_size}, temp={temp_size}")
+                
+                temp.replace(dest)
+                logging.info(f"[成果物収集] 確定: {dest.name}")
+                successfully_moved.append(filename)
+                
+            except PermissionError as e:
+                logging.error(f"[成果物収集] アクセス権限エラー: {filename}: {e}")
+                logging.error(f"[成果物収集] 対処方法: アプリケーションを管理者権限で実行してください")
                 missing.append(filename)
-                if temp_file.exists():
+                if temp.exists():
                     try:
-                        temp_file.unlink()
+                        temp.unlink()
+                    except Exception:
+                        pass
+            except Exception as e:
+                logging.error(f"[成果物収集] コピー中エラー: {filename}: {e}", exc_info=True)
+                missing.append(filename)
+                if temp.exists():
+                    try:
+                        temp.unlink()
                     except Exception:
                         pass
 
+        # ★★★ 修正: 結果サマリーを詳細化 ★★★
+        logging.info(f"[成果物収集] 結果サマリー: 成功={len(successfully_moved)}, 失敗={len(missing)}")
+        if successfully_moved:
+            logging.info(f"[成果物収集]   成功: {successfully_moved}")
+        
         if missing:
-            # ロールバック（今回はコピーなので元ファイルは無傷。Output 側を削除するだけ）
-            logging.error(f"[Overwrite収集] 必須ファイル欠落: {missing} → 処理中断")
+            logging.error(f"[成果物収集] 必須ファイル欠落: {missing}")
+            logging.error("[成果物収集] 上記ファイルは次の場所を探索しました:")
+            for d in candidates:
+                logging.error(f"  - {d}")
+            
+            # ★★★ 追加: 権限不足の可能性を明示 ★★★
+            if not is_admin():
+                logging.error("[成果物収集] ヒント: 管理者権限で実行していないため、")
+                logging.error("[成果物収集]         アクセス権限の問題が発生している可能性があります")
+            
             return False
 
-        logging.info("[Overwrite収集] 全ファイル正常取得")
+        logging.info("[成果物収集] 全ファイルを output_dir へ集約完了")
         return True
 
     # -------------- xEdit 実行 --------------
 
-    def run_xedit_script(self, script_key: str, success_message: str) -> bool:
+    def run_xedit_script(self, script_key: str, success_message: str, expected_outputs: Optional[list[str]] = None) -> bool:
         """
         指定された Pascal スクリプトを xEdit 経由で実行。
         成功判定:
@@ -227,22 +344,23 @@ class Orchestrator:
 
             # 共通引数を追加
             command_list.extend([
-                "-force",
                 "-IKnowWhatImDoing",
                 "-AllowMasterFilesEdit",
                 f"-script:{temp_script_filename}",
                 f'-L:"{session_log_path}"'
             ])
+            
+            logging.info("[xEdit] 高速化: QuickShowConflicts 無効化 (-QS:0)")
 
             # -D 引数の条件付き追加
             if use_mo2 and not force_data_param:
                 logging.info("[xEdit] MO2: -D は付与しません (force_data_param=False)")
-            else:
+            else: # 直接起動の場合のみ -D を付与
                 command_list.append(f'-D:"{game_data_path}"')
                 if use_mo2:
-                    logging.info("[xEdit] MO2: force_data_param=True → -D 付与")
+                    logging.info("[xEdit] MO2: -D を明示的に付与 (force_data_param=True)")
                 else:
-                    logging.info("[xEdit] 非MO2: -D 付与")
+                    logging.info("[xEdit] 直接起動: -D を付与")
 
             logging.info(f"[xEdit] 実行コマンド(list表示): {command_list}")
 
@@ -316,7 +434,7 @@ class Orchestrator:
                         if success_message in content:
                             success_found = True
                             break
-                    except Exception as e:
+                    except Exception:
                         pass
                 time.sleep(poll_interval)
 
@@ -325,49 +443,76 @@ class Orchestrator:
             if exit_code != 0:
                 logging.error(f"[xEdit] 失敗: exit code={exit_code}")
                 return False
+ 
             if not success_found:
-                logging.error("[xEdit] 失敗: success_message 未検出")
-                return False
+                logging.warning("[xEdit] success_message 未検出 (fallback: 成果物検証に委ね)")
+
+            # ★★★ 修正: 成果物の検証と移動を統合 ★★★
+            if expected_outputs:
+                # 候補ディレクトリを確認して成果物の存在を検証
+                candidates = self._candidate_output_dirs()
+                found_count = 0
+                missing_files = []
+                
+                for filename in expected_outputs:
+                    found = False
+                    for candidate_dir in candidates:
+                        file_path = candidate_dir / filename
+                        if file_path.is_file():
+                            logging.info(f"[xEdit] 出力確認 OK: {filename} -> {file_path}")
+                            found_count += 1
+                            found = True
+                            break
+                    if not found:
+                        missing_files.append(filename)
+                
+                # ★★★ 重要: ファイルが見つかった場合、_move_results_from_overwrite を呼び出す ★★★
+                if found_count > 0:
+                    logging.info(f"[xEdit] 成果物 {found_count}/{len(expected_outputs)} 件検出 → 収集処理開始")
+                    if not self._move_results_from_overwrite(expected_outputs):
+                        logging.error("[xEdit] 成果物の収集に失敗")
+                        return False
+                    logging.info(f"[xEdit] 成果物収集完了")
+                else:
+                    logging.error(f"[xEdit] 期待成果物が1つも見つかりません: {expected_outputs}")
+                    logging.error(f"[xEdit] 探索した場所: {[str(d) for d in candidates]}")
+                    return False
 
             logging.info(f"[xEdit] 成功: {source_script_path.name}")
             return True
 
         except subprocess.TimeoutExpired:
             logging.error(f"[xEdit] タイムアウト ({timeout_seconds}s 超過)")
+            if expected_outputs:
+                # タイムアウト時も成果物の存在を確認
+                candidates = self._candidate_output_dirs()
+                for filename in expected_outputs:
+                    for candidate_dir in candidates:
+                        file_path = candidate_dir / filename
+                        if file_path.is_file():
+                            logging.warning(f"[xEdit] タイムアウト後に成果物を検出: {file_path}")
             return False
         except Exception as e:
             logging.critical(f"[xEdit] 例外発生: {e}", exc_info=True)
             return False
         finally:
-            if temp_script_path.exists():
-                try: temp_script_path.unlink()
-                except Exception: pass
+            # クリーンアップ: 一時スクリプトとlibバックアップの処理
             try:
-                if dest_lib_dir.exists() and source_lib_dir.is_dir():
-                    shutil.rmtree(dest_lib_dir)
-                if lib_backup_dir and lib_backup_dir.exists():
-                    shutil.move(str(lib_backup_dir), str(dest_lib_dir))
-                elif not dest_lib_preexisted and dest_lib_dir.exists():
-                    # 元々存在しなかったlibは削除
-                    shutil.rmtree(dest_lib_dir)
-            except Exception:
-                pass
-            if xedit_process_ps and xedit_process_ps.is_running():
-                try: xedit_process_ps.terminate()
-                except Exception: pass
-            if mo2_process and mo2_process.poll() is None:
-                try: mo2_process.terminate()
-                except Exception: pass
+                if temp_script_path.exists():
+                    temp_script_path.unlink()
+                    logging.debug(f"[xEdit] 一時スクリプト削除: {temp_script_path}")
+            except Exception as e:
+                logging.warning(f"[xEdit] 一時スクリプト削除失敗: {e}")
 
-    def _tail_file(self, path: Path, lines: int = 40) -> str:
-        """
-        ログなどの末尾数行を取得。大きなファイルでの負荷軽減。
-        """
-        try:
-            content = path.read_text(encoding='utf-8', errors='replace').splitlines()
-            return "\n".join(content[-lines:])
-        except Exception:
-            return "(ログ読込失敗)"
+            # libディレクトリの復元
+            if lib_backup_dir and lib_backup_dir.exists():
+                try:
+                    if dest_lib_dir.exists():
+                        shutil.rmtree(dest_lib_dir)
+                    shutil.move(str(lib_backup_dir), str(dest_lib_dir))
+                    logging.debug(f"[xEdit] lib ディレクトリ復元完了")
+                except Exception as e:
+                    logging.warning(f"[xEdit] lib ディレクトリ復元失敗: {e}")
 
     # -------------- 戦略ファイル更新 --------------
 
@@ -541,19 +686,31 @@ class Orchestrator:
 
         # --- ステップ1: データ抽出 ---
         logging.info(f"{'-' * 10} ステップ1: xEdit 抽出 {'-' * 10}")
-        if not self.run_xedit_script('weapon_ammo_extractor', '[AutoPatcher] Weapon and ammo mapping extraction complete.'):
+        if not self.run_xedit_script(
+            'weapon_ammo_extractor',
+            '[AutoPatcher] Weapon and ammo mapping extraction complete.',
+            expected_outputs=['weapon_ammo_map.json', 'unique_ammo_for_mapping.ini']
+        ):
             logging.critical("[Main] 武器/弾薬抽出失敗")
             return False
-        if not self._move_results_from_overwrite(['weapon_ammo_map.json', 'unique_ammo_for_mapping.ini']):
-            return False
+        # _move_results_from_overwrite は found が overwrite 内にあれば従来どおり移動、
+        # そうでなければ xEdit 実行フォルダから overwrite_path へコピーするロジックを拡張しても良い
 
-        if not self.run_xedit_script('leveled_list_exporter', '[AutoPatcher] Leveled list export complete.'):
+        if not self.run_xedit_script(
+            'leveled_list_exporter',
+            '[AutoPatcher] Leveled list export complete.',
+            expected_outputs=['exported_leveled_lists.json']
+        ):
             logging.critical("[Main] レベルドリスト抽出失敗")
             return False
         if not self._move_results_from_overwrite(['exported_leveled_lists.json']):
             return False
 
-        if not self.run_xedit_script('munitions_id_exporter', '[AutoPatcher] Munitions ammo ID export complete.'):
+        if not self.run_xedit_script(
+            'munitions_id_exporter',
+            '[AutoPatcher] Munitions ammo ID export complete.',
+            expected_outputs=['munitions_ammo_ids.ini']
+        ):
             logging.critical("[Main] Munitions ID 抽出失敗")
             return False
         if not self._move_results_from_overwrite(['munitions_ammo_ids.ini']):

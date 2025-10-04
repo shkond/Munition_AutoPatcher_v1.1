@@ -1,22 +1,34 @@
-2025-10-01 19:02:31,368 - INFO - 設定が config.ini に正常に保存されました。
-2025-10-01 19:02:31,371 - INFO - ==================== 全自動処理開始 ====================
-2025-10-01 19:02:31,371 - INFO - ---------- ステップ1: xEdit 抽出 ----------
-2025-10-01 19:02:31,373 - INFO - [xEdit] 設定上の game_data_path=E:\SteamLibrary\steamapps\common\Fallout 4\Data
-2025-10-01 19:02:31,374 - INFO - [xEdit] 準備中: 01_ExtractWeaponAmmoMapping.pas -> TEMP_1759312951_588af6280421497bba50f2e275432d0c.pas
-2025-10-01 19:02:31,375 - INFO - [xEdit] 既存lib退避: E:\fo4mod\xedit\Edit Scripts\lib -> E:\fo4mod\xedit\Edit Scripts\_lib_backup_20251001_190231_1fd5a7a265a94e299b1705c0a9bb21fe
-2025-10-01 19:02:31,376 - INFO - [xEdit] ステージングlibコピー: E:\Munition_AutoPatcher_v1.1\pas_scripts\lib -> E:\fo4mod\xedit\Edit Scripts\lib
-2025-10-01 19:02:31,384 - INFO - [xEdit] MO2モード: -D は付与しません (force_data_param=False)
-2025-10-01 19:02:31,384 - INFO - [xEdit] 実行コマンド: 'E:\MO2\ModOrganizer.exe' -p new1 'E:\fo4mod\xedit\FO4Edit.exe' -force -IKnowWhatImDoing -AllowMasterFilesEdit -script:TEMP_1759312951_588af6280421497bba50f2e275432d0c.pas '-L:"E:\Munition_AutoPatcher_v1.1\Output\xEdit_session_1759312951.log"'
-2025-10-01 19:02:31,390 - INFO - [xEdit] MO2 起動 PID=10400 / xEdit プロセス検出待機
-2025-10-01 19:02:33,915 - INFO - [xEdit] xEdit 検出 PID=6240 / 完了待ち (timeout=600s)
-2025-10-01 19:07:51,457 - WARNING - [xEdit] 指定ログ未生成 → フォールバック先: FO4Edit_log.txt
-2025-10-01 19:07:51,466 - INFO - [xEdit] 成功: 01_ExtractWeaponAmmoMapping.pas exit_code=0 & メッセージ検出
-2025-10-01 19:07:51,466 - INFO - [xEdit] クリーンアップ開始
-2025-10-01 19:07:51,466 - INFO - [xEdit] 一時削除: TEMP_1759312951_588af6280421497bba50f2e275432d0c.pas
-2025-10-01 19:07:51,469 - INFO - [xEdit] lib 復元: E:\fo4mod\xedit\Edit Scripts\_lib_backup_20251001_190231_1fd5a7a265a94e299b1705c0a9bb21fe -> E:\fo4mod\xedit\Edit Scripts\lib
-2025-10-01 19:07:51,470 - INFO - [xEdit] 残存 MO2 終了: PID=10400
-2025-10-01 19:07:51,471 - INFO - [Overwrite収集] 期待ファイル: ['weapon_ammo_map.json', 'unique_ammo_for_mapping.ini']
-2025-10-01 19:07:51,473 - WARNING - [Overwrite収集] 見つからない: weapon_ammo_map.json
-2025-10-01 19:07:51,473 - WARNING - [Overwrite収集] 見つからない: unique_ammo_for_mapping.ini
-2025-10-01 19:07:51,473 - ERROR - [Overwrite収集] 必須ファイル欠落: ['weapon_ammo_map.json', 'unique_ammo_for_mapping.ini'] → 処理中断
-2025-10-01 19:07:51,638 - INFO - ==================== 全自動処理が終了しました ====================
+2025-10-05 07:26:59,131 - INFO - 設定が config.ini に正常に保存されました。
+2025-10-05 07:26:59,134 - INFO - ==================== 全自動処理開始 ====================
+2025-10-05 07:26:59,134 - INFO - ---------- ステップ1: xEdit 抽出 ----------
+2025-10-05 07:26:59,136 - INFO - [xEdit] 設定上の game_data_path=E:\SteamLibrary\steamapps\common\Fallout 4\Data
+2025-10-05 07:26:59,147 - INFO - [xEdit] 高速化: QuickShowConflicts 無効化 (-QS:0)
+2025-10-05 07:26:59,148 - INFO - [xEdit] MO2: -D は付与しません (force_data_param=False)
+2025-10-05 07:26:59,150 - INFO - [xEdit] 実行コマンド(list表示): ['E:\\MO2\\ModOrganizer.exe', '-p', 'new1', 'E:\\fo4mod\\xedit\\FO4Edit.exe', '-IKnowWhatImDoing', '-AllowMasterFilesEdit', '-script:TEMP_1759616819_8c7866443d6a4e72a6114220f653f751.pas', '-L:"E:\\Munition_AutoPatcher_v1.1\\Output\\xEdit_session_1759616819.log"']
+2025-10-05 07:26:59,160 - INFO - [xEdit] MO2 起動 PID=16584 / xEdit プロセス検出待機
+2025-10-05 07:27:03,701 - INFO - [xEdit] xEdit 検出 PID=24036 / 完了待ち (timeout=600s)
+2025-10-05 07:33:07,397 - WARNING - [xEdit] success_message 未検出 (fallback: 成果物検証に委ね)
+2025-10-05 07:33:07,400 - INFO - [xEdit] 出力確認 OK: weapon_ammo_map.json -> E:\fo4mod\xedit\Edit Scripts\Output\weapon_ammo_map.json
+2025-10-05 07:33:07,400 - INFO - [xEdit] 出力確認 OK: unique_ammo_for_mapping.ini -> E:\fo4mod\xedit\Edit Scripts\Output\unique_ammo_for_mapping.ini
+2025-10-05 07:33:07,400 - INFO - [xEdit] 成果物 2/2 件検出 → 収集処理開始
+2025-10-05 07:33:07,400 - INFO - [成果物収集] 期待ファイル: ['weapon_ammo_map.json', 'unique_ammo_for_mapping.ini']
+2025-10-05 07:33:07,403 - INFO - [成果物収集] 探索候補:
+2025-10-05 07:33:07,404 - INFO -   - E:\fo4mod\xedit\Edit Scripts\Output
+2025-10-05 07:33:07,404 - INFO -   - E:\Munition_AutoPatcher_v1.1\Output
+2025-10-05 07:33:07,404 - INFO - [成果物収集] 最新ファイル選択: E:\fo4mod\xedit\Edit Scripts\Output\weapon_ammo_map.json
+2025-10-05 07:33:07,405 - INFO - [成果物収集] 取得: E:\fo4mod\xedit\Edit Scripts\Output\weapon_ammo_map.json -> E:\Munition_AutoPatcher_v1.1\Output\weapon_ammo_map.json
+2025-10-05 07:33:07,406 - INFO - [成果物収集] 確定: weapon_ammo_map.json
+2025-10-05 07:33:07,406 - INFO - [成果物収集] 最新ファイル選択: E:\fo4mod\xedit\Edit Scripts\Output\unique_ammo_for_mapping.ini
+2025-10-05 07:33:07,407 - INFO - [成果物収集] 取得: E:\fo4mod\xedit\Edit Scripts\Output\unique_ammo_for_mapping.ini -> E:\Munition_AutoPatcher_v1.1\Output\unique_ammo_for_mapping.ini
+2025-10-05 07:33:07,408 - INFO - [成果物収集] 確定: unique_ammo_for_mapping.ini
+2025-10-05 07:33:07,408 - INFO - [成果物収集] 結果サマリー: 成功=2, 失敗=0
+2025-10-05 07:33:07,408 - INFO - [成果物収集]   成功: ['weapon_ammo_map.json', 'unique_ammo_for_mapping.ini']
+2025-10-05 07:33:07,408 - INFO - [成果物収集] 全ファイルを output_dir へ集約完了
+2025-10-05 07:33:07,408 - INFO - [xEdit] 成果物収集完了
+2025-10-05 07:33:07,408 - INFO - [xEdit] 成功: 01_ExtractWeaponAmmoMapping.pas
+2025-10-05 07:33:07,412 - INFO - [xEdit] 設定上の game_data_path=E:\SteamLibrary\steamapps\common\Fallout 4\Data
+2025-10-05 07:33:07,422 - INFO - [xEdit] 高速化: QuickShowConflicts 無効化 (-QS:0)
+2025-10-05 07:33:07,422 - INFO - [xEdit] MO2: -D は付与しません (force_data_param=False)
+2025-10-05 07:33:07,422 - INFO - [xEdit] 実行コマンド(list表示): ['E:\\MO2\\ModOrganizer.exe', '-p', 'new1', 'E:\\fo4mod\\xedit\\FO4Edit.exe', '-IKnowWhatImDoing', '-AllowMasterFilesEdit', '-script:TEMP_1759617187_6754ea11b00046beb4ec0c2f3e2d8f3f.pas', '-L:"E:\\Munition_AutoPatcher_v1.1\\Output\\xEdit_session_1759617187.log"']
+2025-10-05 07:33:07,429 - INFO - [xEdit] MO2 起動 PID=16940 / xEdit プロセス検出待機
+2025-10-05 07:33:14,460 - INFO - [xEdit] xEdit 検出 PID=24664 / 完了待ち (timeout=600s)
