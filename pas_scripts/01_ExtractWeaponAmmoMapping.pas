@@ -5,7 +5,7 @@ uses
   'lib/mteElements',
   'lib/mteFiles',
   'lib/mteRecords',
-  'lib/mteAutoPatcher',  // ★★★ 追加 ★★★
+  'lib/AutoPatcherLib',
   StrUtils;
 
 var

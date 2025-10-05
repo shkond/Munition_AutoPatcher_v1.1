@@ -6,7 +6,7 @@ uses
   SysUtils,
   StrUtils,
   Windows,
-  'lib/mteAutoPatcher';  // ★★★ 追加 ★★★
+  'lib/AutoPatcherLib';
 
 var
   jsonOutput: TStringList;

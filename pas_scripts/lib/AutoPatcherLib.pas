@@ -1,5 +1,5 @@
 {
-  mteAutoPatcher
+  AutoPatcherLib
   
   AutoPatcher専用の共通関数ライブラリ
   重複コードの削減とメンテナンス性向上を目的とする
@@ -11,7 +11,7 @@
   - ログ出力統一
 }
 
-unit mteAutoPatcher;
+unit AutoPatcherLib;
 
 uses
   xEditAPI, Classes, SysUtils, StrUtils, Windows;
@@ -110,10 +110,8 @@ end;
     
   Example usage:
   AddJSONArrayItem(json, '  { "id": 1, "name": "test" }', False);
-  AddJSONArrayItem(json, '  { "id": 2, "name": "test2" }', True); 
+  AddJSONArrayItem(json, '  { "id": 2, "name": "test2" }', True);
 *)
-
-
 
 procedure AddJSONArrayItem(var sl: TStringList; const item: string; isLast: Boolean);
 begin
@@ -165,6 +163,102 @@ begin
   except
     on E: Exception do
       AddMessage(Format('%s Failed to save JSON: %s - %s', [AP_ERROR_PREFIX, filename, E.Message]));
+  end;
+end;
+
+(*
+  CleanupDoubleQuotes:
+  JSON文字列内の二重エスケープされた引用符を修正します。
+  ""aaa"" → "aaa"
+  
+  Parameters:
+    s: 処理対象の文字列
+    
+  Returns:
+    string: クリーンアップされた文字列
+    
+  Example usage:
+  cleaned := CleanupDoubleQuotes('{ "name": ""John""Doe"" }');
+  // Result: '{ "name": "John"Doe" }'
+*)
+function CleanupDoubleQuotes(const s: string): string;
+begin
+  // 二重引用符のペアを単一引用符に置換
+  Result := StringReplace(s, '""', '"', [rfReplaceAll]);
+end;
+
+{
+  FixJSONFile:
+  既存のJSONファイルを読み込み、二重エスケープされた引用符を修正して上書き保存します。
+  
+  Parameters:
+    filename: 修正対象のJSONファイルパス
+    
+  Returns:
+    Boolean: 成功した場合 True
+    
+  Example usage:
+  if FixJSONFile(outputDir + 'weapon_ammo_map.json') then
+    LogSuccess('JSON file cleaned up');
+}
+
+function FixJSONFile(const filename: string): Boolean;
+var
+  jsonContent: TStringList;
+  i: Integer;
+  originalLine, cleanedLine: string;
+  changesCount: Integer;
+begin
+  Result := False;
+  changesCount := 0;
+  
+  if not FileExists(filename) then begin
+    LogError(Format('File not found: %s', [filename]));
+    Exit;
+  end;
+  
+  jsonContent := TStringList.Create;
+  try
+    // ファイルを読み込む
+    try
+      jsonContent.LoadFromFile(filename);
+    except
+      on E: Exception do begin
+        LogError(Format('Failed to load JSON file: %s - %s', [filename, E.Message]));
+        Exit;
+      end;
+    end;
+    
+    // 各行をクリーンアップ
+    for i := 0 to jsonContent.Count - 1 do begin
+      originalLine := jsonContent[i];
+      cleanedLine := CleanupDoubleQuotes(originalLine);
+      
+      if originalLine <> cleanedLine then begin
+        jsonContent[i] := cleanedLine;
+        Inc(changesCount);
+      end;
+    end;
+    
+    // 変更があった場合のみ保存
+    if changesCount > 0 then begin
+      try
+        jsonContent.SaveToFile(filename);
+        LogInfo(Format('JSON cleaned: %d lines fixed in %s', [changesCount, ExtractFileName(filename)]));
+        Result := True;
+      except
+        on E: Exception do begin
+          LogError(Format('Failed to save cleaned JSON: %s - %s', [filename, E.Message]));
+          Exit;
+        end;
+      end;
+    end else begin
+      LogInfo(Format('JSON already clean: %s', [ExtractFileName(filename)]));
+      Result := True;
+    end;
+    
+  finally
+    jsonContent.Free;
   end;
 end;
 
@@ -393,6 +487,32 @@ end;
 function GetFullFormID(rec: IInterface): string;
 begin
   Result := FormIDToHex(GetLoadOrderFormID(rec));
+end;
+
+{
+  SaveAndCleanJSONToFile:
+  TStringList を JSON ファイルとして保存し、二重エスケープを自動修正します。
+  
+  Parameters:
+    sl: 保存する TStringList
+    filename: ファイル名（フルパスまたは相対パス）
+    recordCount: レコード数（ログ出力用、省略可）
+    autoCleanup: 自動クリーンアップを有効にする（デフォルト: True）
+    
+  Returns:
+    Boolean: 成功した場合 True
+    
+  Example usage:
+  success := SaveAndCleanJSONToFile(json, 'output.json', 100);
+}
+function SaveAndCleanJSONToFile(var sl: TStringList; const filename: string; 
+                                recordCount: Integer; autoCleanup: Boolean): Boolean;
+begin
+  Result := SaveJSONToFile(sl, filename, recordCount);
+  
+  if Result and autoCleanup then begin
+    Result := FixJSONFile(filename);
+  end;
 end;
 
 end.
