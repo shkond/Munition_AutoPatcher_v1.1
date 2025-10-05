@@ -8,6 +8,8 @@ uses
   Windows,
   'lib/AutoPatcherLib';
 
+function SaveAndCleanJSONToFile(json: TStringList; filePath: string; itemCount: integer; removeDuplicates: boolean): boolean; external;
+
 var
   jsonOutput: TStringList;
   processedLists: TStringList;
@@ -101,13 +103,13 @@ begin
     
   // ★★★ 修正: SaveAndCleanJSONToFile を使用して自動クリーンアップ ★★★
   // 第4引数(True)はJSON出力から重複エントリを削除するかどうかを制御します
-  SaveSuccess := SaveAndCleanJSONToFile(jsonOutput, jsonFilePath, processedLists.Count, True);
-    
-    if saveSuccess then begin
+    if SaveSuccess then begin
       LogSuccess(Format('leveled_lists.json を保存しました (%d リスト)', [processedLists.Count]));
       LogComplete('Leveled list export');
     end else begin
       LogError('leveled_lists.json の保存に失敗しました');
+      Result := 1;
+    end;
       Result := 1;
     end;
   finally

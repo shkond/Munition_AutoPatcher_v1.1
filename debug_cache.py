@@ -5,6 +5,8 @@ xEdit キャッシュ機能の診断・テストスクリプト
 
 import sys
 import time
+import subprocess
+import psutil
 from pathlib import Path
 from config_manager import ConfigManager
 from Orchestrator import Orchestrator
@@ -22,11 +24,233 @@ def print_section(title):
     print(f"  {title}")
     print("=" * 60)
 
+# ★★★ 追加: MO2起動確認関数 ★★★
+def is_mo2_running(mo2_executable_path: str) -> bool:
+    """
+    MO2が起動しているか確認します
+    
+    Args:
+        mo2_executable_path: MO2実行ファイルのパス
+    
+    Returns:
+        bool: MO2が起動している場合 True
+    """
+    mo2_name = Path(mo2_executable_path).name.lower()
+    
+    for proc in psutil.process_iter(['name']):
+        try:
+            if proc.info['name'].lower() == mo2_name:
+                return True
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            pass
+    
+    return False
+
+# ★★★ 追加: MO2起動関数 ★★★
+def launch_mo2_if_needed(orchestrator) -> bool:
+    """
+    MO2を使用する設定で、かつMO2が起動していない場合、起動を試みます
+    
+    Args:
+        orchestrator: Orchestratorインスタンス
+    
+    Returns:
+        bool: MO2が起動済み、または起動成功した場合 True
+    """
+    try:
+        env = orchestrator.config.get_env_settings()
+        use_mo2 = env.get('use_mo2', False)
+        
+        if not use_mo2:
+            print("  MO2使用設定: 無効 → MO2起動不要")
+            return True
+        
+        mo2_executable = env.get('mo2_executable_path')
+        profile_name = env.get('xedit_profile_name')
+        
+        if not mo2_executable:
+            print("  ⚠ MO2実行ファイルパスが設定されていません")
+            return False
+        
+        if not profile_name:
+            print("  ⚠ xEdit プロファイル名が設定されていません")
+            return False
+        
+        # ★★★ 修正: FO4Edit/xEditが既に起動しているか確認 ★★★
+        xedit_executable = orchestrator.config.get_path('Paths', 'xedit_executable')
+        xedit_name = xedit_executable.name.lower()
+        
+        xedit_running = False
+        for proc in psutil.process_iter(['name']):
+            try:
+                if proc.info['name'].lower() == xedit_name:
+                    xedit_running = True
+                    break
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                pass
+        
+        if xedit_running:
+            print(f"  ✓ {xedit_executable.name} は既に起動しています")
+            return True
+        
+        # 起動を試みる
+        print(f"  {xedit_executable.name} が起動していません")
+        response = input("  MO2経由でFO4Editを起動しますか? (yes/no): ")
+        
+        if response.lower() != 'yes':
+            print("  ⚠ 起動せずに続行します（キャッシュ検出できない可能性があります）")
+            return False
+        
+        # ★★★ 修正: moshortcut:// プロトコルを使用してFO4Editを起動 ★★★
+        # MO2の「実行ファイルリスト」で設定された名前を取得
+        # デフォルトは "FO4Edit" だが、設定で変更可能にする
+        executable_name_in_mo2 = "FO4Edit"  # または xEdit
+        
+        # xEdit.exe の場合は "xEdit" を使用
+        if xedit_name == "xedit.exe":
+            executable_name_in_mo2 = "xEdit"
+        
+        command = [
+            mo2_executable,
+            "-p",
+            profile_name,
+            f"moshortcut://:{executable_name_in_mo2}"
+        ]
+        
+        print(f"  [起動中] MO2経由で {executable_name_in_mo2} を起動")
+        print(f"  コマンド: {' '.join(command)}")
+        
+        try:
+            # ★★★ 重要: subprocess.Popen でバックグラウンド起動 ★★★
+            # subprocess.run だと FO4Edit の終了を待ってしまうため、Popen を使用
+            subprocess.Popen(command)
+            
+            # FO4Edit/xEdit プロセスの起動を待機（最大60秒）
+            print(f"  {xedit_executable.name} プロセスの起動を待機中...", end="", flush=True)
+            wait_start = time.time()
+            while time.time() - wait_start < 60:
+                for proc in psutil.process_iter(['name']):
+                    try:
+                        if proc.info['name'].lower() == xedit_name:
+                            print(" ✓ 起動完了")
+                            # キャッシュ生成の待機時間（プラグイン読み込み）
+                            print("  プラグイン読み込み完了を待機中（10秒）...", end="", flush=True)
+                            time.sleep(10)
+                            print(" ✓")
+                            return True
+                    except (psutil.NoSuchProcess, psutil.AccessDenied):
+                        pass
+                time.sleep(1)
+                print(".", end="", flush=True)
+            
+            print(" ✗ タイムアウト")
+            print(f"  ⚠ {xedit_executable.name} の起動に失敗しました")
+            print(f"\n  [トラブルシューティング]")
+            print(f"    1. MO2の「実行ファイルリスト」で '{executable_name_in_mo2}' が登録されているか確認")
+            print(f"    2. 登録名が異なる場合、debug_cache.py の executable_name_in_mo2 を修正")
+            print(f"    3. 手動でMO2から {xedit_executable.name} を起動してキャッシュを生成してください")
+            return False
+            
+        except FileNotFoundError:
+            print(f"\n  ✗ エラー: ModOrganizer.exe が見つかりません: {mo2_executable}")
+            return False
+        except Exception as e:
+            print(f"\n  ✗ 起動コマンド実行エラー: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
+        
+    except Exception as e:
+        print(f"  ✗ MO2起動確認中にエラー: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+
 def test_get_cache_path(orchestrator):
     """_get_cache_path() のテスト"""
     print_section("1. キャッシュパスの取得テスト")
     
     try:
+        print("[候補パスの確認]")
+        
+        # MO2設定の確認
+        try:
+            env = orchestrator.config.get_env_settings()
+            use_mo2 = env.get('use_mo2', False)
+            print(f"  MO2使用: {use_mo2}")
+            
+            if use_mo2:
+                # ★★★ 追加: プロファイル名を表示 ★★★
+                profile_name = env.get('xedit_profile_name')
+                print(f"  プロファイル名: {profile_name}")
+                
+                # ★★★ 追加: プロファイル内キャッシュ ★★★
+                mo2_executable = env.get('mo2_executable_path')
+                if mo2_executable and profile_name:
+                    mo2_dir = Path(mo2_executable).parent
+                    
+                    # インスタンス版
+                    profile_cache_instance = mo2_dir / 'profiles' / profile_name / 'FO4Edit Cache'
+                    exists = profile_cache_instance.exists()
+                    status = "✓" if exists else "✗"
+                    print(f"  {status} MO2プロファイル(インスタンス版): {profile_cache_instance}")
+                    if exists:
+                        cache_count = len(list(profile_cache_instance.glob('*.cache')))
+                        print(f"      キャッシュファイル数: {cache_count}")
+                    
+                    # ポータブル版
+                    mo2_ow_dir = env.get('mo2_overwrite_dir')
+                    if mo2_ow_dir:
+                        mo2_base = Path(mo2_ow_dir).parent
+                        profile_cache_portable = mo2_base / 'profiles' / profile_name / 'FO4Edit Cache'
+                        exists = profile_cache_portable.exists()
+                        status = "✓" if exists else "✗"
+                        print(f"  {status} MO2プロファイル(ポータブル版): {profile_cache_portable}")
+                        if exists:
+                            cache_count = len(list(profile_cache_portable.glob('*.cache')))
+                            print(f"      キャッシュファイル数: {cache_count}")
+                
+                # overwrite_path
+                try:
+                    overwrite_path = orchestrator.config.get_path('Paths', 'overwrite_path')
+                    mo2_cache = overwrite_path / 'FO4Edit Cache'
+                    exists = mo2_cache.exists()
+                    status = "✓" if exists else "✗"
+                    print(f"  {status} MO2 overwrite: {mo2_cache}")
+                    if exists:
+                        cache_count = len(list(mo2_cache.glob('*.cache')))
+                        print(f"      キャッシュファイル数: {cache_count}")
+                except Exception as e:
+                    print(f"  ✗ overwrite_path 取得失敗: {e}")
+                
+                # mo2_overwrite_dir
+                mo2_ow_dir = env.get('mo2_overwrite_dir')
+                if mo2_ow_dir:
+                    mo2_alt_cache = Path(mo2_ow_dir) / 'FO4Edit Cache'
+                    exists = mo2_alt_cache.exists()
+                    status = "✓" if exists else "✗"
+                    print(f"  {status} MO2 環境設定: {mo2_alt_cache}")
+                    if exists:
+                        cache_count = len(list(mo2_alt_cache.glob('*.cache')))
+                        print(f"      キャッシュファイル数: {cache_count}")
+        except Exception as e:
+            print(f"  [エラー] 環境設定取得失敗: {e}")
+        
+        # xEditフォルダ
+        try:
+            xedit_executable = orchestrator.config.get_path('Paths', 'xedit_executable')
+            xedit_cache = xedit_executable.parent / 'FO4Edit Cache'
+            exists = xedit_cache.exists()
+            status = "✓" if exists else "✗"
+            print(f"  {status} xEditフォルダ: {xedit_cache}")
+            if exists:
+                cache_count = len(list(xedit_cache.glob('*.cache')))
+                print(f"      キャッシュファイル数: {cache_count}")
+        except Exception as e:
+            print(f"  ✗ xEdit実行ファイルパス取得失敗: {e}")
+        
+        # 実際の取得結果
+        print("\n[実際の取得結果]")
         cache_path = orchestrator._get_cache_path()
         
         if cache_path:
@@ -34,7 +258,6 @@ def test_get_cache_path(orchestrator):
             print(f"  存在: {cache_path.exists()}")
             
             if cache_path.exists():
-                # ディレクトリ内容を表示
                 cache_files = list(cache_path.glob('*.cache'))
                 print(f"  キャッシュファイル数: {len(cache_files)}")
                 
@@ -49,11 +272,16 @@ def test_get_cache_path(orchestrator):
                         print(f"       最終更新: {mtime} ({age_hours:.1f}時間前)")
                 else:
                     print("  ⚠ キャッシュファイルが見つかりません")
+                    print("\n  [ヒント]")
+                    print("    1. MO2経由で一度 FO4Edit を起動してください")
+                    print("    2. プラグインを読み込んでキャッシュを生成します")
+                    print("    3. 次回以降、自動的に高速化されます")
         else:
             print("✗ キャッシュディレクトリが見つかりません")
-            print("\n[原因の可能性]")
-            print("  1. xEdit 実行ファイルのパスが正しく設定されていない")
-            print("  2. FO4Edit Cache フォルダが存在しない (初回実行)")
+            print("\n[推奨アクション]")
+            print("  1. config.ini の xedit_profile_name を確認")
+            print("     現在: {}".format(orchestrator.config.get_string('Environment', 'xedit_profile_name')))
+            print("  2. MO2で実際に使用しているプロファイル名と一致させてください")
         
         return cache_path
         
@@ -289,6 +517,18 @@ def main():
         config = ConfigManager('config.ini')
         orchestrator = Orchestrator(config)
         print("✓ 設定読み込み完了")
+        
+        # ★★★ 追加: MO2起動確認 ★★★
+        print_section("MO2起動確認")
+        mo2_launched = launch_mo2_if_needed(orchestrator)
+        
+        if not mo2_launched:
+            print("\n⚠ 警告: MO2が起動していない状態で続行します")
+            print("  キャッシュファイルが検出できない可能性があります")
+            response = input("\n続行しますか? (yes/no): ")
+            if response.lower() != 'yes':
+                print("✓ 診断を中止しました")
+                return False
         
         # テスト1: キャッシュパスの取得
         cache_path = test_get_cache_path(orchestrator)
