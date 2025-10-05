@@ -1,26 +1,16 @@
 unit ExportWeaponLeveledLists;
 
-uses xEditAPI, Classes, SysUtils, StrUtils, Windows;
+uses
+  xEditAPI,
+  Classes,
+  SysUtils,
+  StrUtils,
+  Windows,
+  'lib/mteAutoPatcher';  // ★★★ 追加 ★★★
 
 var
   jsonOutput: TStringList;
   processedLists: TStringList;
-
-// ������ �C���ӏ�: �������w���p�[�֐��ɒu������ ������
-function EnsureTrailingSlash(const s: string): string;
-var
-  lastChar: string;
-begin
-  if s = '' then begin
-    Result := '';
-    Exit;
-  end;
-  lastChar := Copy(s, Length(s), 1);
-  if lastChar <> '\' then
-    Result := s + '\'
-  else
-    Result := s;
-end;
 
 function IsTargetFile(fileName: string): boolean;
 begin
@@ -58,7 +48,7 @@ var
   outputDir, jsonFilePath: string;
 begin
   jsonOutput.Add('{');
-  
+
   for i := 0 to FileCount - 1 do begin
     aFile := FileByIndex(i);
     fileName := GetFileName(aFile);
@@ -78,23 +68,24 @@ begin
       if factionType = 'Unknown' then Continue;
 
       processedLists.Add(EditorID);
-      formIDStr := IntToHex(FixedFormID(Rec), 8);
+      // ★★★ 修正: ライブラリ関数を使用 ★★★
+      formIDStr := GetFullFormID(Rec);
 
-      if jsonOutput.Count > 1 then jsonOutput.Strings[jsonOutput.Count - 1] := jsonOutput.Strings[jsonOutput.Count - 1] + ',';
+      if jsonOutput.Count > 1 then
+        jsonOutput.Strings[jsonOutput.Count - 1] := jsonOutput.Strings[jsonOutput.Count - 1] + ',';
+
       jsonOutput.Add(Format('  "%s": "%s"', [factionType, EditorID]));
     end;
   end;
 
   jsonOutput.Add('}');
   
-  outputDir := EnsureTrailingSlash(ProgramPath) + 'Edit Scripts\Output\';
-  ForceDirectories(outputDir);
+  // ★★★ 修正: ライブラリ関数を使用 ★★★
+  outputDir := GetOutputDirectory;
   jsonFilePath := outputDir + 'leveled_lists.json';
   
-  jsonOutput.SaveToFile(jsonFilePath);
-  AddMessage('[AutoPatcher] SUCCESS: Leveled list export finished: ' + IntToStr(processedLists.Count) + ' records -> ' + jsonFilePath);
-  
-  AddMessage('[AutoPatcher] Leveled list export complete.');
+  SaveJSONToFile(jsonOutput, jsonFilePath, processedLists.Count);
+  LogComplete('Leveled list export');  // ★★★ ライブラリ関数 ★★★
 
   jsonOutput.Free;
   processedLists.Free;

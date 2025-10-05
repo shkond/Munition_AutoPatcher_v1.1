@@ -84,6 +84,31 @@ class Application(tk.Frame):
         ttk.Button(settings_frame, text="参照...", command=lambda: self.browse_file(self.xedit_executable_var, "xEdit実行ファイル (xEdit.exe)", [("Executable files", "*.exe")])).grid(row=2, column=2, sticky="e", padx=5, pady=5)
         settings_frame.columnconfigure(1, weight=1)
 
+        # ★★★ 追加: キャッシュ設定フレーム ★★★
+        cache_frame = ttk.LabelFrame(self, text="xEdit キャッシュ設定")
+        cache_frame.pack(fill="x", expand=True, pady=5)
+
+        self.use_cache_var = tk.BooleanVar()
+        use_cache_check = ttk.Checkbutton(
+            cache_frame,
+            text="キャッシュを使用してプラグイン読み込みを高速化",
+            variable=self.use_cache_var
+        )
+        use_cache_check.grid(row=0, column=0, sticky="w", padx=5, pady=5)
+
+        ttk.Label(cache_frame, text="キャッシュ有効期限 (時間):").grid(row=1, column=0, sticky="w", padx=5, pady=2)
+        self.cache_age_var = tk.StringVar()
+        cache_age_entry = ttk.Entry(cache_frame, textvariable=self.cache_age_var, width=10)
+        cache_age_entry.grid(row=1, column=1, sticky="w", padx=5, pady=2)
+        ttk.Label(cache_frame, text="時間 (デフォルト: 168 = 7日)").grid(row=1, column=2, sticky="w", padx=5, pady=2)
+
+        clear_cache_button = ttk.Button(
+            cache_frame,
+            text="キャッシュをクリア",
+            command=self.clear_cache
+        )
+        clear_cache_button.grid(row=2, column=0, columnspan=3, sticky="w", padx=5, pady=5)
+
         run_frame = ttk.LabelFrame(self, text="実行")
         run_frame.pack(fill="x", expand=True, pady=5)
         run_frame.columnconfigure(0, weight=1)
@@ -171,11 +196,17 @@ class Application(tk.Frame):
             self.xedit_profile_var.set(self.config_manager.get_string('Environment', 'xedit_profile_name'))
             self.mo2_overwrite_dir_var.set(self.config_manager.get_string('Environment', 'mo2_overwrite_dir'))
             self.xedit_executable_var.set(str(self.config_manager.get_path('Paths', 'xedit_executable')))
+            
+            # ★★★ 追加: キャッシュ設定の読み込み ★★★
+            self.use_cache_var.set(self.config_manager.get_boolean('Parameters', 'use_xedit_cache', True))
+            cache_age = self.config_manager.get_string('Parameters', 'max_cache_age_hours', '168')
+            self.cache_age_var.set(cache_age)
+            
         except Exception as e:
             messagebox.showwarning("設定読み込みエラー", f"config.ini の一部設定が読み込めませんでした。\n{e}")
             logging.warning(f"設定の読み込み中にエラー: {e}")
         self.toggle_mo2_settings()
-
+    
     def save_settings(self):
         try:
             self.config_manager.save_setting('Environment', 'use_mo2', str(self.use_mo2_var.get()))
@@ -183,12 +214,36 @@ class Application(tk.Frame):
             self.config_manager.save_setting('Environment', 'xedit_profile_name', self.xedit_profile_var.get())
             self.config_manager.save_setting('Environment', 'mo2_overwrite_dir', self.mo2_overwrite_dir_var.get())
             self.config_manager.save_setting('Paths', 'xedit_executable', self.xedit_executable_var.get())
+            
+            # ★★★ 追加: キャッシュ設定の保存 ★★★
+            self.config_manager.save_setting('Parameters', 'use_xedit_cache', str(self.use_cache_var.get()))
+            self.config_manager.save_setting('Parameters', 'max_cache_age_hours', self.cache_age_var.get())
+            
             logging.info("設定が config.ini に正常に保存されました。")
             return True
         except Exception as e:
             messagebox.showerror("設定保存エラー", f"設定の保存中にエラーが発生しました。\n{e}")
             logging.error(f"設定の保存に失敗しました: {e}", exc_info=True)
             return False
+    
+    def clear_cache(self):
+        """キャッシュクリアボタンのハンドラ"""
+        response = messagebox.askyesno(
+            "確認",
+            "xEdit のキャッシュをクリアしますか？\n\n"
+            "次回の xEdit 起動時にプラグインを最初から読み込むため、\n"
+            "起動時間が長くなります。"
+        )
+        
+        if response:
+            try:
+                if self.orchestrator._clear_cache():
+                    messagebox.showinfo("完了", "キャッシュを正常にクリアしました。")
+                else:
+                    messagebox.showwarning("警告", "キャッシュのクリアに一部失敗しました。\n詳細はログを確認してください。")
+            except Exception as e:
+                messagebox.showerror("エラー", f"キャッシュのクリア中にエラーが発生しました:\n{e}")
+                logging.error(f"キャッシュクリア失敗: {e}", exc_info=True)
 
     def poll_log_queue(self):
         while True:

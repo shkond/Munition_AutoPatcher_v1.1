@@ -303,6 +303,9 @@ class Orchestrator:
 
         use_mo2 = env_settings.get('use_mo2', False)
         force_data_param = self.config.get_boolean('Parameters', 'force_data_param', False)
+        
+        # ★★★ 追加: キャッシュ使用判定 ★★★
+        use_cache = self._should_use_cache()
 
         timeout_seconds = self._get_numeric('Parameters', 'xedit_timeout_seconds', 600, int)
         log_verification_timeout = self._get_numeric('Parameters', 'log_verification_timeout_seconds', 10, int)
@@ -350,12 +353,19 @@ class Orchestrator:
                 f'-L:"{session_log_path}"'
             ])
             
+            # ★★★ 追加: キャッシュオプション ★★★
+            if use_cache:
+                command_list.append("-cache")
+                logging.info("[xEdit] キャッシュ使用: プラグイン読み込みを高速化")
+            else:
+                logging.info("[xEdit] キャッシュ不使用: 通常速度で読み込み")
+            
             logging.info("[xEdit] 高速化: QuickShowConflicts 無効化 (-QS:0)")
 
             # -D 引数の条件付き追加
             if use_mo2 and not force_data_param:
                 logging.info("[xEdit] MO2: -D は付与しません (force_data_param=False)")
-            else: # 直接起動の場合のみ -D を付与
+            else:
                 command_list.append(f'-D:"{game_data_path}"')
                 if use_mo2:
                     logging.info("[xEdit] MO2: -D を明示的に付与 (force_data_param=True)")
@@ -413,7 +423,6 @@ class Orchestrator:
                     timeout=timeout_seconds
                 )
                 exit_code = proc.returncode
-                # stdout をログへ
                 logging.info("[xEdit] ---- STDOUT 開始 ----")
                 if proc.stdout:
                     for line in proc.stdout.strip().splitlines():
@@ -438,8 +447,7 @@ class Orchestrator:
                         pass
                 time.sleep(poll_interval)
 
-            # 成功判定ポリシー
-            # 現在: exit_code == 0 かつ success_message 検出
+            # ★★★ 修正: 成功判定ポリシー ★★★
             if exit_code != 0:
                 logging.error(f"[xEdit] 失敗: exit code={exit_code}")
                 return False
@@ -451,6 +459,11 @@ class Orchestrator:
             if expected_outputs:
                 # 候補ディレクトリを確認して成果物の存在を検証
                 candidates = self._candidate_output_dirs()
+                
+                logging.info(f"[xEdit] 成果物検証: {len(candidates)} 箇所を探索")
+                for idx, d in enumerate(candidates, 1):
+                    logging.debug(f"[xEdit]   {idx}. {d}")
+                
                 found_count = 0
                 missing_files = []
                 
@@ -469,28 +482,42 @@ class Orchestrator:
                 # ★★★ 重要: ファイルが見つかった場合、_move_results_from_overwrite を呼び出す ★★★
                 if found_count > 0:
                     logging.info(f"[xEdit] 成果物 {found_count}/{len(expected_outputs)} 件検出 → 収集処理開始")
+                    
+                    # 全ファイルが見つからなくても、見つかったものだけ移動を試みる
+                    if missing_files:
+                        logging.warning(f"[xEdit] 一部成果物未検出: {missing_files}")
+                    
+                    # ★★★ ここで _move_results_from_overwrite を呼び出す ★★★
                     if not self._move_results_from_overwrite(expected_outputs):
                         logging.error("[xEdit] 成果物の収集に失敗")
                         return False
+                    
                     logging.info(f"[xEdit] 成果物収集完了")
                 else:
+                    # 1つも見つからない場合は失敗
                     logging.error(f"[xEdit] 期待成果物が1つも見つかりません: {expected_outputs}")
-                    logging.error(f"[xEdit] 探索した場所: {[str(d) for d in candidates]}")
+                    logging.error(f"[xEdit] 探索した場所:")
+                    for d in candidates:
+                        logging.error(f"  - {d}")
                     return False
 
+            # ★★★ 修正: ここで最終的な成功を返す ★★★
             logging.info(f"[xEdit] 成功: {source_script_path.name}")
             return True
 
         except subprocess.TimeoutExpired:
             logging.error(f"[xEdit] タイムアウト ({timeout_seconds}s 超過)")
             if expected_outputs:
-                # タイムアウト時も成果物の存在を確認
                 candidates = self._candidate_output_dirs()
                 for filename in expected_outputs:
                     for candidate_dir in candidates:
                         file_path = candidate_dir / filename
                         if file_path.is_file():
                             logging.warning(f"[xEdit] タイムアウト後に成果物を検出: {file_path}")
+                            try:
+                                self._move_results_from_overwrite([filename])
+                            except Exception as e:
+                                logging.error(f"[xEdit] 緊急収集失敗: {e}")
             return False
         except Exception as e:
             logging.critical(f"[xEdit] 例外発生: {e}", exc_info=True)
@@ -504,7 +531,6 @@ class Orchestrator:
             except Exception as e:
                 logging.warning(f"[xEdit] 一時スクリプト削除失敗: {e}")
 
-            # libディレクトリの復元
             if lib_backup_dir and lib_backup_dir.exists():
                 try:
                     if dest_lib_dir.exists():
@@ -774,3 +800,99 @@ class Orchestrator:
 
         logging.info("[Main] 全工程正常完了")
         return True
+
+    def _get_cache_path(self) -> Optional[Path]:
+        """
+        FO4Edit のキャッシュディレクトリパスを取得します。
+        
+        Returns:
+            Path: キャッシュディレクトリのパス、または None
+        """
+        try:
+            xedit_executable = self.config.get_path('Paths', 'xedit_executable')
+            xedit_dir = xedit_executable.parent
+            
+            # FO4Edit のキャッシュは通常 FO4Edit Cache フォルダに保存される
+            cache_dir = xedit_dir / 'FO4Edit Cache'
+            
+            return cache_dir if cache_dir.exists() else None
+            
+        except Exception as e:
+            logging.debug(f"[xEdit] キャッシュディレクトリの取得失敗: {e}")
+            return None
+    
+    def _should_use_cache(self) -> bool:
+        """
+        キャッシュを使用すべきかどうかを判定します。
+        
+        Returns:
+            bool: キャッシュを使用する場合 True
+        """
+        # config.ini で明示的に無効化されている場合
+        use_cache = self.config.get_boolean('Parameters', 'use_xedit_cache', True)
+        if not use_cache:
+            logging.info("[xEdit] キャッシュ使用が設定で無効化されています")
+            return False
+        
+        # キャッシュディレクトリが存在するか確認
+        cache_dir = self._get_cache_path()
+        if not cache_dir:
+            logging.debug("[xEdit] キャッシュディレクトリが存在しません")
+            return False
+        
+        # キャッシュファイルが存在するか確認
+        try:
+            cache_files = list(cache_dir.glob('*.cache'))
+            if not cache_files:
+                logging.info("[xEdit] キャッシュファイルが見つかりません (初回実行)")
+                return False
+            
+            # 最も新しいキャッシュファイルの更新日時を確認
+            newest_cache = max(cache_files, key=lambda p: p.stat().st_mtime)
+            cache_age_hours = (time.time() - newest_cache.stat().st_mtime) / 3600
+            
+            # キャッシュが古すぎる場合は使用しない（デフォルト: 168時間 = 7日）
+            max_cache_age = self._get_numeric('Parameters', 'max_cache_age_hours', 168, int)
+            if cache_age_hours > max_cache_age:
+                logging.warning(f"[xEdit] キャッシュが古すぎます ({cache_age_hours:.1f}時間前)")
+                return False
+            
+            logging.info(f"[xEdit] 有効なキャッシュを検出 ({len(cache_files)}ファイル, {cache_age_hours:.1f}時間前)")
+            return True
+            
+        except Exception as e:
+            logging.warning(f"[xEdit] キャッシュ検証中にエラー: {e}")
+            return False
+    
+    def _clear_cache(self) -> bool:
+        """
+        FO4Edit のキャッシュをクリアします。
+        
+        Returns:
+            bool: 成功した場合 True
+        """
+        try:
+            cache_dir = self._get_cache_path()
+            if not cache_dir or not cache_dir.exists():
+                logging.debug("[xEdit] クリアするキャッシュがありません")
+                return True
+            
+            cache_files = list(cache_dir.glob('*.cache'))
+            if not cache_files:
+                logging.debug("[xEdit] キャッシュファイルが存在しません")
+                return True
+            
+            deleted_count = 0
+            for cache_file in cache_files:
+                try:
+                    cache_file.unlink()
+                    deleted_count += 1
+                except Exception as e:
+                    logging.warning(f"[xEdit] キャッシュ削除失敗: {cache_file.name}: {e}")
+            
+            logging.info(f"[xEdit] キャッシュをクリアしました ({deleted_count}ファイル)")
+            return True
+            
+        except Exception as e:
+            logging.error(f"[xEdit] キャッシュクリア中にエラー: {e}")
+            return False
