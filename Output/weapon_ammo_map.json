@@ -80,7 +80,7 @@
     { "editor_id": "WPN_BH98K", "full_name": "Mauser Kar98k", "ammo_form_id": "01001945" },
     { "editor_id": "WPN_BH98KT", "full_name": "Mauser Tankgewehr M1918", "ammo_form_id": "01001943" },
     { "editor_id": "WPNMK18", "full_name": "MK18", "ammo_form_id": "0001F278" },
-    { "editor_id": "WPNMK18UNIQUE", "full_name": ""PUNISHER"", "ammo_form_id": "0001F278" },
+    { "editor_id": "WPNMK18UNIQUE", "full_name": "PUNISHER", "ammo_form_id": "0001F278" },
     { "editor_id": "WPN_G19Gen4", "full_name": "Glock 19 Gen 4", "ammo_form_id": "0004CE87" },
     { "editor_id": "WPN_Groza", "full_name": "OTs-14 Groza", "ammo_form_id": "0001F278" },
     { "editor_id": "AER15", "full_name": "AER15", "ammo_form_id": "000C1897" },

@@ -76,31 +76,5 @@ begin
   iniLines.Free;
 end;
 
-{
-  SaveAndCleanJSONToFile:
-  TStringList を JSON ファイルとして保存し、二重エスケープを自動修正します。
-  
-  Parameters:
-    sl: 保存する TStringList
-    filename: ファイル名（フルパスまたは相対パス）
-    recordCount: レコード数（ログ出力用、省略可）
-    autoCleanup: 自動クリーンアップを有効にする（デフォルト: True）
-    
-  Returns:
-    Boolean: 成功した場合 True
-    
-  Example usage:
-  success := SaveAndCleanJSONToFile(json, 'output.json', 100);
-}
-function SaveAndCleanJSONToFile(var sl: TStringList; const filename: string; 
-                                recordCount: Integer; autoCleanup: Boolean): Boolean;
-begin
-  Result := SaveJSONToFile(sl, filename, recordCount);
-  
-  if Result and autoCleanup then begin
-    Result := FixJSONFile(filename);
-  end;
-end;
-
 end.
 

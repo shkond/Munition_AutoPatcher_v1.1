@@ -1,28 +1,12 @@
 ﻿unit UserScript;
 
-uses 'lib/mteBase', 'lib/mteElements', 'lib/mteFiles', 'lib/mteRecords', 'SysUtils', 'Classes', 'System.JSON';
+uses 'lib/mteBase', 'lib/mteElements', 'lib/mteFiles', 'lib/mteRecords', 'lib/AutoPatcherLib', 'SysUtils', 'Classes', 'System.JSON';
 
 var
   outputDir: string;
   jsonRoot: TJSONObject;          // JSONファイル全体のルート
   classificationRules: TJSONArray; // JSONから読み込んだ分類ルールを保持
   strategyJson: TJSONObject;      // 既存のstrategy.jsonを保持
-
-// ★★★ 修正箇所: 正しいヘルパー関数に置き換え ★★★
-function EnsureTrailingSlash(const s: string): string;
-var
-  lastChar: string;
-begin
-  if s = '' then begin
-    Result := '';
-    Exit;
-  end;
-  lastChar := Copy(s, Length(s), 1);
-  if lastChar <> '\' then
-    Result := s + '\'
-  else
-    Result := s;
-end;
 
 //============================================================================
 function Initialize: integer;
@@ -174,8 +158,9 @@ begin
   if not DirectoryExists(outputDir) then
     ForceDirectories(outputDir);
   outputFilePath := outputDir + 'strategy.json';
-  TFile.WriteAllText(outputFilePath, strategyJson.ToJSON(true)); // trueはpretty-print
-  AddMessage('[AutoPatcher] SUCCESS: "' + outputFilePath + '" が正常に生成されました。');
+  
+  // ★ AutoPatcherLibのSaveAndCleanJSONToFile関数で保存し、自動クリーンアップ
+  SaveAndCleanJSONToFile(strategyJson, outputFilePath, ammoClassificationNode.Count, True);
   
   AddMessage('[AutoPatcher] Strategy JSON generation complete.');
 

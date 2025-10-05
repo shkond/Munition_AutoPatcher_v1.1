@@ -48,7 +48,7 @@ def main():
                     expected_files = [
                         'weapon_ammo_map.json',
                         'unique_ammo_for_mapping.ini',
-                        'exported_leveled_lists.json',
+                        'leveled_lists.json',
                         'munitions_ammo_ids.ini'
                     ]
                     

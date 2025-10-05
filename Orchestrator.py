@@ -725,11 +725,11 @@ class Orchestrator:
         if not self.run_xedit_script(
             'leveled_list_exporter',
             '[AutoPatcher] Leveled list export complete.',
-            expected_outputs=['exported_leveled_lists.json']
+            expected_outputs=['leveled_lists.json']
         ):
             logging.critical("[Main] レベルドリスト抽出失敗")
             return False
-        if not self._move_results_from_overwrite(['exported_leveled_lists.json']):
+        if not self._move_results_from_overwrite(['leveled_lists.json']):
             return False
 
         if not self.run_xedit_script(

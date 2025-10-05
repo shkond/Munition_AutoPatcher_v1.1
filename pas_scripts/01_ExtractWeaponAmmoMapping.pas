@@ -20,7 +20,6 @@ begin
   uniqueAmmoOutput := TStringList.Create;
   processedWeapons := TStringList.Create;
   
-  // ★★★ 修正: ライブラリ関数を使用 ★★★
   masterFilesToExclude := CreateMasterExclusionList;
   
   ScriptProcessElements := [etFile];
@@ -38,7 +37,6 @@ var
 begin
   pluginName := GetFileName(e);
 
-  // ★★★ 修正: ライブラリ関数を使用 ★★★
   if IsMasterFileExcluded(pluginName, masterFilesToExclude) then Exit;
   if IsCreationClubContent(pluginName) then Exit;
 
@@ -59,7 +57,6 @@ begin
     ammoFormIDInt := GetElementNativeValues(winningRec, 'DNAM\AMMO');
     if ammoFormIDInt = 0 then Continue;
     
-    // ★★★ 修正: ライブラリ関数を使用 ★★★
     ammoFormIDHex := FormIDToHex(ammoFormIDInt);
     ammoLinkElement := ElementByPath(winningRec, 'DNAM\AMMO');
     ammoRec := nil;
@@ -89,24 +86,24 @@ var
   i: integer;
   jsonFile: TStringList;
 begin
-  // ★★★ 修正: ライブラリ関数を使用 ★★★
   outputDir := GetOutputDirectory;
 
   // --- JSONファイルの保存 ---
   jsonFilePath := outputDir + 'weapon_ammo_map.json';
   jsonFile := TStringList.Create;
   try
-    BeginJSONArray(jsonFile);  // ★★★ ライブラリ関数 ★★★
+    BeginJSONArray(jsonFile);
     
     if jsonOutput.Count > 0 then begin
       for i := 0 to jsonOutput.Count - 2 do
-        AddJSONArrayItem(jsonFile, jsonOutput[i], False);  // ★★★ ライブラリ関数 ★★★
-      AddJSONArrayItem(jsonFile, jsonOutput[jsonOutput.Count - 1], True);  // ★★★ ライブラリ関数 ★★★
+        AddJSONArrayItem(jsonFile, jsonOutput[i], False);
+      AddJSONArrayItem(jsonFile, jsonOutput[jsonOutput.Count - 1], True);
     end;
     
-    EndJSONArray(jsonFile);  // ★★★ ライブラリ関数 ★★★
+    EndJSONArray(jsonFile);
     
-    SaveJSONToFile(jsonFile, jsonFilePath, jsonOutput.Count);  // ★★★ ライブラリ関数 ★★★
+    // ★★★ 修正: SaveAndCleanJSONToFile を使用して自動クリーンアップ ★★★
+    SaveAndCleanJSONToFile(jsonFile, jsonFilePath, jsonOutput.Count, True);
   finally
     jsonFile.Free;
   end;
@@ -115,9 +112,9 @@ begin
   iniFilePath := outputDir + 'unique_ammo_for_mapping.ini';
   uniqueAmmoOutput.Insert(0, '[UnmappedAmmo]');
   uniqueAmmoOutput.Sort;
-  SaveINIToFile(uniqueAmmoOutput, iniFilePath, uniqueAmmoOutput.Count - 1);  // ★★★ ライブラリ関数 ★★★
+  SaveINIToFile(uniqueAmmoOutput, iniFilePath, uniqueAmmoOutput.Count - 1);
 
-  LogComplete('Weapon and ammo mapping extraction');  // ★★★ ライブラリ関数 ★★★
+  LogComplete('Weapon and ammo mapping extraction');
 
   jsonOutput.Free;
   uniqueAmmoOutput.Free;
