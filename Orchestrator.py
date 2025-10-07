@@ -270,25 +270,115 @@ class Orchestrator:
           2) success_message がログに含まれる
         現状は (1) かつ (2) を成功とする（将来ポリシー変更はここで集約）。
         """
+        # ========== 設定とパスの読み込み（関数の最初） ==========
+        # config_manager から必要な設定を取得
+        env_settings = self.config.get_env_settings()
+        use_mo2 = env_settings.get('use_mo2', False)
+        
+        # MO2 関連のパラメータ
+        mo2_executable_path = env_settings.get('mo2_executable_path', '') if use_mo2 else None
+        xedit_profile_name = env_settings.get('xedit_profile_name', 'Default') if use_mo2 else None
+        
+        # xEdit 関連のパラメータ
         xedit_executable_path = self.config.get_path('Paths', 'xedit_executable')
+        game_data_path = self.config.get_path('Paths', 'game_data_path')
         xedit_dir = xedit_executable_path.parent
         edit_scripts_dir = xedit_dir / "Edit Scripts"
-
+        
+        # スクリプト関連のパラメータ
+        pas_scripts_dir = self.config.get_path('Paths', 'pas_scripts_dir')
+        output_dir = self.config.get_path('Paths', 'output_dir')
+        
+        # オプションパラメータ
+        force_data_param = self.config.get_boolean('Parameters', 'force_data_param', False)
+        use_cache = self._should_use_cache()
+        timeout_seconds = self._get_numeric('Parameters', 'xedit_timeout_seconds', 600, int)
+        log_verification_timeout = self._get_numeric('Parameters', 'log_verification_timeout_seconds', 10, int)
+        poll_interval = self._get_numeric('Parameters', 'log_poll_interval_seconds', 0.5, float)
+        
+        # ========== xEdit 引数の構築（関数の最初） ==========
+        # xEdit に渡す引数を構築
+        xedit_args = []
+        
+        # ゲーム指定（xEdit.exe の場合のみ、直接起動時）
+        if not use_mo2 and xedit_executable_path.name.lower() == "xedit.exe":
+            xedit_args.append("-FO4")
+        
+        # 一時スクリプトファイル名（後で実際のファイルを作成）
+        temp_script_filename = f"TEMP_{int(time.time())}_{uuid.uuid4().hex}.pas"
+        
+        # セッションログパス
+        output_dir.mkdir(parents=True, exist_ok=True)
+        session_log_path = output_dir / f"xEdit_session_{int(time.time())}.log"
+        
+        # スクリプト指定
+        xedit_args.append(f"-script:{temp_script_filename}")
+        
+        # スクリプトディレクトリ指定（-S オプション）
+        xedit_args.append(f'-S:"{edit_scripts_dir}\\"')
+        
+        # 警告抑制とマスターファイル編集許可
+        xedit_args.extend([
+            "-IKnowWhatImDoing",
+            "-AllowMasterFilesEdit"
+        ])
+        
+        # ログファイル指定
+        xedit_args.append(f'-L:"{session_log_path}"')
+        
+        # キャッシュオプション
+        if use_cache:
+            xedit_args.append("-cache")
+            logging.info("[xEdit] キャッシュ使用: プラグイン読み込みを高速化")
+        else:
+            logging.info("[xEdit] キャッシュ不使用: 通常速度で読み込み")
+        
+        # Data パス指定（条件付き）
+        if use_mo2 and not force_data_param:
+            logging.info("[xEdit] MO2: -D は付与しません (force_data_param=False)")
+        else:
+            xedit_args.append(f'-D:"{game_data_path}"')
+            if use_mo2:
+                logging.info("[xEdit] MO2: -D を明示的に付与 (force_data_param=True)")
+            else:
+                logging.info("[xEdit] 直接起動: -D を付与")
+        
+        # ========== MO2 引数の構築（use_mo2 の場合） ==========
+        if use_mo2:
+            # MO2の「実行ファイルリスト」で設定された名前を取得
+            xedit_name = xedit_executable_path.name.lower()
+            
+            # デフォルトの登録名を推測
+            if xedit_name == "fo4edit.exe":
+                executable_name_in_mo2 = "FO4Edit"
+            elif xedit_name == "xedit.exe":
+                executable_name_in_mo2 = "xEdit"
+            else:
+                # カスタム実行ファイル名の場合、拡張子なしをデフォルトとする
+                executable_name_in_mo2 = xedit_executable_path.stem
+            
+            # MO2 起動コマンド
+            command_list = [
+                str(mo2_executable_path),
+                '-p',
+                str(xedit_profile_name),
+                f'moshortcut://:{executable_name_in_mo2}'
+            ]
+        else:
+            # 直接起動の場合
+            command_list = [str(xedit_executable_path)] + xedit_args
+        
+        # ========== 事前検証 ==========
         if not edit_scripts_dir.is_dir():
             logging.error(f"[xEdit] 'Edit Scripts' フォルダが見つかりません: {edit_scripts_dir}")
             return False
 
-        pas_scripts_dir = self.config.get_path('Paths', 'pas_scripts_dir')
         source_script_path = pas_scripts_dir / self.config.get_script_filename(script_key)
         if not source_script_path.is_file():
             logging.error(f"[xEdit] スクリプト未存在: {source_script_path}")
             return False
 
-        temp_script_filename = f"TEMP_{int(time.time())}_{uuid.uuid4().hex}.pas"
         temp_script_path = edit_scripts_dir / temp_script_filename
-
-        env_settings = self.config.get_env_settings()
-        game_data_path = self.config.get_path('Paths', 'game_data_path')
 
         # 事前検証
         logging.info(f"[xEdit] 設定上の game_data_path={game_data_path}")
@@ -300,20 +390,6 @@ class Orchestrator:
         dest_lib_dir = edit_scripts_dir / 'lib'
         lib_backup_dir = None
         dest_lib_preexisted = dest_lib_dir.exists()
-
-        use_mo2 = env_settings.get('use_mo2', False)
-        force_data_param = self.config.get_boolean('Parameters', 'force_data_param', False)
-        
-        # ★★★ 追加: キャッシュ使用判定 ★★★
-        use_cache = self._should_use_cache()
-
-        timeout_seconds = self._get_numeric('Parameters', 'xedit_timeout_seconds', 600, int)
-        log_verification_timeout = self._get_numeric('Parameters', 'log_verification_timeout_seconds', 10, int)
-        poll_interval = self._get_numeric('Parameters', 'log_poll_interval_seconds', 0.5, float)
-
-        output_dir = self.config.get_path('Paths', 'output_dir')
-        output_dir.mkdir(parents=True, exist_ok=True)
-        session_log_path = output_dir / f"xEdit_session_{int(time.time())}.log"
 
         mo2_process = None
         xedit_process_ps = None
@@ -330,64 +406,7 @@ class Orchestrator:
                     shutil.move(str(dest_lib_dir), str(lib_backup_dir))
                 shutil.copytree(source_lib_dir, dest_lib_dir, dirs_exist_ok=True)
 
-            # ★★★ 修正: コマンドライン構築を変更 ★★★
-            command_list = []
-            
-            if use_mo2:
-                # ★★★ 変更: moshortcut:// プロトコルを使用 ★★★
-                # MO2の「実行ファイルリスト」で設定された名前を取得
-                xedit_name = xedit_executable_path.name.lower()
-                
-                # デフォルトの登録名を推測
-                if xedit_name == "fo4edit.exe":
-                    executable_name_in_mo2 = "FO4Edit"
-                elif xedit_name == "xedit.exe":
-                    executable_name_in_mo2 = "xEdit"
-                else:
-                    # カスタム実行ファイル名の場合、拡張子なしをデフォルトとする
-                    executable_name_in_mo2 = xedit_executable_path.stem
-                
-                command_list = [
-                    str(env_settings["mo2_executable_path"]),
-                    '-p',
-                    str(env_settings["xedit_profile_name"]),
-                    f'moshortcut://:{executable_name_in_mo2}'
-                ]
-            else:
-                # 直接起動の場合
-                command_list.append(str(xedit_executable_path))
-
-            # ★★★ 変更: ゲーム指定フラグは xEdit.exe の場合のみ、MO2起動時は不要 ★★★
-            if not use_mo2 and xedit_executable_path.name.lower() == "xedit.exe":
-                command_list.append("-FO4")
-
-            # 共通引数を追加
-            command_list.extend([
-                "-IKnowWhatImDoing",
-                "-AllowMasterFilesEdit",
-                f"-script:{temp_script_filename}",
-                f'-L:"{session_log_path}"'
-            ])
-            
-            # キャッシュオプション
-            if use_cache:
-                command_list.append("-cache")
-                logging.info("[xEdit] キャッシュ使用: プラグイン読み込みを高速化")
-            else:
-                logging.info("[xEdit] キャッシュ不使用: 通常速度で読み込み")
-            
-            logging.info("[xEdit] 高速化: QuickShowConflicts 無効化 (-QS:0)")
-
-            # -D 引数の条件付き追加
-            if use_mo2 and not force_data_param:
-                logging.info("[xEdit] MO2: -D は付与しません (force_data_param=False)")
-            else:
-                command_list.append(f'-D:"{game_data_path}"')
-                if use_mo2:
-                    logging.info("[xEdit] MO2: -D を明示的に付与 (force_data_param=True)")
-                else:
-                    logging.info("[xEdit] 直接起動: -D を付与")
-
+            # ========== コマンド実行前のログ出力 ==========
             logging.info(f"[xEdit] 実行コマンド(list表示): {command_list}")
 
             # デバッグ用完全文字列
@@ -420,7 +439,7 @@ class Orchestrator:
                     logging.error("[xEdit] MO2経由でのxEdit起動検出タイムアウト")
                     logging.error(f"[xEdit] トラブルシューティング:")
                     logging.error(f"  1. MO2の「実行ファイルリスト」で '{executable_name_in_mo2}' が登録されているか確認")
-                    logging.error(f"  2. MO2が起動し、プロファイル '{env_settings['xedit_profile_name']}' がロードされるか確認")
+                    logging.error(f"  2. MO2が起動し、プロファイル '{xedit_profile_name}' がロードされるか確認")
                     return False
 
                 logging.info(f"[xEdit] xEdit 検出 PID={xedit_process_ps.pid} / 完了待ち (timeout={timeout_seconds}s)")
@@ -447,118 +466,119 @@ class Orchestrator:
                     for line in proc.stderr.strip().splitlines():
                         logging.debug(line)
         
-        # ログファイルポーリング（MO2/直接共通）
-        success_found = False
-        poll_start = time.time()
-        while time.time() - poll_start < log_verification_timeout:
-            if session_log_path.is_file():
-                try:
-                    content = session_log_path.read_text(encoding='utf-8', errors='replace')
-                    if success_message in content:
-                        success_found = True
-                        break
-                except Exception:
-                    pass
-            time.sleep(poll_interval)
+            # ログファイルポーリング（MO2/直接共通）
+            success_found = False
+            poll_start = time.time()
+            while time.time() - poll_start < log_verification_timeout:
+                if session_log_path.is_file():
+                    try:
+                        content = session_log_path.read_text(encoding='utf-8', errors='replace')
+                        if success_message in content:
+                            success_found = True
+                            break
+                    except Exception:
+                        pass
+                time.sleep(poll_interval)
 
-        # ★★★ 修正: 成功判定ポリシー ★★★
-        if exit_code != 0:
-            logging.error(f"[xEdit] 失敗: exit code={exit_code}")
-            return False
- 
-        if not success_found:
-            logging.warning("[xEdit] success_message 未検出 (fallback: 成果物検証に委ね)")
-
-        # ★★★ 修正: 成果物の検証と移動を統合 ★★★
-        if expected_outputs:
-            # 候補ディレクトリを確認して成果物の存在を検証
-            candidates = self._candidate_output_dirs()
-            
-            logging.info(f"[xEdit] 成果物検証: {len(candidates)} 箇所を探索")
-            for idx, d in enumerate(candidates, 1):
-                logging.debug(f"[xEdit]   {idx}. {d}")
-            
-            found_count = 0
-            missing_files = []
-            
-            for filename in expected_outputs:
-                found = False
-                for candidate_dir in candidates:
-                    file_path = candidate_dir / filename
-                    if file_path.is_file():
-                        logging.info(f"[xEdit] 出力確認 OK: {filename} -> {file_path}")
-                        found_count += 1
-                        found = True
-                        break
-                if not found:
-                    missing_files.append(filename)
-            
-            # ★★★ 重要: ファイルが見つかった場合、_move_results_from_overwrite を呼び出す ★★★
-            if found_count > 0:
-                logging.info(f"[xEdit] 成果物 {found_count}/{len(expected_outputs)} 件検出 → 収集処理開始")
-                
-                # 全ファイルが見つからなくても、見つかったものだけ移動を試みる
-                if missing_files:
-                    logging.warning(f"[xEdit] 一部成果物未検出: {missing_files}")
-                
-                # ★★★ ここで _move_results_from_overwrite を呼び出す ★★★
-                if not self._move_results_from_overwrite(expected_outputs):
-                    logging.error("[xEdit] 成果物の収集に失敗")
-                    return False
-                
-                logging.info(f"[xEdit] 成果物収集完了")
-            else:
-                # 1つも見つからない場合は失敗
-                logging.error(f"[xEdit] 期待成果物が1つも見つかりません: {expected_outputs}")
-                logging.error(f"[xEdit] 探索した場所:")
-                for d in candidates:
-                    logging.error(f"  - {d}")
+            # ★★★ 修正: 成功判定ポリシー ★★★
+            if exit_code != 0:
+                logging.error(f"[xEdit] 失敗: exit code={exit_code}")
                 return False
+ 
+            if not success_found:
+                logging.warning("[xEdit] success_message 未検出 (fallback: 成果物検証に委ね)")
 
-        # ★★★ 修正: ここで最終的な成功を返す ★★★
-        logging.info(f"[xEdit] 成功: {source_script_path.name}")
-        return True
+            # ★★★ 修正: 成果物の検証と移動を統合 ★★★
+            if expected_outputs:
+                # 候補ディレクトリを確認して成果物の存在を検証
+                candidates = self._candidate_output_dirs()
+                
+                logging.info(f"[xEdit] 成果物検証: {len(candidates)} 箇所を探索")
+                for idx, d in enumerate(candidates, 1):
+                    logging.debug(f"[xEdit]   {idx}. {d}")
+                
+                found_count = 0
+                missing_files = []
+                
+                for filename in expected_outputs:
+                    found = False
+                    for candidate_dir in candidates:
+                        file_path = candidate_dir / filename
+                        if file_path.is_file():
+                            logging.info(f"[xEdit] 出力確認 OK: {filename} -> {file_path}")
+                            found_count += 1
+                            found = True
+                            break
+                    if not found:
+                        missing_files.append(filename)
+                
+                # ★★★ 重要: ファイルが見つかった場合、_move_results_from_overwrite を呼び出す ★★★
+                if found_count > 0:
+                    logging.info(f"[xEdit] 成果物 {found_count}/{len(expected_outputs)} 件検出 → 収集処理開始")
+                    
+                    # 全ファイルが見つからなくても、見つかったものだけ移動を試みる
+                    if missing_files:
+                        logging.warning(f"[xEdit] 一部成果物未検出: {missing_files}")
+                    
+                    # ★★★ ここで _move_results_from_overwrite を呼び出す ★★★
+                    if not self._move_results_from_overwrite(expected_outputs):
+                        logging.error("[xEdit] 成果物の収集に失敗")
+                        return False
+                    
+                    logging.info(f"[xEdit] 成果物収集完了")
+                else:
+                    # 1つも見つからない場合は失敗
+                    logging.error(f"[xEdit] 期待成果物が1つも見つかりません: {expected_outputs}")
+                    logging.error(f"[xEdit] 探索した場所:")
+                    for d in candidates:
+                        logging.error(f"  - {d}")
+                    return False
 
-    except subprocess.TimeoutExpired:
-        logging.error(f"[xEdit] タイムアウト ({timeout_seconds}s 超過)")
-        if expected_outputs:
-            logging.info("[xEdit] タイムアウト後、成果物の緊急収集を試みます...")
-            if self._move_results_from_overwrite(expected_outputs):
-                logging.warning("[xEdit] いくつかの成果物を収集できましたが、プロセスは失敗とみなします。")
-        return False
-    except psutil.TimeoutExpired:
-        logging.error(f"[xEdit] タイムアウト ({timeout_seconds}s 超過) - MO2経由")
-        if expected_outputs:
-            candidates = self._candidate_output_dirs()
-            for filename in expected_outputs:
-                for candidate_dir in candidates:
-                    file_path = candidate_dir / filename
-                    if file_path.is_file():
-                        logging.warning(f"[xEdit] タイムアウト後に成果物を検出: {file_path}")
-                        try:
-                            self._move_results_from_overwrite([filename])
-                        except Exception as e:
-                            logging.error(f"[xEdit] 緊急収集失敗: {e}")
-    except Exception as e:
-        logging.critical(f"[xEdit] 例外発生: {e}", exc_info=True)
-        return False
-    finally:
-        # クリーンアップ: 一時スクリプトとlibバックアップの処理
-        try:
-            if temp_script_path.exists():
-                temp_script_path.unlink()
-                logging.debug(f"[xEdit] 一時スクリプト削除: {temp_script_path}")
+            # ★★★ 修正: ここで最終的な成功を返す ★★★
+            logging.info(f"[xEdit] 成功: {source_script_path.name}")
+            return True
+
+        except subprocess.TimeoutExpired:
+            logging.error(f"[xEdit] タイムアウト ({timeout_seconds}s 超過)")
+            if expected_outputs:
+                logging.info("[xEdit] タイムアウト後、成果物の緊急収集を試みます...")
+                if self._move_results_from_overwrite(expected_outputs):
+                    logging.warning("[xEdit] いくつかの成果物を収集できましたが、プロセスは失敗とみなします。")
+            return False
+        except psutil.TimeoutExpired:
+            logging.error(f"[xEdit] タイムアウト ({timeout_seconds}s 超過) - MO2経由")
+            if expected_outputs:
+                candidates = self._candidate_output_dirs()
+                for filename in expected_outputs:
+                    for candidate_dir in candidates:
+                        file_path = candidate_dir / filename
+                        if file_path.is_file():
+                            logging.warning(f"[xEdit] タイムアウト後に成果物を検出: {file_path}")
+                            try:
+                                self._move_results_from_overwrite([filename])
+                            except Exception as e:
+                                logging.error(f"[xEdit] 緊急収集失敗: {e}")
+            return False
         except Exception as e:
-            logging.warning(f"[xEdit] 一時スクリプト削除失敗: {e}")
-
-        if lib_backup_dir and lib_backup_dir.exists():
+            logging.critical(f"[xEdit] 例外発生: {e}", exc_info=True)
+            return False
+        finally:
+            # クリーンアップ: 一時スクリプトとlibバックアップの処理
             try:
-                if dest_lib_dir.exists():
-                    shutil.rmtree(dest_lib_dir)
-                shutil.move(str(lib_backup_dir), str(dest_lib_dir))
-                logging.debug(f"[xEdit] lib ディレクトリ復元完了")
+                if temp_script_path.exists():
+                    temp_script_path.unlink()
+                    logging.debug(f"[xEdit] 一時スクリプト削除: {temp_script_path}")
             except Exception as e:
-                logging.warning(f"[xEdit] lib ディレクトリ復元失敗: {e}")
+                logging.warning(f"[xEdit] 一時スクリプト削除失敗: {e}")
+
+            if lib_backup_dir and lib_backup_dir.exists():
+                try:
+                    if dest_lib_dir.exists():
+                        shutil.rmtree(dest_lib_dir)
+                    shutil.move(str(lib_backup_dir), str(dest_lib_dir))
+                    logging.debug(f"[xEdit] lib ディレクトリ復元完了")
+                except Exception as e:
+                    logging.warning(f"[xEdit] lib ディレクトリ復元失敗: {e}")
 
     # -------------- 戦略ファイル更新 --------------
 
