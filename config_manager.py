@@ -73,6 +73,7 @@ class ConfigManager:
         if use_mo2:
             settings['mo2_executable_path'] = os.path.normpath(self.get_string('Environment', 'mo2_executable_path'))
             settings['xedit_profile_name'] = self.get_string('Environment', 'xedit_profile_name')
+            settings['mo2_xedit_entry_name'] = self.get_string('Environment', 'mo2_xedit_entry_name', '')
             settings['game_data_path'] = self.get_path('Paths', 'game_data_path')
             # Overwriteディレクトリのパスを取得
             # ★★★ 修正点: Orchestratorから 'overwrite_path' として参照できるようにする ★★★
