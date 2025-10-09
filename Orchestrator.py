@@ -1,3 +1,5 @@
+from collections import Counter
+import csv
 import subprocess
 import shutil
 from pathlib import Path
@@ -10,6 +12,7 @@ import psutil
 import shlex
 import uuid
 from typing import Sequence, Optional, Callable
+
 
 # ★★★ 追加: 管理者権限確認 ★★★
 from admin_check import is_admin, check_directory_access
@@ -739,10 +742,263 @@ class Orchestrator:
 
     # -------------- Robco INI 生成 --------------
 
-    def _generate_robco_ini(self):
+    def _read_text_utf8_fallback(self, path: Path) -> str:
+        # 既存実装がある場合はそちらを使用してください。無い場合の簡易版:
+        try:
+            return path.read_text(encoding='utf-8')
+        except UnicodeDecodeError:
+            enc = locale.getpreferredencoding(False)
+            return path.read_text(encoding=enc, errors='replace')
+
+    # 既存コードにあるはずの関数。無い場合はここを差し込んでください。
+    def _read_weapon_records_for_robcoll(self, output_dir: Path) -> list[dict]:
         """
-        抽出されたデータ、戦略ファイル、マッピングファイルに基づいて
-        最終的な Robco Patcher の weapons.ini を生成する。
+        Robco leveled list 生成用の武器レコードを読み込む。
+        サポート形式:
+          - weapon_ammo_details.txt (| 区切り)
+            Format:
+              Plugin|WeaponFormID|WeaponEditorID|AmmoPlugin|AmmoFormID|AmmoEditorID
+          - weapon_records.csv (ヘッダ付 CSV)
+            Columns (同義語許容):
+              plugin,weap_formid,weap_editor_id,ammo_plugin,ammo_formid,ammo_editor_id
+        """
+        records: list[dict] = []
+        txt = output_dir / "weapon_ammo_details.txt"
+        csvf = output_dir / "weapon_records.csv"
+
+        if txt.is_file():
+            try:
+                for ln in txt.read_text(encoding="utf-8", errors="replace").splitlines():
+                    ln = ln.strip()
+                    if not ln or ln.startswith("#") or ln.startswith(";"):
+                        continue
+                    parts = [p.strip() for p in ln.split("|")]
+                    if len(parts) < 6:
+                        logging.warning(f"[RobcoLL] weapon_ammo_details.txt フォーマット不正: {ln}")
+                        continue
+                    rec = {
+                        "plugin": parts[0],
+                        "weap_formid": parts[1].upper(),
+                        "weap_editor_id": parts[2],
+                        "ammo_plugin": parts[3],
+                        "ammo_formid": parts[4].upper(),
+                        "ammo_editor_id": parts[5],
+                    }
+                    if rec["plugin"] and rec["weap_formid"]:
+                        records.append(rec)
+            except Exception as e:
+                logging.error(f"[RobcoLL] weapon_ammo_details.txt 読み込み失敗: {e}")
+
+        elif csvf.is_file():
+            try:
+                with csvf.open("r", encoding="utf-8", newline="") as f:
+                    reader = csv.DictReader(f)
+                    for row in reader:
+                        rec = {
+                            "plugin": (row.get("plugin") or row.get("Plugin") or "").strip(),
+                            "weap_formid": (row.get("weap_formid") or row.get("WeaponFormID") or "").strip().upper(),
+                            "weap_editor_id": (row.get("weap_editor_id") or row.get("WeaponEditorID") or "").strip(),
+                            "ammo_plugin": (row.get("ammo_plugin") or row.get("AmmoPlugin") or "").strip(),
+                            "ammo_formid": (row.get("ammo_formid") or row.get("AmmoFormID") or "").strip().upper(),
+                            "ammo_editor_id": (row.get("ammo_editor_id") or row.get("AmmoEditorID") or "").strip(),
+                        }
+                        if rec["plugin"] and rec["weap_formid"]:
+                            records.append(rec)
+            except Exception as e:
+                logging.error(f"[RobcoLL] weapon_records.csv 読み込み失敗: {e}")
+
+        return records
+
+    # ---------- 追加: LL (EditorID) 固定マップ（SuperMutants 除外） ----------
+
+    def _get_target_ll_editorids(self) -> dict:
+        """
+        配布対象とする派閥 -> LL EditorID の固定マップ（SuperMutants は除外）
+        Institute は SimpleRifle 変種を標準とし、旧名が来たら代替する。
+        """
+        return {
+            "Gunners": "LLI_Hostile_Gunner_Any",
+            "Raiders": "LLI_Raider_Weapons",
+            "Institute": "LL_InstituteLaserGun_SimpleRifle",
+        }
+
+    # ---------- 追加: CSV 検出/読込 ----------
+
+    def _find_leveled_lists_csv(self, output_dir: Path) -> Path | None:
+        """
+        WeaponLeveledLists_Export.csv の探索:
+          1) output_dir/WeaponLeveledLists_Export.csv
+          2) output_dir.parent/WeaponLeveledLists_Export.csv  (Edit Scripts 配下を想定)
+          3) config: Paths.leveled_lists_csv があれば最優先
+        """
+        # 明示指定があれば最優先
+        try:
+            cfg_path = self.config.get_path('Paths', 'leveled_lists_csv')
+            if cfg_path and cfg_path.is_file():
+                return cfg_path
+        except Exception:
+            pass
+
+        candidates = [
+            output_dir / 'WeaponLeveledLists_Export.csv',
+            output_dir.parent / 'WeaponLeveledLists_Export.csv',
+        ]
+        for p in candidates:
+            if p.is_file():
+                return p
+        return None
+
+    def _load_leveled_lists_from_csv(self, output_dir: Path) -> dict:
+        """
+        CSV(WeaponLeveledLists_Export.csv) から EditorID -> {plugin, formid} を構築。
+        対象は3 EditorID のみを抽出して Fallout4.esm を優先選択。
+        CSVヘッダ想定: EditorID,FormID,Faction,ListType,SourceFile
+        """
+        mapping: dict[str, dict] = {}
+        csv_path = self._find_leveled_lists_csv(output_dir)
+        targets = self._get_target_ll_editorids()
+        desired = set(targets.values())
+        # 互換: 旧名 LL_InstituteLaserGun も拾っておく
+        aliases = {"LL_InstituteLaserGun": "LL_InstituteLaserGun_SimpleRifle"}
+
+        if not csv_path:
+            logging.warning("[Robco][LL] WeaponLeveledLists_Export.csv が見つかりません（CSV 読込スキップ）")
+            return mapping
+
+        logging.info("[Robco][LL] CSV 読込: %s", csv_path)
+
+        try:
+            with csv_path.open('r', encoding='utf-8', newline='') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    edid = (row.get('EditorID') or '').strip().strip('"')
+                    formid = (row.get('FormID') or '').strip().upper().strip('"')
+                    plugin = (row.get('SourceFile') or '').strip().strip('"')
+
+                    if not edid:
+                        continue
+
+                    # エイリアス対応
+                    if edid in aliases:
+                        edid_alias = aliases[edid]
+                    else:
+                        edid_alias = edid
+
+                    if edid_alias not in desired:
+                        continue
+
+                    # Fallout4.esm を優先。未設定なら初回を採用。
+                    prev = mapping.get(edid_alias)
+                    if prev is None or (plugin.lower() == 'fallout4.esm' and prev.get('plugin', '').lower() != 'fallout4.esm'):
+                        if plugin and formid and len(formid) == 8:
+                            mapping[edid_alias] = {'plugin': plugin, 'formid': formid}
+        except Exception as e:
+            logging.error(f"[Robco][LL] CSV 読込失敗: {e}")
+            return {}
+
+        # 診断
+        for ed in desired:
+            if ed in mapping:
+                logging.info("[Robco][LL] 解決: %s -> %s|%s", ed, mapping[ed]['plugin'], mapping[ed]['formid'])
+            else:
+                logging.warning("[Robco][LL] 未解決: %s（CSVに行が無い/列名が一致しない/値欠落）", ed)
+
+        return mapping
+
+    # ---------- 既存 JSON フォールバック ----------
+
+    def _load_leveled_lists_json(self, output_dir: Path) -> dict:
+        """
+        既存 leveled_lists.json（EditorID -> plugin/formid）があれば読み込み。
+        """
+        p = output_dir / "leveled_lists.json"
+        if not p.is_file():
+            return {}
+        try:
+            data = json.loads(self._read_text_utf8_fallback(p))
+            return data.get("LeveledLists", {}) or {}
+        except Exception as e:
+            logging.warning(f"[Robco][LL] leveled_lists.json 読込失敗（フォールバック無効）: {e}")
+            return {}
+
+    # ---------- ammo_map の JSON 優先/INI フォールバック ----------
+
+    def _load_ammo_map(self, ammo_map_file: Path) -> dict:
+        """
+        ammo_map.json を優先、なければ ammo_map.ini の [UnmappedAmmo] をフォールバック。
+        返却は dict[original_formid_lower] = target_formid_lower
+        """
+        # JSON 優先
+        json_path = ammo_map_file.with_suffix(".json")
+        if json_path.is_file():
+            try:
+                data = json.loads(self._read_text_utf8_fallback(json_path))
+                mapping = {}
+                for m in data.get("mappings", []):
+                    src = (m.get("source") or {})
+                    dst = (m.get("target") or {})
+                    sf = (src.get("formid") or "").lower()
+                    df = (dst.get("formid") or "").lower()
+                    if sf and df:
+                        mapping[sf] = df
+                if mapping:
+                    logging.info("[Robco][診断] ammo_map.json マッピング数: %d", len(mapping))
+                    return mapping
+            except Exception as e:
+                logging.warning(f"[Robco] ammo_map.json 読み込み失敗: {e}")
+
+        # INI フォールバック
+        mapping = {}
+        if ammo_map_file.is_file():
+            try:
+                parser = configparser.ConfigParser()
+                parser.read(ammo_map_file, encoding="utf-8")
+                if parser.has_section("UnmappedAmmo"):
+                    for k, v in parser.items("UnmappedAmmo"):
+                        mapping[k.lower()] = v.lower()
+                logging.info("[Robco][診断] ammo_map.ini マッピング数: %d", len(mapping))
+            except Exception as e:
+                logging.warning(f"[Robco] ammo_map.ini 読み込み失敗: {e}")
+        else:
+            logging.info("[Robco][診断] ammo_map.* が見つかりません（マッピングなしとして続行）")
+        return mapping
+
+    # ---------- robco の補助 ----------
+
+    def _invert_robco_chance(self, weight_value) -> int:
+        """
+        allocation_matrix の値（0..100 の重み％）を
+        robcollpatch の inverted chance（0=100%）に変換。
+        """
+        try:
+            v = float(weight_value)
+        except Exception:
+            return 100  # 未定義→出現 0%（安全側）
+        v = max(0.0, min(100.0, v))
+        return int(round(100.0 - v))
+
+    def _category_to_ammo_group_for_robco(self, category: str) -> str | None:
+        """
+        Robco Ammo Patcher の ammoCategory は pistol or rifle のみ。
+        """
+        if not category:
+            return None
+        c = category.lower()
+        if ("pistol" in c) or ("low" in c) or ("handgun" in c):
+            return "pistol"
+        if ("rifle" in c) or ("medium" in c) or ("advanced" in c) or ("military" in c) \
+           or ("shotgun" in c) or ("energy" in c) or ("explosive" in c) or ("primitive" in c) or ("exotic" in c):
+            return "rifle"
+        return None
+
+    # ---------- ステップ4: Robco INI 生成（診断強化版） ----------
+
+    def _generate_robco_ini(self) -> bool:
+        """
+        Robco Patcher 用 INI を生成する。
+        - Ammo 用（robco_ammo_patch.ini）
+        - Leveled List 用（robco_ll_patch.ini、入力が揃っている場合のみ）
+        - 互換の weapons.ini（EditorID ベース）も出力
         """
         logging.info(f"{'-' * 10} ステップ4: Robco Patcher INI 生成 {'-' * 10}")
         try:
@@ -752,85 +1008,180 @@ class Orchestrator:
             weapon_data_file = output_dir / 'weapon_ammo_map.json'
             robco_patcher_dir = self.config.get_path('Paths', 'robco_patcher_dir')
             robco_ini_filename = self.config.get_string('Parameters', 'robco_output_filename') or "weapons.ini"
-            output_ini_path = robco_patcher_dir / robco_ini_filename
+            legacy_output_ini_path = robco_patcher_dir / robco_ini_filename
 
-            for f in [strategy_file, weapon_data_file]:
-                if not f.is_file():
-                    logging.error(f"[RobcoINI] 必須ファイル未存在: {f}")
-                    return False
+            # 必須入力
+            missing = []
+            if not strategy_file.is_file(): missing.append(strategy_file)
+            if not weapon_data_file.is_file(): missing.append(weapon_data_file)
+            if missing:
+                for f in missing:
+                    logging.error(f"[Robco] 必須ファイル未存在: {f}")
+                return False
 
+            # 入力読込
             strategy_data = json.loads(self._read_text_utf8_fallback(strategy_file))
             try:
                 weapon_data = json.loads(self._read_text_utf8_fallback(weapon_data_file))
             except json.JSONDecodeError as e:
-                logging.error(f"[RobcoINI] weapon_ammo_map.json 読込失敗: {e}")
+                logging.error(f"[Robco] weapon_ammo_map.json 読込失敗: {e}")
                 return False
 
-            ammo_map_dict = {}
-            if ammo_map_file.is_file():
-                parser = configparser.ConfigParser()
-                parser.read(ammo_map_file, encoding='utf-8')
-                if parser.has_section('UnmappedAmmo'):
-                    ammo_map_dict = {k.lower(): v.lower() for k, v in parser.items('UnmappedAmmo')}
+            ammo_map_dict = self._load_ammo_map(ammo_map_file)
 
-            ammo_classification = strategy_data.get('ammo_classification', {})
-            allocation_matrix = strategy_data.get('allocation_matrix', {})
-            faction_leveled_lists = strategy_data.get('faction_leveled_lists', {})
+            ammo_classification: dict = strategy_data.get('ammo_classification', {})
+            allocation_matrix: dict = strategy_data.get('allocation_matrix', {})
+            # 指定の3派閥のみ（SuperMutants 除外）
+            faction_leveled_lists: dict = self._get_target_ll_editorids()
 
-            ini_lines = [
-                "; Generated by Munitions Auto Patcher",
+            # leveled lists の解決（CSV優先、JSONフォールバック）
+            ll_csv_map = self._load_leveled_lists_from_csv(output_dir)
+            ll_json_map = self._load_leveled_lists_json(output_dir)
+            ll_editorid_to_pf = ll_csv_map if ll_csv_map else ll_json_map
+
+            # ---------------- 診断ログ ----------------
+            logging.info("[Robco][診断] weapon_ammo_map.json 件数: %d", len(weapon_data))
+            logging.info("[Robco][診断] ammo_classification 件数: %d", len(ammo_classification))
+            cat_counter = Counter((info or {}).get("Category") for info in ammo_classification.values() if info)
+            if cat_counter:
+                logging.info("[Robco][診断] カテゴリ内訳:")
+                for c, n in cat_counter.most_common():
+                    logging.info("  - %s: %d", c, n)
+            logging.info("[Robco][診断] ammo_map マッピング数: %d", len(ammo_map_dict))
+            logging.info("[Robco][診断] 使用 LL (EditorID): %s", ", ".join(faction_leveled_lists.values()))
+
+            # 1) Robco Ammo Patcher（robcoammopatch）
+            munitions_plugin_name = "Munitions - An Ammo Expansion.esl"
+            ammo_lines: list[str] = [
+                "; Robco Ammo Patcher - Auto generated",
                 f"; GeneratedAt={time.strftime('%Y-%m-%d %H:%M:%S')}",
-                "",
-                "[Settings]",
-                "; (Reserved for future use)",
-                "",
-                "[Leveled List Integration]",
-                "; Weapon sections follow."
+                "; syntax: filterByAmmos=<Plugin>|<FormID>:ammoCategory=pistol|rifle:attackDamage=none:setNewProjectile=none:addToFormList=none",
+                ""
             ]
-
-            processed = 0
-            skipped_no_category = 0
-
-            for weapon in weapon_data:
-                editor_id = weapon.get('editor_id')
-                ammo_form = (weapon.get('ammo_form_id') or "").lower()
-                full_name = weapon.get('full_name', editor_id)
-
-                if not editor_id or not ammo_form:
-                    logging.warning(f"[RobcoINI] 不完全定義スキップ: {weapon}")
+            added_ammo = 0
+            for formid_upper, info in ammo_classification.items():
+                group = self._category_to_ammo_group_for_robco((info or {}).get("Category", ""))
+                if not group:
                     continue
-
-                final_ammo_formid = ammo_map_dict.get(ammo_form, ammo_form)
-                ammo_info = ammo_classification.get(final_ammo_formid.upper())
-                if not ammo_info:
-                    skipped_no_category += 1
-                    continue
-
-                leveled_entries = []
-                for faction, lli_name in faction_leveled_lists.items():
-                    faction_alloc = allocation_matrix.get(faction, {})
-                    spawn_chance = faction_alloc.get(ammo_info["Category"])
-                    if spawn_chance and spawn_chance > 0:
-                        leveled_entries.append(f"{lli_name}@{ammo_info['Category']}:{spawn_chance}")
-
-                if not leveled_entries:
-                    continue
-
-                safe_id = editor_id.replace(' ', '_')
-                ini_lines.append(f"\n[Weapon.{safe_id}]")
-                ini_lines.append(f"name = {full_name}")
-                ini_lines.append(f"leveled_lists = {', '.join(leveled_entries)}")
-                processed += 1
+                mapped = ammo_map_dict.get(formid_upper.lower(), formid_upper).upper()
+                ammo_lines.append(
+                    f"filterByAmmos={munitions_plugin_name}|{mapped}:ammoCategory={group}:attackDamage=none:setNewProjectile=none:addToFormList=none"
+                )
+                added_ammo += 1
 
             robco_patcher_dir.mkdir(parents=True, exist_ok=True)
-            output_ini_path.write_text("\n".join(ini_lines), encoding='utf-8')
-            logging.info(f"[RobcoINI] 生成成功: {output_ini_path.name} (処理={processed}, 未分類スキップ={skipped_no_category})")
+            ammo_out_path = robco_patcher_dir / "robco_ammo_patch.ini"
+            if added_ammo > 0:
+                ammo_out_path.write_text("\n".join(ammo_lines), encoding="utf-8")
+                logging.info("[Robco][Ammo] 生成: %s (件数=%d, サイズ=%d bytes)",
+                             ammo_out_path.name, added_ammo, ammo_out_path.stat().st_size)
+            else:
+                logging.warning("[Robco][Ammo] 生成対象 0 件")
+
+            # 2) Robco Leveled List（rocollpatch）：条件が揃えば生成
+            ll_lines = [
+                "; Robco LL Patcher - Auto generated",
+                f"; GeneratedAt={time.strftime('%Y-%m-%d %H:%M:%S')}",
+                "; syntax: filterByLLs=<Plugin>|<FormID>:addToLLs=<Plugin>|<FormID>~1~1~<invertedChance>",
+                ""
+            ]
+            added_ll = 0
+            weapon_records = self._read_weapon_records_for_robcoll(output_dir)
+
+            if weapon_records and ll_editorid_to_pf and allocation_matrix:
+                # ammo_formid -> category
+                def ammo_category_for(fid: str) -> str | None:
+                    info = ammo_classification.get((fid or "").upper())
+                    return (info or {}).get("Category") if info else None
+
+                for rec in weapon_records:
+                    ammo_fid = (rec.get("ammo_formid") or "").upper()
+                    weap_plugin = rec.get("plugin") or ""
+                    weap_fid = (rec.get("weap_formid") or "").upper()
+                    if not (weap_plugin and weap_fid and ammo_fid):
+                        continue
+
+                    cat = ammo_category_for(ammo_fid)
+                    if not cat:
+                        continue
+
+                    for faction, lli_editorid in faction_leveled_lists.items():
+                        weight = (allocation_matrix.get(faction) or {}).get(cat, 0)
+                        if weight <= 0:
+                            continue
+
+                        pf = ll_editorid_to_pf.get(lli_editorid) or {}
+                        if not (pf.get("plugin") and pf.get("formid")):
+                            logging.warning(f"[Robco][LL] LL 未解決: {lli_editorid}（CSV/JSON を確認）")
+                            continue
+
+                        inv = self._invert_robco_chance(weight)
+                        ll_lines.append(
+                            f"filterByLLs={pf['plugin']}|{pf['formid']}:addToLLs={weap_plugin}|{weap_fid}~1~1~{inv}"
+                        )
+                        added_ll += 1
+
+                if added_ll > 0:
+                    outp = robco_patcher_dir / "robco_ll_patch.ini"
+                    outp.write_text("\n".join(ll_lines), encoding="utf-8")
+                    logging.info("[Robco][LL] 生成: %s (行=%d, サイズ=%d bytes)", outp.name, added_ll, outp.stat().st_size)
+                else:
+                    logging.warning("[Robco][LL] 生成対象 0 件（weapon_records / CSV/JSON / allocation_matrix を確認）")
+            else:
+                logging.info("[Robco][LL] 必要データ不足のためスキップ")
+
+            # 3) 従来の weapons.ini（EditorID ベース・互換出力）
+            try:
+                ini_lines = [
+                    "; Generated by Munitions Auto Patcher (legacy)",
+                    f"; GeneratedAt={time.strftime('%Y-%m-%d %H:%M:%S')}",
+                    "",
+                    "[Settings]",
+                    "; (Reserved for future use)",
+                    "",
+                    "[Leveled List Integration]",
+                    "; Weapon sections follow."
+                ]
+                processed = 0
+                skipped_no_category = 0
+
+                for weapon in weapon_data:
+                    editor_id = weapon.get('editor_id')
+                    ammo_form = (weapon.get('ammo_form_id') or "").lower()
+                    full_name = weapon.get('full_name', editor_id)
+                    if not editor_id or not ammo_form:
+                        continue
+
+                    final_ammo_formid = ammo_map_dict.get(ammo_form, ammo_form)
+                    ammo_info = ammo_classification.get(final_ammo_formid.upper())
+                    if not ammo_info:
+                        skipped_no_category += 1
+                        continue
+
+                    leveled_entries = []
+                    for faction, lli_editorid in faction_leveled_lists.items():
+                        weight = (allocation_matrix.get(faction) or {}).get(ammo_info["Category"])
+                        if weight and weight > 0:
+                            leveled_entries.append(f"{lli_editorid}@{ammo_info['Category']}:{weight}")
+                    if not leveled_entries:
+                        continue
+
+                    safe_id = editor_id.replace(' ', '_')
+                    ini_lines.append(f"\n[Weapon.{safe_id}]")
+                    ini_lines.append(f"name = {full_name}")
+                    ini_lines.append(f"leveled_lists = {', '.join(leveled_entries)}")
+                    processed += 1
+
+                legacy_output_ini_path.write_text("\n".join(ini_lines), encoding='utf-8')
+                logging.info(f"[Robco][Legacy] 生成成功: {legacy_output_ini_path.name} (処理={processed}, 未分類スキップ={skipped_no_category})")
+            except Exception as e:
+                logging.warning(f"[Robco][Legacy] 互換出力で例外: {e}")
+
             return True
 
         except Exception as e:
-            logging.critical(f"[RobcoINI] 例外発生: {e}", exc_info=True)
+            logging.critical(f"[Robco] 例外発生: {e}", exc_info=True)
             return False
-
     # -------------- 全体実行 --------------
 
     def run_full_process(self) -> bool:
