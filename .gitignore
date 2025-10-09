@@ -27,3 +27,7 @@ Output/*.json
 Output/*.ini
 Output/*.txt
 Output/xEdit_session_*.log
+
+# Robco Patcher generated files
+Robco Patcher/robco_ammo_patch.ini
+Robco Patcher/robco_ll_patch.ini
