@@ -194,43 +194,44 @@
     }
   },
   "allocation_matrix": {
-    "Raiders": {
-      "Primitive": 0.5,
-      "StandardBallistic_Low": 0.7,
-      "Shotgun_Standard": 0.6,
-      "StandardBallistic_Medium": 0.4,
-      "AdvancedBallistic": 0.2,
-      "Explosive": 0.1
+    "Institute": {
+      "Primitive": 0,
+      "StandardBallistic_Low": 0,
+      "StandardBallistic_Medium": 0,
+      "AdvancedBallistic": 0,
+      "MilitaryGrade": 0,
+      "Shotgun_Standard": 0,
+      "Shotgun_Heavy": 0,
+      "Energy_Standard": 60,
+      "Energy_Advanced": 30,
+      "Exotic": 10,
+      "Explosive": 0
     },
     "Gunners": {
-      "StandardBallistic_Medium": 0.6,
-      "AdvancedBallistic": 0.8,
-      "MilitaryGrade": 0.7,
-      "Energy_Standard": 0.5,
-      "Energy_Advanced": 0.3,
-      "Exotic": 0.1
+      "Primitive": 0,
+      "StandardBallistic_Low": 5,
+      "StandardBallistic_Medium": 25,
+      "AdvancedBallistic": 40,
+      "MilitaryGrade": 20,
+      "Shotgun_Standard": 5,
+      "Shotgun_Heavy": 0,
+      "Energy_Standard": 5,
+      "Energy_Advanced": 0,
+      "Exotic": 0,
+      "Explosive": 0
     },
-    "Institute": {
-      "Energy_Standard": 0.7,
-      "Energy_Advanced": 0.9,
-      "Exotic": 0.4
-    },
-    "BrotherhoodOfSteel": {
-      "AdvancedBallistic": 0.6,
-      "MilitaryGrade": 0.8,
-      "Energy_Standard": 0.7,
-      "Energy_Advanced": 0.5,
-      "Explosive": 0.3,
-      "Exotic": 0.2
-    },
-    "SuperMutants": {
-      "Primitive": 0.3,
-      "StandardBallistic_Low": 0.5,
-      "StandardBallistic_Medium": 0.7,
-      "AdvancedBallistic": 0.6,
-      "MilitaryGrade": 0.4,
-      "Shotgun_Heavy": 0.8,
-      "Explosive": 0.2
+    "Raiders": {
+      "Primitive": 30,
+      "StandardBallistic_Low": 40,
+      "StandardBallistic_Medium": 10,
+      "AdvancedBallistic": 0,
+      "MilitaryGrade": 0,
+      "Shotgun_Standard": 20,
+      "Shotgun_Heavy": 0,
+      "Energy_Standard": 0,
+      "Energy_Advanced": 0,
+      "Exotic": 0,
+      "Explosive": 0
     }
   },
   "faction_leveled_lists": {
