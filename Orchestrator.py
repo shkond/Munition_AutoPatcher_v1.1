@@ -89,6 +89,81 @@ class Orchestrator:
             enc = locale.getpreferredencoding()
             return path.read_text(encoding=enc, errors="replace")
 
+    def _load_leveled_lists_json(self, output_dir: Path) -> dict:
+        """
+        leveled_lists.json からレベルドリストのプラグイン・FormID 情報を読み込む。
+        戻り値: EditorID -> {"plugin": str, "formid": str} の辞書
+        """
+        leveled_lists_file = output_dir / 'leveled_lists.json'
+        if not leveled_lists_file.is_file():
+            logging.warning(f"[LoadLeveledLists] leveled_lists.json not found: {leveled_lists_file}")
+            return {}
+        
+        try:
+            data = json.loads(self._read_text_utf8_fallback(leveled_lists_file))
+            result = data.get('LeveledLists', {})
+            logging.info(f"[LoadLeveledLists] Loaded {len(result)} leveled lists")
+            return result
+        except Exception as e:
+            logging.error(f"[LoadLeveledLists] Failed to parse leveled_lists.json: {e}")
+            return {}
+
+    def _load_ammo_map(self, ammo_map_file: Path) -> dict:
+        """
+        ammo_map.json（優先）または ammo_map.ini（フォールバック）を読み込む。
+        戻り値: original_formid_lower -> target_formid_lower の辞書
+        """
+        # Try JSON first
+        json_file = ammo_map_file.parent / (ammo_map_file.stem + '.json')
+        if json_file.is_file():
+            try:
+                data = json.loads(self._read_text_utf8_fallback(json_file))
+                # Assume JSON format: {"UnmappedAmmo": {"formid": "target_formid", ...}}
+                unmapped = data.get('UnmappedAmmo', {})
+                result = {k.lower(): v.lower() for k, v in unmapped.items()}
+                logging.info(f"[LoadAmmoMap] Loaded {len(result)} mappings from {json_file.name}")
+                return result
+            except Exception as e:
+                logging.warning(f"[LoadAmmoMap] Failed to load JSON, falling back to INI: {e}")
+        
+        # Fallback to INI
+        if ammo_map_file.is_file():
+            try:
+                parser = configparser.ConfigParser()
+                parser.read(ammo_map_file, encoding='utf-8')
+                if parser.has_section('UnmappedAmmo'):
+                    result = {k.lower(): v.lower() for k, v in parser.items('UnmappedAmmo')}
+                    logging.info(f"[LoadAmmoMap] Loaded {len(result)} mappings from {ammo_map_file.name}")
+                    return result
+            except Exception as e:
+                logging.error(f"[LoadAmmoMap] Failed to load INI: {e}")
+        
+        logging.warning("[LoadAmmoMap] No ammo_map file found, returning empty dict")
+        return {}
+
+    def _invert_robco_chance(self, weight: float) -> int:
+        """
+        allocation_matrix の値（0..1 の割合）を Robco Patcher の「除外確率」に変換。
+        weight が 0.7 (70%) なら、30% を除外 → 返り値 30
+        """
+        return int(100 - (weight * 100))
+
+    def _category_to_ammo_group_for_robco(self, category: str) -> str:
+        """
+        Category を Robco Patcher の ammo group (pistol/rifle) にマッピング。
+        pistol: *_Low, handgun など
+        rifle: medium, advanced, military, shotgun, energy, explosive, primitive, exotic など
+        """
+        category_lower = category.lower()
+        
+        # Pistol categories
+        if 'low' in category_lower or 'handgun' in category_lower:
+            return 'pistol'
+        
+        # Rifle categories (everything else)
+        # medium, advanced, military, shotgun, energy, explosive, primitive, exotic
+        return 'rifle'
+
     def _candidate_output_dirs(self) -> list[Path]:
         """
         xEdit 実行後に成果物が置かれうる候補ディレクトリを優先順で返す。
@@ -742,7 +817,7 @@ class Orchestrator:
     def _generate_robco_ini(self):
         """
         抽出されたデータ、戦略ファイル、マッピングファイルに基づいて
-        最終的な Robco Patcher の weapons.ini を生成する。
+        最終的な Robco Patcher の robco_ammo_patch.ini を生成する。
         """
         logging.info(f"{'-' * 10} ステップ4: Robco Patcher INI 生成 {'-' * 10}")
         try:
@@ -751,7 +826,7 @@ class Orchestrator:
             output_dir = self.config.get_path('Paths', 'output_dir')
             weapon_data_file = output_dir / 'weapon_ammo_map.json'
             robco_patcher_dir = self.config.get_path('Paths', 'robco_patcher_dir')
-            robco_ini_filename = self.config.get_string('Parameters', 'robco_output_filename') or "weapons.ini"
+            robco_ini_filename = self.config.get_string('Parameters', 'robco_output_filename') or "robco_ammo_patch.ini"
             output_ini_path = robco_patcher_dir / robco_ini_filename
 
             for f in [strategy_file, weapon_data_file]:
@@ -766,26 +841,52 @@ class Orchestrator:
                 logging.error(f"[RobcoINI] weapon_ammo_map.json 読込失敗: {e}")
                 return False
 
-            ammo_map_dict = {}
-            if ammo_map_file.is_file():
-                parser = configparser.ConfigParser()
-                parser.read(ammo_map_file, encoding='utf-8')
-                if parser.has_section('UnmappedAmmo'):
-                    ammo_map_dict = {k.lower(): v.lower() for k, v in parser.items('UnmappedAmmo')}
+            # Load leveled lists data
+            leveled_lists_data = self._load_leveled_lists_json(output_dir)
+            
+            # Load ammo map (JSON preferred, INI fallback)
+            ammo_map_dict = self._load_ammo_map(ammo_map_file)
 
             ammo_classification = strategy_data.get('ammo_classification', {})
             allocation_matrix = strategy_data.get('allocation_matrix', {})
             faction_leveled_lists = strategy_data.get('faction_leveled_lists', {})
 
+            # Diagnostics: log counts and breakdown
+            logging.info(f"[RobcoINI] Diagnostics:")
+            logging.info(f"  - weapon_ammo_map.json: {len(weapon_data)} weapons")
+            logging.info(f"  - ammo_classification: {len(ammo_classification)} ammo types")
+            logging.info(f"  - ammo_map size: {len(ammo_map_dict)} mappings")
+            logging.info(f"  - leveled_lists.json: {len(leveled_lists_data)} LLs")
+            
+            # Count weapons by category
+            category_counts = {}
+            for weapon in weapon_data:
+                ammo_form = (weapon.get('ammo_form_id') or "").lower()
+                if ammo_form:
+                    final_ammo_formid = ammo_map_dict.get(ammo_form, ammo_form)
+                    ammo_info = ammo_classification.get(final_ammo_formid.upper())
+                    if ammo_info:
+                        cat = ammo_info["Category"]
+                        category_counts[cat] = category_counts.get(cat, 0) + 1
+            
+            logging.info(f"  - Category breakdown: {dict(sorted(category_counts.items()))}")
+            
+            # Log which LL EditorIDs are used
+            used_lls = set()
+            for faction, lli_name in faction_leveled_lists.items():
+                used_lls.add(lli_name)
+            logging.info(f"  - Faction LLs used: {sorted(used_lls)}")
+
+            # Build filterByAmmos line
+            filter_by_ammos = "filterByAmmos=Munitions - An Ammo Expansion.esl|"
+            
             ini_lines = [
                 "; Generated by Munitions Auto Patcher",
                 f"; GeneratedAt={time.strftime('%Y-%m-%d %H:%M:%S')}",
                 "",
                 "[Settings]",
-                "; (Reserved for future use)",
+                filter_by_ammos,
                 "",
-                "[Leveled List Integration]",
-                "; Weapon sections follow."
             ]
 
             processed = 0
@@ -795,6 +896,10 @@ class Orchestrator:
                 editor_id = weapon.get('editor_id')
                 ammo_form = (weapon.get('ammo_form_id') or "").lower()
                 full_name = weapon.get('full_name', editor_id)
+                # Note: weapon_plugin and weapon_formid may not be in weapon_ammo_map.json
+                # For now, we'll use editor_id as the section key until the extractor is updated
+                weapon_plugin = weapon.get('plugin', '')
+                weapon_formid = weapon.get('form_id', '')
 
                 if not editor_id or not ammo_form:
                     logging.warning(f"[RobcoINI] 不完全定義スキップ: {weapon}")
@@ -806,20 +911,43 @@ class Orchestrator:
                     skipped_no_category += 1
                     continue
 
+                category = ammo_info["Category"]
+                ammo_group = self._category_to_ammo_group_for_robco(category)
+                
+                # Build leveled list entries with inverted chances
                 leveled_entries = []
                 for faction, lli_name in faction_leveled_lists.items():
                     faction_alloc = allocation_matrix.get(faction, {})
-                    spawn_chance = faction_alloc.get(ammo_info["Category"])
-                    if spawn_chance and spawn_chance > 0:
-                        leveled_entries.append(f"{lli_name}@{ammo_info['Category']}:{spawn_chance}")
+                    spawn_weight = faction_alloc.get(category)
+                    if spawn_weight and spawn_weight > 0:
+                        inverted_chance = self._invert_robco_chance(spawn_weight)
+                        
+                        # Get plugin|formid for this LL from leveled_lists_data
+                        ll_info = leveled_lists_data.get(lli_name)
+                        if ll_info:
+                            ll_ref = f"{ll_info['plugin']}|{ll_info['formid']}"
+                        else:
+                            # Fallback if not found in leveled_lists.json
+                            ll_ref = lli_name
+                            logging.warning(f"[RobcoINI] LL not found in leveled_lists.json: {lli_name}")
+                        
+                        leveled_entries.append(f"{ll_ref}@{ammo_group}:{inverted_chance}")
 
                 if not leveled_entries:
                     continue
 
                 safe_id = editor_id.replace(' ', '_')
-                ini_lines.append(f"\n[Weapon.{safe_id}]")
+                # Use plugin|formid format if available, otherwise use EditorID
+                if weapon_plugin and weapon_formid:
+                    section_key = f"{weapon_plugin}|{weapon_formid}"
+                else:
+                    section_key = safe_id
+                    
+                ini_lines.append(f"[Weapon.{section_key}]")
+                ini_lines.append(f"editorId = {safe_id}")
                 ini_lines.append(f"name = {full_name}")
-                ini_lines.append(f"leveled_lists = {', '.join(leveled_entries)}")
+                ini_lines.append(f"leveledLists = {', '.join(leveled_entries)}")
+                ini_lines.append("")
                 processed += 1
 
             robco_patcher_dir.mkdir(parents=True, exist_ok=True)

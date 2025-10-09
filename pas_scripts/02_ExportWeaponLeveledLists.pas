@@ -8,31 +8,59 @@ uses
   Windows,
   'lib/AutoPatcherLib';
 
-function SaveAndCleanJSONToFile(json: TStringList; filePath: string; itemCount: integer; removeDuplicates: boolean): boolean; external;
-
 var
   jsonOutput: TStringList;
-  processedLists: TStringList;
 
-function IsTargetFile(fileName: string): boolean;
-begin
-  Result := (LowerCase(fileName) = 'fallout4.esm') or (Pos('dlc', LowerCase(fileName)) = 1);
-end;
+const
+  TARGET_EDITORIDS: array[0..3] of string = (
+    'LLI_Raider_Weapons',
+    'LLI_Faction_Gunner_Weapons',
+    'LLI_Faction_Institute_Weapons',
+    'LLI_Faction_SuperMutant_Weapons'
+  );
 
-function GetFactionType(editorID: string): string;
+function FindRecordByEditorID(editorID: string): IInterface;
+var
+  i, j: integer;
+  aFile: IwbFile;
+  Group, Rec: IInterface;
+  recEditorID: string;
 begin
-  if Pos('Raider', editorID) > 0 then Result := 'Raiders'
-  else if Pos('Gunner', editorID) > 0 then Result := 'Gunners'
-  else if Pos('Institute', editorID) > 0 then Result := 'Institute'
-  else if Pos('BoS', editorID) > 0 then Result := 'BrotherhoodOfSteel'
-  else if Pos('Mutant', editorID) > 0 then Result := 'SuperMutants'
-  else Result := 'Unknown';
+  Result := nil;
+  
+  // Try MainRecordByEditorID first (if available in this xEdit version)
+  try
+    Result := MainRecordByEditorID(editorID);
+    if Assigned(Result) then begin
+      LogInfo(Format('Found via MainRecordByEditorID: %s', [editorID]));
+      Exit;
+    end;
+  except
+    // MainRecordByEditorID may not be available in all versions, continue with fallback
+  end;
+  
+  // Fallback: walk through LVLI groups
+  LogInfo(Format('Fallback search for: %s', [editorID]));
+  for i := 0 to FileCount - 1 do begin
+    aFile := FileByIndex(i);
+    Group := GroupBySignature(aFile, 'LVLI');
+    if not Assigned(Group) then Continue;
+    
+    for j := 0 to ElementCount(Group) - 1 do begin
+      Rec := ElementByIndex(Group, j);
+      recEditorID := GetElementEditValues(WinningOverride(Rec), 'EDID');
+      if SameText(recEditorID, editorID) then begin
+        Result := Rec;
+        LogInfo(Format('Found via fallback: %s in %s', [editorID, GetFileName(aFile)]));
+        Exit;
+      end;
+    end;
+  end;
 end;
 
 function Initialize: integer;
 begin
   jsonOutput := TStringList.Create;
-  processedLists := TStringList.Create;
   Result := 0;
 end;
 
@@ -43,78 +71,61 @@ end;
 
 function Finalize: integer;
 var
-  i, j: integer;
-  aFile: IwbFile;
-  Group, Rec, winningRec: IInterface;
-  EditorID, formIDStr, factionType, fileName: string;
+  i: integer;
+  rec: IInterface;
+  editorID, pluginName, formIDStr: string;
   outputDir, jsonFilePath: string;
   SaveSuccess: Boolean;
+  foundCount: integer;
 begin
   Result := 0;
+  foundCount := 0;
+  
   try
-    LogInfo('Finalize: レベルドリスト処理開始');
+    LogInfo('Starting weapon leveled list export');
     jsonOutput.Add('{');
+    jsonOutput.Add('  "LeveledLists": {');
 
-    for i := 0 to FileCount - 1 do begin
-      aFile := FileByIndex(i);
-      fileName := GetFileName(aFile);
-      LogInfo(Format('ファイル検査: %s', [fileName]));
+    for i := Low(TARGET_EDITORIDS) to High(TARGET_EDITORIDS) do begin
+      editorID := TARGET_EDITORIDS[i];
+      LogInfo(Format('Looking for: %s', [editorID]));
       
-      if not IsTargetFile(fileName) then Continue;
-      LogInfo(Format('対象ファイル: %s', [fileName]));
-
-      Group := GroupBySignature(aFile, 'LVLI');
-      if not Assigned(Group) then begin
-        LogWarning(Format('%s にLVLIグループが見つかりません', [fileName]));
-        Continue;
-      end;
-      
-      LogInfo(Format('%s のLVLI数: %d', [fileName, ElementCount(Group)]));
-
-      for j := 0 to ElementCount(Group) - 1 do begin
-        Rec := ElementByIndex(Group, j);
-        winningRec := WinningOverride(Rec);
-        EditorID := GetElementEditValues(winningRec, 'EDID');
-
-        if (EditorID = '') or (processedLists.IndexOf(EditorID) > -1) then Continue;
+      rec := FindRecordByEditorID(editorID);
+      if Assigned(rec) then begin
+        pluginName := GetFileName(GetFile(rec));
+        formIDStr := GetFullFormID(rec);
         
-        factionType := GetFactionType(EditorID);
-        if factionType = 'Unknown' then Continue;
-
-        processedLists.Add(EditorID);
-        formIDStr := GetFullFormID(Rec);
-
-        if jsonOutput.Count > 1 then
+        if foundCount > 0 then
           jsonOutput.Strings[jsonOutput.Count - 1] := jsonOutput.Strings[jsonOutput.Count - 1] + ',';
-
-        jsonOutput.Add(Format('  "%s": "%s"', [factionType, EditorID]));
-        LogInfo(Format('追加: %s -> %s', [factionType, EditorID]));
+        
+        jsonOutput.Add(Format('    "%s": { "plugin": "%s", "formid": "%s" }', 
+                             [editorID, pluginName, formIDStr]));
+        LogInfo(Format('Exported: %s = %s|%s', [editorID, pluginName, formIDStr]));
+        Inc(foundCount);
+      end else begin
+        LogWarning(Format('Not found: %s', [editorID]));
       end;
     end;
 
+    jsonOutput.Add('  }');
     jsonOutput.Add('}');
-    
-    LogInfo(Format('処理されたリスト数: %d', [processedLists.Count]));
     
     outputDir := GetOutputDirectory;
     jsonFilePath := outputDir + 'leveled_lists.json';
     
-    LogInfo(Format('出力先: %s', [jsonFilePath]));
+    LogInfo(Format('Saving to: %s', [jsonFilePath]));
+    SaveSuccess := SaveAndCleanJSONToFile(jsonOutput, jsonFilePath, foundCount, False);
     
-  // ★★★ 修正: SaveAndCleanJSONToFile を使用して自動クリーンアップ ★★★
-  // 第4引数(True)はJSON出力から重複エントリを削除するかどうかを制御します
     if SaveSuccess then begin
-      LogSuccess(Format('leveled_lists.json を保存しました (%d リスト)', [processedLists.Count]));
-      LogComplete('Leveled list export');
+      LogSuccess(Format('Exported %d leveled lists to leveled_lists.json', [foundCount]));
+      LogComplete('Weapon leveled list export');
     end else begin
-      LogError('leveled_lists.json の保存に失敗しました');
+      LogError('Failed to save leveled_lists.json');
       Result := 1;
     end;
-      Result := 1;
-    end;
+      
   finally
     jsonOutput.Free;
-    processedLists.Free;
   end;
 end;
 
