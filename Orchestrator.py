@@ -686,7 +686,23 @@ class Orchestrator:
                     return False
 
             parser = configparser.ConfigParser()
-            parser.read(munitions_id_file, encoding='utf-8')
+            read_ok = False
+            try:
+                parser.read(munitions_id_file, encoding='utf-8')
+                read_ok = parser.has_section('MunitionsAmmo')
+            except Exception:
+                read_ok = False
+
+            if not read_ok:
+                # フォールバック: ロケール
+                enc = locale.getpreferredencoding(False)
+                logging.warning(f"[Strategy] UTF-8読込に失敗/セクション未検出のためフォールバック: {enc}")
+                try:
+                    parser = configparser.ConfigParser()
+                    parser.read(munitions_id_file, encoding=enc)
+                except Exception as e:
+                    logging.error(f"[Strategy] INI読込失敗（fallback={enc}）: {e}")
+                    return False
 
             ammo_classification = {}
             if parser.has_section('MunitionsAmmo'):
