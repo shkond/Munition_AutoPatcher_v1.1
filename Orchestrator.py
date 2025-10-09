@@ -273,7 +273,8 @@ class Orchestrator:
         xedit_executable_path = self.config.get_path('Paths', 'xedit_executable')
         xedit_dir = xedit_executable_path.parent
         edit_scripts_dir = xedit_dir / "Edit Scripts"
-
+        env_settings = self.config.get_env_settings()
+        mo2_executable_path = Path(env_settings.get('mo2_executable_path', ''))
         if not edit_scripts_dir.is_dir():
             logging.error(f"[xEdit] 'Edit Scripts' フォルダが見つかりません: {edit_scripts_dir}")
             return False
@@ -331,8 +332,15 @@ class Orchestrator:
             command_list = []
 
             if use_mo2:
-                mo2_executable = env_settings.get("mo2_executable_path")
-                if not mo2_executable:
+
+                for proc in psutil.process_iter(['name']):
+                    if proc.info['name'] and 'ModOrganizer.exe' in proc.info['name']:
+                        try:
+                            proc.terminate()
+                        except Exception:
+                            pass
+               
+                if not mo2_executable_path:
                     logging.error("[xEdit] MO2起動設定エラー: mo2_executable_path が未設定です")
                     return False
 
@@ -358,11 +366,22 @@ class Orchestrator:
 
                 xedit_executable_name = xedit_executable_path.name.lower()
                 command_list = [
-                    str(mo2_executable),
-                    "-p",
-                    profile_name,
-                    f"moshortcut://Fallout 4:{mo2_entry_name}"
-                ]
+                str(mo2_executable_path),
+                "-p",
+                profile_name,
+                f"moshortcut://:{mo2_entry_name}",   # ← ここは「://:」にし、-script とはカンマで区切る
+                # ここから先は xEdit/FO4Edit に渡る引数
+                # xEdit.exe を使っている場合は必要に応じて "-FO4" を追加
+                "-FO4",
+                f"-script:{temp_script_filename}",
+                f"-S:{edit_scripts_dir}",
+                "-IKnowWhatImDoing",
+                "-AllowMasterFilesEdit",
+                f"-L:{session_log_path}",
+                "-cache",
+                # MO2 の VFS を使う通常運用では -D は付けない
+                # f"-D:{game_data_path}",
+            ]
                 logging.info(
                     "[xEdit] MO2 ショートカット経由でツールを起動します (プロファイル=%s, エントリ名=%s)",
                     profile_name,
