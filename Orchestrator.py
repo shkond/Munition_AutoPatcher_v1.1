@@ -275,6 +275,7 @@ class Orchestrator:
         edit_scripts_dir = xedit_dir / "Edit Scripts"
         env_settings = self.config.get_env_settings()
         mo2_executable_path = Path(env_settings.get('mo2_executable_path', ''))
+       
         if not edit_scripts_dir.is_dir():
             logging.error(f"[xEdit] 'Edit Scripts' フォルダが見つかりません: {edit_scripts_dir}")
             return False
@@ -339,7 +340,7 @@ class Orchestrator:
                             proc.terminate()
                         except Exception:
                             pass
-               
+                            
                 if not mo2_executable_path:
                     logging.error("[xEdit] MO2起動設定エラー: mo2_executable_path が未設定です")
                     return False
@@ -348,8 +349,12 @@ class Orchestrator:
                 if not profile_name:
                     logging.error("[xEdit] MO2起動設定エラー: xedit_profile_name が未設定です")
                     return False
+                 # --- MO2 経由のコマンド組み立て（修正版）---
+                mo2_entry_name = env_settings.get("mo2_xedit_entry_name", "xEdit")
 
-                mo2_entry_name = env_settings.get("mo2_xedit_entry_name")
+                # あなたの環境ではコロン無しが有効
+                moshortcut_uri = f"moshortcut://{mo2_entry_name}"
+                
                 if not mo2_entry_name:
                     exe_name = xedit_executable_path.name.lower()
                     if exe_name == "fo4edit.exe":
@@ -367,19 +372,15 @@ class Orchestrator:
                 xedit_executable_name = xedit_executable_path.name.lower()
                 command_list = [
                 str(mo2_executable_path),
-                "-p",
-                profile_name,
-                f"moshortcut://:{mo2_entry_name}",   # ← ここは「://:」にし、-script とはカンマで区切る
-                # ここから先は xEdit/FO4Edit に渡る引数
-                # xEdit.exe を使っている場合は必要に応じて "-FO4" を追加
-                "-FO4",
-                f"-script:{temp_script_filename}",
-                f"-S:{edit_scripts_dir}",
+                "-p", profile_name,
+                moshortcut_uri,
+                f"-script:{temp_script_filename}",   # コロンの後に空白を入れない
+                f"-S:{edit_scripts_dir}",            # 文字列中に " を入れない（Pythonが必要時に自動でクォート）
                 "-IKnowWhatImDoing",
                 "-AllowMasterFilesEdit",
-                f"-L:{session_log_path}",
+                f"-L:{session_log_path}",            # 同上
                 "-cache",
-                # MO2 の VFS を使う通常運用では -D は付けない
+                # VFS 運用では -D は通常不要
                 # f"-D:{game_data_path}",
             ]
                 logging.info(
