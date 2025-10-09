@@ -459,24 +459,7 @@ class Orchestrator:
                     except Exception:
                         pass
                 time.sleep(poll_interval)
-            # ログファイルポーリング（MO2/直接共通）
-            success_found = False
-            poll_start = time.time()
-            while time.time() - poll_start < log_verification_timeout:
-                if session_log_path.is_file():
-                    try:
-                        content = session_log_path.read_text(encoding='utf-8', errors='replace')
-                        if success_message in content:
-                            success_found = True
-                            break
-                    except Exception:
-                        pass
-                time.sleep(poll_interval)
 
-            # ★★★ 修正: 成功判定ポリシー ★★★
-            if exit_code != 0:
-                logging.error(f"[xEdit] 失敗: exit code={exit_code}")
-                return False
             # ★★★ 修正: 成功判定ポリシー ★★★
             if exit_code != 0:
                 logging.error(f"[xEdit] 失敗: exit code={exit_code}")
@@ -484,8 +467,6 @@ class Orchestrator:
  
             if not success_found:
                 logging.warning("[xEdit] success_message 未検出 (fallback: 成果物検証に委ね)")
-            if not success_found:
-                logging.warning("[xEdit] success_message 未検出 (fallback: 成果物検証に委ね)")
 
             # ★★★ 修正: 成果物の検証と移動を統合 ★★★
             if expected_outputs:
@@ -532,55 +513,7 @@ class Orchestrator:
                     for d in candidates:
                         logging.error(f"  - {d}")
                     return False
-            # ★★★ 修正: 成果物の検証と移動を統合 ★★★
-            if expected_outputs:
-                # 候補ディレクトリを確認して成果物の存在を検証
-                candidates = self._candidate_output_dirs()
-                
-                logging.info(f"[xEdit] 成果物検証: {len(candidates)} 箇所を探索")
-                for idx, d in enumerate(candidates, 1):
-                    logging.debug(f"[xEdit]   {idx}. {d}")
-                
-                found_count = 0
-                missing_files = []
-                
-                for filename in expected_outputs:
-                    found = False
-                    for candidate_dir in candidates:
-                        file_path = candidate_dir / filename
-                        if file_path.is_file():
-                            logging.info(f"[xEdit] 出力確認 OK: {filename} -> {file_path}")
-                            found_count += 1
-                            found = True
-                            break
-                    if not found:
-                        missing_files.append(filename)
-                
-                # ★★★ 重要: ファイルが見つかった場合、_move_results_from_overwrite を呼び出す ★★★
-                if found_count > 0:
-                    logging.info(f"[xEdit] 成果物 {found_count}/{len(expected_outputs)} 件検出 → 収集処理開始")
-                    
-                    # 全ファイルが見つからなくても、見つかったものだけ移動を試みる
-                    if missing_files:
-                        logging.warning(f"[xEdit] 一部成果物未検出: {missing_files}")
-                    
-                    # ★★★ ここで _move_results_from_overwrite を呼び出す ★★★
-                    if not self._move_results_from_overwrite(expected_outputs):
-                        logging.error("[xEdit] 成果物の収集に失敗")
-                        return False
-                    
-                    logging.info(f"[xEdit] 成果物収集完了")
-                else:
-                    # 1つも見つからない場合は失敗
-                    logging.error(f"[xEdit] 期待成果物が1つも見つかりません: {expected_outputs}")
-                    logging.error(f"[xEdit] 探索した場所:")
-                    for d in candidates:
-                        logging.error(f"  - {d}")
-                    return False
 
-            # ★★★ 修正: ここで最終的な成功を返す ★★★
-            logging.info(f"[xEdit] 成功: {source_script_path.name}")
-            return True
             # ★★★ 修正: ここで最終的な成功を返す ★★★
             logging.info(f"[xEdit] 成功: {source_script_path.name}")
             return True
@@ -617,14 +550,6 @@ class Orchestrator:
             except Exception as e:
                 logging.warning(f"[xEdit] 一時スクリプト削除失敗: {e}")
 
-            if lib_backup_dir and lib_backup_dir.exists():
-                try:
-                    if dest_lib_dir.exists():
-                        shutil.rmtree(dest_lib_dir)
-                    shutil.move(str(lib_backup_dir), str(dest_lib_dir))
-                    logging.debug(f"[xEdit] lib ディレクトリ復元完了")
-                except Exception as e:
-                    logging.warning(f"[xEdit] lib ディレクトリ復元失敗: {e}")
             if lib_backup_dir and lib_backup_dir.exists():
                 try:
                     if dest_lib_dir.exists():
