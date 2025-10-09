@@ -315,6 +315,7 @@ class Orchestrator:
         mo2_process = None
         xedit_process_ps = None
         exit_code: Optional[int] = None
+        temp_bat_path: Optional[Path] = None
 
         try:
             shutil.copy2(source_script_path, temp_script_path)
@@ -328,137 +329,97 @@ class Orchestrator:
                 shutil.copytree(source_lib_dir, dest_lib_dir, dirs_exist_ok=True)
 
             # ★★★ 修正: コマンドライン構築を変更 ★★★
-            command_list = []
+            fo4edit_args = [
+                "-FO4",
+                "-autoload",
+                "-IKnowWhatImDoing",
+                "-AllowMasterFilesEdit",
+                "-S",
+                str(edit_scripts_dir),
+                f'-script="{temp_script_path}"',
+                "-L",
+                str(session_log_path),
+            ]
+
+            if force_data_param or not use_mo2:
+                fo4edit_args.extend(["-D", str(game_data_path)])
+
+            mo2_exec_path: Path
 
             if use_mo2:
-                mo2_executable = env_settings.get("mo2_executable_path")
-                if not mo2_executable:
+                mo2_executable_raw = env_settings.get("mo2_executable_path")
+                if not mo2_executable_raw:
                     logging.error("[xEdit] MO2起動設定エラー: mo2_executable_path が未設定です")
                     return False
+
+                mo2_executable = Path(mo2_executable_raw)
+                mo2_directory = mo2_executable.parent
+                logging.info(f"[xEdit] 作業ディレクトリをMO2の場所に設定します: {mo2_directory}")
 
                 profile_name = env_settings.get("xedit_profile_name")
                 if not profile_name:
                     logging.error("[xEdit] MO2起動設定エラー: xedit_profile_name が未設定です")
                     return False
 
-                mo2_entry_name = env_settings.get("mo2_xedit_entry_name")
-                if not mo2_entry_name:
-                    exe_name = xedit_executable_path.name.lower()
-                    if exe_name == "fo4edit.exe":
-                        mo2_entry_name = "FO4Edit"
-                    elif exe_name == "xedit.exe":
-                        mo2_entry_name = "xEdit"
-                    else:
-                        mo2_entry_name = xedit_executable_path.stem
-                    logging.warning(
-                        "[xEdit] MO2実行ファイルリストの名前が未設定です。仮の値 '%s' を使用します。"
-                        " config.ini の [Environment] mo2_xedit_entry_name に設定を追加してください。",
-                        mo2_entry_name
-                    )
-
-                xedit_executable_name = xedit_executable_path.name.lower()
                 command_list = [
                     str(mo2_executable),
                     "-p",
                     profile_name,
-                    f"moshortcut://Fallout 4:{mo2_entry_name}"
+                    str(xedit_executable_path),
+                    *fo4edit_args
                 ]
+                mo2_exec_path = mo2_executable
                 logging.info(
-                    "[xEdit] MO2 ショートカット経由でツールを起動します (プロファイル=%s, エントリ名=%s)",
-                    profile_name,
-                    mo2_entry_name
+                    "[xEdit] MO2経由で xEdit を起動します (プロファイル=%s)",
+                    profile_name
                 )
             else:
-                command_list.append(str(xedit_executable_path))
-                if xedit_executable_path.name.lower() == "xedit.exe":
-                    command_list.append("-FO4")
-                command_list.extend([
-                    "-IKnowWhatImDoing",
-                    "-AllowMasterFilesEdit",
-                    f"-script:{temp_script_filename}",
-                    f'-L:"{session_log_path}"'
-                ])
-                logging.info("[xEdit] キャッシュ機能は廃止されました (-cache 引数は付与されません)")
-                logging.info("[xEdit] 高速化: QuickShowConflicts 無効化 (-QS:0)")
-                command_list.append(f'-D:"{game_data_path}"')
-                if force_data_param:
-                    logging.info("[xEdit] 直接起動: force_data_param=True のため -D を付与")
-                else:
-                    logging.info("[xEdit] 直接起動: -D を付与")
+                command_list = [str(xedit_executable_path), *fo4edit_args]
+                mo2_exec_path = xedit_executable_path
+                logging.info("[xEdit] 直接起動モードで xEdit を呼び出します")
 
+            working_directory = mo2_exec_path.parent if use_mo2 else xedit_dir
             logging.info(f"[xEdit] 実行コマンド(list表示): {command_list}")
 
-            # デバッグ用完全文字列
-            pwsh_line = " ".join(('\"{}\"'.format(a) if (" " in a and not a.startswith('"')) else a) for a in command_list)
-            logging.debug(f"[xEdit] PowerShell で再現可能な形:\n{pwsh_line}")
+            command_string = subprocess.list2cmdline(command_list)
+            logging.debug(f"[xEdit] 生成されたコマンドライン: {command_string}")
 
-            # --- プロセス実行 ---
-            if use_mo2:
-                launch_ts = time.time()
-                time_tolerance = 0.8
-                mo2_process = subprocess.Popen(command_list)
-                logging.info(f"[xEdit] MO2 起動 PID={mo2_process.pid} / xEdit プロセス検出待機")
+            logging.debug(f"[xEdit] バッチ実行ディレクトリ: {working_directory}")
 
-                xedit_executable_name = xedit_executable_path.name.lower()
-                detect_start_time = time.time()
-                while time.time() - detect_start_time < timeout_seconds:
-                    for proc in psutil.process_iter(attrs=['pid', 'name', 'create_time']):
-                        try:
-                            if proc.info['name'].lower() == xedit_executable_name and \
-                               proc.info['create_time'] >= (launch_ts - time_tolerance):
-                                xedit_process_ps = psutil.Process(proc.info['pid'])
-                                break
-                        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                            continue
-                    if xedit_process_ps:
-                        break
-                    time.sleep(0.5)
+            try:
+                arguments_list = command_list[1:]
+                # 引数リストを安全なコマンドライン文字列に変換
+                arguments_string = subprocess.list2cmdline(arguments_list)
+                
+                temp_bat_filename = f"TEMP_RUNNER_{uuid.uuid4().hex}.bat"
+                temp_bat_path = output_dir / temp_bat_filename
+                batch_content = (
+                    f'@echo off\n'
+                    f'cd /d "{working_directory}"\n'
+                    f'start "" "{mo2_exec_path}" {arguments_string}\n'
+                )
+                
+                temp_bat_path.write_text(batch_content, encoding='cp932', errors='replace')
+                logging.info(f"[xEdit] 一時バッチランナーを作成: {temp_bat_path.name}")
 
-                if not xedit_process_ps:
-                    profile_name = env_settings.get('xedit_profile_name', '<未設定>')
-                    logging.error("[xEdit] MO2経由でのxEdit起動検出タイムアウト")
-                    logging.error("[xEdit] トラブルシューティング:")
-                    logging.error("  1. MO2の『実行』メニューから xEdit が起動できるか確認")
-                    logging.error(f"  2. MO2が起動し、プロファイル '{profile_name}' がロードされるか確認")
-                    return False
-
-                logging.info(f"[xEdit] xEdit 検出 PID={xedit_process_ps.pid} / 完了待ち (timeout={timeout_seconds}s)")
-                exit_code = xedit_process_ps.wait(timeout=timeout_seconds)
-                logging.info(f"[xEdit] xEdit 終了 (PID={xedit_process_ps.pid})")
-            else:
-                # 直接起動
-                proc = subprocess.run(
-                    command_list,
+                run_kwargs = dict(
                     capture_output=True,
                     text=True,
                     encoding="utf-8",
-                    errors='replace',
-                    timeout=timeout_seconds
+                    errors="replace",
+                    timeout=timeout_seconds,
+                    check=False
                 )
-                exit_code = proc.returncode
-                logging.info("[xEdit] ---- STDOUT 開始 ----")
-                if proc.stdout:
-                    for line in proc.stdout.strip().splitlines():
-                        logging.info(line)
-                logging.info("[xEdit] ---- STDOUT 終了 ----")
-                if proc.stderr:
-                    logging.debug("[xEdit] ---- STDERR ----")
-                    for line in proc.stderr.strip().splitlines():
-                        logging.debug(line)
-        
-            # ログファイルポーリング（MO2/直接共通）
-            success_found = False
-            poll_start = time.time()
-            while time.time() - poll_start < log_verification_timeout:
-                if session_log_path.is_file():
-                    try:
-                        content = session_log_path.read_text(encoding='utf-8', errors='replace')
-                        if success_message in content:
-                            success_found = True
-                            break
-                    except Exception:
-                        pass
-                time.sleep(poll_interval)
+                creation_flags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+                if creation_flags:
+                    run_kwargs["creationflags"] = creation_flags
+
+                result = subprocess.run([str(temp_bat_path)], **run_kwargs)
+                exit_code = result.returncode
+            except Exception as e:
+                logging.error(f"[xEdit] バッチ実行中に例外発生: {e}", exc_info=True)
+                raise
+
             # ログファイルポーリング（MO2/直接共通）
             success_found = False
             poll_start = time.time()
@@ -477,13 +438,7 @@ class Orchestrator:
             if exit_code != 0:
                 logging.error(f"[xEdit] 失敗: exit code={exit_code}")
                 return False
-            # ★★★ 修正: 成功判定ポリシー ★★★
-            if exit_code != 0:
-                logging.error(f"[xEdit] 失敗: exit code={exit_code}")
-                return False
- 
-            if not success_found:
-                logging.warning("[xEdit] success_message 未検出 (fallback: 成果物検証に委ね)")
+
             if not success_found:
                 logging.warning("[xEdit] success_message 未検出 (fallback: 成果物検証に委ね)")
 
@@ -532,55 +487,7 @@ class Orchestrator:
                     for d in candidates:
                         logging.error(f"  - {d}")
                     return False
-            # ★★★ 修正: 成果物の検証と移動を統合 ★★★
-            if expected_outputs:
-                # 候補ディレクトリを確認して成果物の存在を検証
-                candidates = self._candidate_output_dirs()
-                
-                logging.info(f"[xEdit] 成果物検証: {len(candidates)} 箇所を探索")
-                for idx, d in enumerate(candidates, 1):
-                    logging.debug(f"[xEdit]   {idx}. {d}")
-                
-                found_count = 0
-                missing_files = []
-                
-                for filename in expected_outputs:
-                    found = False
-                    for candidate_dir in candidates:
-                        file_path = candidate_dir / filename
-                        if file_path.is_file():
-                            logging.info(f"[xEdit] 出力確認 OK: {filename} -> {file_path}")
-                            found_count += 1
-                            found = True
-                            break
-                    if not found:
-                        missing_files.append(filename)
-                
-                # ★★★ 重要: ファイルが見つかった場合、_move_results_from_overwrite を呼び出す ★★★
-                if found_count > 0:
-                    logging.info(f"[xEdit] 成果物 {found_count}/{len(expected_outputs)} 件検出 → 収集処理開始")
-                    
-                    # 全ファイルが見つからなくても、見つかったものだけ移動を試みる
-                    if missing_files:
-                        logging.warning(f"[xEdit] 一部成果物未検出: {missing_files}")
-                    
-                    # ★★★ ここで _move_results_from_overwrite を呼び出す ★★★
-                    if not self._move_results_from_overwrite(expected_outputs):
-                        logging.error("[xEdit] 成果物の収集に失敗")
-                        return False
-                    
-                    logging.info(f"[xEdit] 成果物収集完了")
-                else:
-                    # 1つも見つからない場合は失敗
-                    logging.error(f"[xEdit] 期待成果物が1つも見つかりません: {expected_outputs}")
-                    logging.error(f"[xEdit] 探索した場所:")
-                    for d in candidates:
-                        logging.error(f"  - {d}")
-                    return False
 
-            # ★★★ 修正: ここで最終的な成功を返す ★★★
-            logging.info(f"[xEdit] 成功: {source_script_path.name}")
-            return True
             # ★★★ 修正: ここで最終的な成功を返す ★★★
             logging.info(f"[xEdit] 成功: {source_script_path.name}")
             return True
@@ -617,14 +524,13 @@ class Orchestrator:
             except Exception as e:
                 logging.warning(f"[xEdit] 一時スクリプト削除失敗: {e}")
 
-            if lib_backup_dir and lib_backup_dir.exists():
+            if temp_bat_path and temp_bat_path.exists():
                 try:
-                    if dest_lib_dir.exists():
-                        shutil.rmtree(dest_lib_dir)
-                    shutil.move(str(lib_backup_dir), str(dest_lib_dir))
-                    logging.debug(f"[xEdit] lib ディレクトリ復元完了")
+                    temp_bat_path.unlink()
+                    logging.debug(f"[xEdit] 一時バッチ削除: {temp_bat_path}")
                 except Exception as e:
-                    logging.warning(f"[xEdit] lib ディレクトリ復元失敗: {e}")
+                    logging.warning(f"[xEdit] 一時バッチ削除失敗: {e}")
+
             if lib_backup_dir and lib_backup_dir.exists():
                 try:
                     if dest_lib_dir.exists():
