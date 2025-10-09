@@ -80,6 +80,22 @@ class Application(tk.Frame):
         self.mo2_overwrite_dir_entry.grid(row=3, column=1, sticky="ew", padx=5, pady=2)
         self.mo2_overwrite_browse_button = ttk.Button(self.mo2_settings_frame, text="参照...", command=lambda: self.browse_directory(self.mo2_overwrite_dir_var, "MO2のOverwriteフォルダを選択"))
         self.mo2_overwrite_browse_button.grid(row=3, column=2, sticky="e", padx=5, pady=2)
+        
+        # ★★★ 新規追加: moshortcut形式選択 ★★★
+        ttk.Label(self.mo2_settings_frame, text="ショートカット形式:").grid(row=4, column=0, sticky="w", padx=5, pady=2)
+        self.mo2_shortcut_format_var = tk.StringVar()
+        format_combo = ttk.Combobox(self.mo2_settings_frame, textvariable=self.mo2_shortcut_format_var, 
+                                     values=["auto", "no_colon", "with_colon", "instance"], 
+                                     state="readonly", width=57)
+        format_combo.grid(row=4, column=1, sticky="ew", padx=5, pady=2)
+        format_combo.set("auto")
+        
+        # ★★★ 新規追加: インスタンス名 ★★★
+        ttk.Label(self.mo2_settings_frame, text="インスタンス名:").grid(row=5, column=0, sticky="w", padx=5, pady=2)
+        self.mo2_instance_name_var = tk.StringVar()
+        self.mo2_instance_name_entry = ttk.Entry(self.mo2_settings_frame, textvariable=self.mo2_instance_name_var, width=60)
+        self.mo2_instance_name_entry.grid(row=5, column=1, sticky="ew", padx=5, pady=2)
+        
         self.mo2_settings_frame.columnconfigure(1, weight=1)
 
         ttk.Label(settings_frame, text="xEdit実行ファイル:").grid(row=2, column=0, sticky="w", padx=5, pady=5)
@@ -176,6 +192,14 @@ class Application(tk.Frame):
             self.xedit_profile_var.set(self.config_manager.get_string('Environment', 'xedit_profile_name'))
             self.mo2_entry_name_var.set(self.config_manager.get_string('Environment', 'mo2_xedit_entry_name'))
             self.mo2_overwrite_dir_var.set(self.config_manager.get_string('Environment', 'mo2_overwrite_dir'))
+            
+            # ★★★ 新規追加: moshortcut関連設定の読み込み ★★★
+            shortcut_format = self.config_manager.get_string('Environment', 'mo2_shortcut_format') or 'auto'
+            self.mo2_shortcut_format_var.set(shortcut_format)
+            
+            instance_name = self.config_manager.get_string('Environment', 'mo2_instance_name') or ''
+            self.mo2_instance_name_var.set(instance_name)
+            
             self.xedit_executable_var.set(str(self.config_manager.get_path('Paths', 'xedit_executable')))
             
         except Exception as e:
@@ -190,6 +214,11 @@ class Application(tk.Frame):
             self.config_manager.save_setting('Environment', 'xedit_profile_name', self.xedit_profile_var.get())
             self.config_manager.save_setting('Environment', 'mo2_xedit_entry_name', self.mo2_entry_name_var.get())
             self.config_manager.save_setting('Environment', 'mo2_overwrite_dir', self.mo2_overwrite_dir_var.get())
+            
+            # ★★★ 新規追加: moshortcut関連設定の保存 ★★★
+            self.config_manager.save_setting('Environment', 'mo2_shortcut_format', self.mo2_shortcut_format_var.get())
+            self.config_manager.save_setting('Environment', 'mo2_instance_name', self.mo2_instance_name_var.get())
+            
             self.config_manager.save_setting('Paths', 'xedit_executable', self.xedit_executable_var.get())
             
             logging.info("設定が config.ini に正常に保存されました。")

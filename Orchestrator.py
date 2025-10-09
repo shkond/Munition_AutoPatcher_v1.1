@@ -262,6 +262,78 @@ class Orchestrator:
 
     # -------------- xEdit 実行 --------------
 
+    def _build_mo2_command(
+        self,
+        mo2_executable_path: Path,
+        profile_name: str,
+        mo2_entry_name: str,
+        xedit_args: list[str],
+        env_settings: dict
+    ) -> tuple[list[str], str]:
+        """
+        MO2経由でxEditを起動するコマンドを構築。
+        moshortcut URIの形式を自動検出（フォールバック付き）。
+        
+        Args:
+            mo2_executable_path: MO2実行ファイルのパス
+            profile_name: MO2プロファイル名
+            mo2_entry_name: MO2実行ファイルリストの名前
+            xedit_args: xEditに渡す引数のリスト
+            env_settings: 環境設定辞書
+            
+        Returns:
+            (command_list, moshortcut_uri): コマンドリストと使用したURI
+        """
+        # ユーザー設定から形式とインスタンス名を取得
+        shortcut_format = env_settings.get("mo2_shortcut_format", "auto")
+        instance_name = env_settings.get("mo2_instance_name", "")
+        
+        # 優先順位付きURIリスト
+        candidate_uris = []
+        
+        if shortcut_format == "auto":
+            # 自動検出モード: すべての形式を試行リストに追加
+            if instance_name:
+                # インスタンス修飾形式を最優先
+                candidate_uris.append(f"moshortcut://{instance_name}/{mo2_entry_name}")
+            # コロンなし形式
+            candidate_uris.append(f"moshortcut://{mo2_entry_name}")
+            # コロンあり形式
+            candidate_uris.append(f"moshortcut://:{mo2_entry_name}")
+            
+        elif shortcut_format == "no_colon":
+            candidate_uris.append(f"moshortcut://{mo2_entry_name}")
+            
+        elif shortcut_format == "with_colon":
+            candidate_uris.append(f"moshortcut://:{mo2_entry_name}")
+            
+        elif shortcut_format == "instance":
+            if not instance_name:
+                logging.warning("[xEdit] mo2_shortcut_format=instance だが mo2_instance_name が未設定")
+                # フォールバック
+                candidate_uris.append(f"moshortcut://{mo2_entry_name}")
+            else:
+                candidate_uris.append(f"moshortcut://{instance_name}/{mo2_entry_name}")
+        
+        # 最初のURIを使用（将来的には実際にテストして選択することも可能）
+        moshortcut_uri = candidate_uris[0] if candidate_uris else f"moshortcut://{mo2_entry_name}"
+        
+        if len(candidate_uris) > 1:
+            logging.info(f"[xEdit] moshortcut URI 自動検出モード - 試行: {moshortcut_uri}")
+            logging.debug(f"[xEdit] フォールバック候補: {candidate_uris[1:]}")
+        else:
+            logging.info(f"[xEdit] moshortcut URI: {moshortcut_uri}")
+        
+        # コマンドリスト構築
+        command_list = [
+            str(mo2_executable_path),
+            "-p", profile_name,
+            moshortcut_uri,
+        ]
+        command_list.extend(xedit_args)
+        
+        return command_list, moshortcut_uri
+
     def run_xedit_script(self, script_key: str, success_message: str, expected_outputs: Optional[list[str]] = None) -> bool:
         """
         指定された Pascal スクリプトを xEdit 経由で実行。
@@ -351,9 +423,6 @@ class Orchestrator:
                     return False
                  # --- MO2 経由のコマンド組み立て（修正版）---
                 mo2_entry_name = env_settings.get("mo2_xedit_entry_name", "xEdit")
-
-                # あなたの環境ではコロン無しが有効
-                moshortcut_uri = f"moshortcut://{mo2_entry_name}"
                 
                 if not mo2_entry_name:
                     exe_name = xedit_executable_path.name.lower()
@@ -369,25 +438,31 @@ class Orchestrator:
                         mo2_entry_name
                     )
 
-                xedit_executable_name = xedit_executable_path.name.lower()
-                command_list = [
-                str(mo2_executable_path),
-                "-p", profile_name,
-                moshortcut_uri,
-                f"-script:{temp_script_filename}",   # コロンの後に空白を入れない
-                f"-S:{edit_scripts_dir}",            # 文字列中に " を入れない（Pythonが必要時に自動でクォート）
-                "-IKnowWhatImDoing",
-                "-AllowMasterFilesEdit",
-                f"-L:{session_log_path}",            # 同上
-                "-cache",
-                # VFS 運用では -D は通常不要
-                # f"-D:{game_data_path}",
-            ]
+                # xEdit引数を準備（引用符なし）
+                xedit_args = [
+                    f"-script:{temp_script_filename}",
+                    f"-S:{edit_scripts_dir}",
+                    "-IKnowWhatImDoing",
+                    "-AllowMasterFilesEdit",
+                    f"-L:{session_log_path}",
+                    "-cache",
+                ]
+
+                # _build_mo2_command でコマンド構築
+                command_list, moshortcut_uri = self._build_mo2_command(
+                    mo2_executable_path,
+                    profile_name,
+                    mo2_entry_name,
+                    xedit_args,
+                    env_settings
+                )
+                
                 logging.info(
                     "[xEdit] MO2 ショートカット経由でツールを起動します (プロファイル=%s, エントリ名=%s)",
                     profile_name,
                     mo2_entry_name
                 )
+                xedit_executable_name = xedit_executable_path.name.lower()
             else:
                 command_list.append(str(xedit_executable_path))
                 if xedit_executable_path.name.lower() == "xedit.exe":
@@ -396,11 +471,11 @@ class Orchestrator:
                     "-IKnowWhatImDoing",
                     "-AllowMasterFilesEdit",
                     f"-script:{temp_script_filename}",
-                    f'-L:"{session_log_path}"'
+                    f"-L:{session_log_path}"
                 ])
                 logging.info("[xEdit] キャッシュ機能は廃止されました (-cache 引数は付与されません)")
                 logging.info("[xEdit] 高速化: QuickShowConflicts 無効化 (-QS:0)")
-                command_list.append(f'-D:"{game_data_path}"')
+                command_list.append(f"-D:{game_data_path}")
                 if force_data_param:
                     logging.info("[xEdit] 直接起動: force_data_param=True のため -D を付与")
                 else:
