@@ -14,6 +14,7 @@
 #
 from __future__ import annotations
 
+from collections.abc import Iterable
 import csv
 import json
 import locale
@@ -145,23 +146,49 @@ def _load_ammo_map(ammo_map_file: Path) -> dict:
         logging.info("[Robco][診断] ammo_map.* が見つかりません（マッピングなしとして続行）")
     return mapping
 
-def _read_weapon_records(output_dir: Path) -> list[dict]:
-    """
-    武器 Plugin|FormID を取得。
-    - weapon_ammo_details.txt 推奨（ヘッダ無し、|区切り）
-    - weapon_records.csv（ヘッダ付）も対応
-    """
-    txt = output_dir / "weapon_ammo_details.txt"
-    csvf = output_dir / "weapon_records.csv"
-    records: list[dict] = []
+def _candidate_paths_for_weapon_records(output_dir: Path, extra: Path | None) -> Iterable[Path]:
+    # 優先順で候補ディレクトリを列挙
+    dirs = []
+    # 1) Orchestrator の output_dir
+    dirs.append(output_dir)
+    # 2) output_dir の親（リポジトリ直下など）
+    if output_dir.parent and output_dir.parent.exists():
+        dirs.append(output_dir.parent)
+    # 3) config で指定があれば（xEdit の Edit Scripts\Output など）
+    if extra and extra.exists():
+        dirs.append(extra)
+    # 重複排除
+    seen = set()
+    for d in dirs:
+        if d and d.exists():
+            p = d.resolve()
+            if p not in seen:
+                seen.add(p)
+                yield p
 
-    if txt.is_file():
+def _read_weapon_records(output_dir: Path, xedit_output_dir: Path | None) -> list[dict]:
+    """
+    武器 Plugin|FormID を取得。以下の候補ディレクトリを順に探します:
+      - output_dir
+      - output_dir.parent
+      - xEdit 出力 (config Paths.xedit_output_dir を指定した場合)
+    """
+    candidates = list(_candidate_paths_for_weapon_records(output_dir, xedit_output_dir))
+    records: list[dict] = []
+    found_at: Path | None = None
+
+    def try_load_txt(p: Path) -> bool:
+        nonlocal records, found_at
+        txt = p / "weapon_ammo_details.txt"
+        if not txt.is_file():
+            return False
         try:
+            tmp = []
             for ln in txt.read_text(encoding="utf-8", errors="replace").splitlines():
                 ln = ln.strip()
                 if not ln or ln.startswith("#") or ln.startswith(";"):
                     continue
-                parts = [p.strip() for p in ln.split("|")]
+                parts = [s.strip() for s in ln.split("|")]
                 if len(parts) < 6:
                     logging.warning(f"[RobcoLL] weapon_ammo_details.txt フォーマット不正: {ln}")
                     continue
@@ -174,12 +201,22 @@ def _read_weapon_records(output_dir: Path) -> list[dict]:
                     "ammo_editor_id": parts[5],
                 }
                 if rec["plugin"] and rec["weap_formid"]:
-                    records.append(rec)
+                    tmp.append(rec)
+            if tmp:
+                records = tmp
+                found_at = txt
+                return True
         except Exception as e:
             logging.error(f"[RobcoLL] weapon_ammo_details.txt 読み込み失敗: {e}")
+        return False
 
-    elif csvf.is_file():
+    def try_load_csv(p: Path) -> bool:
+        nonlocal records, found_at
+        csvf = p / "weapon_records.csv"
+        if not csvf.is_file():
+            return False
         try:
+            tmp = []
             with csvf.open("r", encoding="utf-8", newline="") as f:
                 reader = csv.DictReader(f)
                 for row in reader:
@@ -192,12 +229,26 @@ def _read_weapon_records(output_dir: Path) -> list[dict]:
                         "ammo_editor_id": (row.get("ammo_editor_id") or row.get("AmmoEditorID") or "").strip(),
                     }
                     if rec["plugin"] and rec["weap_formid"]:
-                        records.append(rec)
+                        tmp.append(rec)
+            if tmp:
+                records = tmp
+                found_at = csvf
+                return True
         except Exception as e:
             logging.error(f"[RobcoLL] weapon_records.csv 読み込み失敗: {e}")
+        return False
+
+    # 候補ディレクトリ順に探索
+    for d in candidates:
+        if try_load_txt(d) or try_load_csv(d):
+            logging.info("[Robco][LL] 武器レコード入力: %s (件数=%d)", found_at, len(records))
+            break
+
+    if not records:
+        logging.warning("[Robco][LL] 武器レコードが見つかりませんでした（weapon_ammo_details.txt / weapon_records.csv）")
+        logging.warning("[Robco][LL] 探索ディレクトリ: %s", " | ".join(str(x) for x in candidates))
 
     return records
-
 def _invert_robco_chance(weight_value) -> int:
     try:
         v = float(weight_value)
@@ -310,7 +361,11 @@ def run(config) -> bool:
             ""
         ]
         added_ll = 0
-        weapon_records = _read_weapon_records(output_dir)
+        weapon_records = _read_weapon_records(
+        output_dir,
+        # 任意: config.ini に Paths.xedit_output_dir を追加しておくとここで参照されます
+        config.get_path('Paths', 'xedit_output_dir') if hasattr(config, 'get_path') else None
+        )
 
         if weapon_records and ll_editorid_to_pf and allocation_matrix:
             # ammo_formid -> category
