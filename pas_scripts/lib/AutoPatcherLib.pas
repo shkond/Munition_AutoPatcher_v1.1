@@ -16,7 +16,7 @@ unit AutoPatcherLib;
 uses
   xEditAPI, Classes, SysUtils, StrUtils, Windows;
 
-const
+interface
   // 成功メッセージのプレフィックス
   AP_LOG_PREFIX = '[AutoPatcher]';
   AP_SUCCESS_PREFIX = '[AutoPatcher] SUCCESS:';
@@ -26,6 +26,7 @@ const
   
   // 出力ディレクトリ
   AP_OUTPUT_SUBDIR = 'Edit Scripts\Output\';
+const
 
 {****************************************************}
 { パス操作ヘルパー
@@ -515,4 +516,120 @@ begin
   end;
 end;
 
+
+{
+  ★★★ 汎用文字列/リストユーティリティ 実装 ★★★
+}
+
+function LowerTrim(const s: string): string;
+begin
+  Result := LowerCase(Trim(s));
+end;
+
+procedure EnsureList(var L: TStringList);
+begin
+  if not Assigned(L) then L := TStringList.Create;
+end;
+
+procedure SplitCSVToList(const csv: string; var L: TStringList);
+var
+  tmp: TStringList;
+  i: Integer;
+  item: string;
+begin
+  EnsureList(L);
+  L.Clear;
+  tmp := TStringList.Create;
+  try
+    tmp.StrictDelimiter := False; // カンマを主、空白も許容
+    tmp.Delimiter := ',';
+    tmp.DelimitedText := csv;
+    for i := 0 to tmp.Count - 1 do begin
+      item := LowerTrim(tmp[i]);
+      if item <> '' then L.Add(item);
+    end;
+  finally
+    tmp.Free;
+  end;
+end;
+
+function WildcardMatchCI(const text, pattern: string): boolean;
+var
+  s, p: string;
+  i, j, star, mark: Integer;
+begin
+  s := LowerCase(text);
+  p := LowerCase(pattern);
+  i := 1; j := 1; star := 0; mark := 0;
+  while i <= Length(s) do begin
+    if (j <= Length(p)) and ((p[j] = '?') or (p[j] = s[i])) then begin
+      Inc(i); Inc(j);
+    end else if (j <= Length(p)) and (p[j] = '*') then begin
+      star := j; mark := i; Inc(j);
+    end else if (star <> 0) then begin
+      j := star + 1; Inc(mark); i := mark;
+    end else begin
+      Exit(False);
+    end;
+  end;
+  while (j <= Length(p)) and (p[j] = '*') do Inc(j);
+  Result := j > Length(p);
+end;
+
+function MatchesAnyPattern(const text: string; patterns: TStringList): boolean;
+var
+  k: Integer;
+begin
+  if (not Assigned(patterns)) or (patterns.Count = 0) then Exit(True);
+  for k := 0 to patterns.Count - 1 do begin
+    if WildcardMatchCI(text, patterns[k]) then Exit(True);
+  end;
+  Result := False;
+end;
+
+function ContainsAnyTokenCI(const text: string; tokens: TStringList): boolean;
+var
+  t: string;
+  k: Integer;
+  lowerText: string;
+begin
+  if (not Assigned(tokens)) or (tokens.Count = 0) then Exit(True);
+  lowerText := LowerCase(text);
+  for k := 0 to tokens.Count - 1 do begin
+    t := tokens[k];
+    if (t <> '') and (Pos(t, lowerText) > 0) then Exit(True);
+  end;
+  Result := False;
+end;
+
+function GetEditorIdSafe(e: IInterface): string;
+begin
+  Result := EditorID(e);
+  if Result <> '' then Exit;
+  Result := GetElementEditValues(e, 'EDID');
+  if Result <> '' then Exit;
+  Result := GetElementEditValues(e, 'EDID - Editor ID');
+end;
+
 end.
+
+{
+  * GetLoadOrderFormID → IntToHex の簡易ラッパー
+}
+function GetFullFormID(rec: IInterface): string;
+
+{
+  ★★★ 汎用文字列/リストユーティリティ ★★★
+  AutoPatcherCore.pas から移動した、特定の処理に依存しないヘルパー関数群。
+}
+function LowerTrim(const s: string): string;
+procedure EnsureList(var L: TStringList);
+procedure SplitCSVToList(const csv: string; var L: TStringList);
+function WildcardMatchCI(const text, pattern: string): boolean;
+function MatchesAnyPattern(const text: string; patterns: TStringList): boolean;
+function ContainsAnyTokenCI(const text: string; tokens: TStringList): boolean;
+function GetEditorIdSafe(e: IInterface): string;
+
+
+
+implementation

@@ -1005,36 +1005,20 @@ class Orchestrator:
         """
         logging.info(f"{'=' * 20} 全自動処理開始 {'=' * 20}")
 
-        # --- ステップ1: データ抽出 ---
+        # --- ステップ1: データ抽出 (xEdit一括実行) ---
         logging.info(f"{'-' * 10} ステップ1: xEdit 抽出 {'-' * 10}")
         if not self.run_xedit_script(
-            'weapon_ammo_extractor',
-            '[AutoPatcher] Weapon and ammo mapping extraction complete.',
-            expected_outputs=['weapon_ammo_map.json', 'unique_ammo_for_mapping.ini']
+            'all_extractors',
+            '[AutoPatcher] All extractions complete.',
+            expected_outputs=[
+                'weapon_ammo_map.json',
+                'unique_ammo_for_mapping.ini',
+                'WeaponLeveledLists_Export.csv',
+                'munitions_ammo_ids.ini',
+                'weapon_ammo_details.txt'
+            ]
         ):
-            logging.critical("[Main] 武器/弾薬抽出失敗")
-            return False
-        # _move_results_from_overwrite は found が overwrite 内にあれば従来どおり移動、
-        # そうでなければ xEdit 実行フォルダから overwrite_path へコピーするロジックを拡張しても良い
-
-        if not self.run_xedit_script(
-            'leveled_list_exporter',
-            '[AutoPatcher] Leveled list export complete.',
-            expected_outputs=['leveled_lists.json']
-        ):
-            logging.critical("[Main] レベルドリスト抽出失敗")
-            return False
-        if not self._move_results_from_overwrite(['leveled_lists.json']):
-            return False
-
-        if not self.run_xedit_script(
-            'munitions_id_exporter',
-            '[AutoPatcher] Munitions ammo ID export complete.',
-            expected_outputs=['munitions_ammo_ids.ini']
-        ):
-            logging.critical("[Main] Munitions ID 抽出失敗")
-            return False
-        if not self._move_results_from_overwrite(['munitions_ammo_ids.ini']):
+            logging.critical("[Main] xEditによる一括データ抽出に失敗しました。")
             return False
 
         logging.info("[Main] ステップ1 完了")

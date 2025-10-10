@@ -57,7 +57,9 @@ def _load_ll_from_csv(output_dir: Path, cfg_path: Path | None) -> dict:
     """
     CSV(WeaponLeveledLists_Export.csv) から EditorID -> {plugin, formid} を構築。
     CSVヘッダ: EditorID,FormID,SourceFile（他カラムがあっても可）
-    Fallout4.esm を優先。Institute は LL_InstituteLaserGun をエイリアスで SimpleRifle にマップ。
+    - フィールドのダブルクォートを除去
+    - 全行を取り込み（特定EditorIDに絞り込まない）
+    - Fallout4.esm を優先
     """
     mapping: dict[str, dict] = {}
     csv_path = _find_leveled_lists_csv(output_dir, cfg_path)
@@ -74,27 +76,19 @@ def _load_ll_from_csv(output_dir: Path, cfg_path: Path | None) -> dict:
         with csv_path.open('r', encoding='utf-8', newline='') as f:
             reader = csv.DictReader(f)
             for row in reader:
-                edid = (row.get('EditorID') or '').strip()
-                formid = (row.get('FormID') or '').strip().upper()
-                plugin = (row.get('SourceFile') or '').strip()
+                edid = (row.get('EditorID') or '').strip().strip('"')
+                formid = (row.get('FormID') or '').strip().strip('"').upper()
+                plugin = (row.get('SourceFile') or '').strip().strip('"')
                 if not edid:
                     continue
-                edid_alias = aliases.get(edid, edid)
-                if edid_alias not in desired:
-                    continue
-                prev = mapping.get(edid_alias)
+                prev = mapping.get(edid)
                 if prev is None or (plugin.lower() == 'fallout4.esm' and prev.get('plugin', '').lower() != 'fallout4.esm'):
                     if plugin and formid and len(formid) == 8:
-                        mapping[edid_alias] = {'plugin': plugin, 'formid': formid}
+                        mapping[edid] = {'plugin': plugin, 'formid': formid}
     except Exception as e:
         logging.error(f"[Robco][LL] CSV 読込失敗: {e}")
         return {}
 
-    for ed in desired:
-        if ed in mapping:
-            logging.info("[Robco][LL] 解決: %s -> %s|%s", ed, mapping[ed]['plugin'], mapping[ed]['formid'])
-        else:
-            logging.warning("[Robco][LL] 未解決: %s（CSVに行が無い/列名不一致/値欠落）", ed)
     return mapping
 
 def _load_ll_from_json(output_dir: Path) -> dict:
@@ -307,7 +301,8 @@ def run(config) -> bool:
         ammo_map_dict = _load_ammo_map(ammo_map_file)
         ammo_classification: dict = strategy_data.get('ammo_classification', {})
         allocation_matrix: dict = strategy_data.get('allocation_matrix', {})
-        faction_ll_map: dict = _get_target_ll_editorids()
+        # 戦略側の指定があれば優先、無ければ従来の既定値
+        faction_ll_map: dict = strategy_data.get('faction_leveled_lists') or _get_target_ll_editorids()
 
         # LL 解決（CSV 優先、JSON フォールバック）
         ll_csv_map = _load_ll_from_csv(output_dir, leveled_lists_csv_cfg)
@@ -317,6 +312,11 @@ def run(config) -> bool:
         # 診断
         logging.info("[Robco][診断] weapon_ammo_map.json 件数: %d", len(weapon_data))
         logging.info("[Robco][診断] ammo_classification 件数: %d", len(ammo_classification))
+        logging.info("[Robco][診断] allocation_matrix 勢力数: %d", len(allocation_matrix or {}))
+        total_weights = sum(
+            float(v or 0) for m in (allocation_matrix or {}).values() for v in (m or {}).values()
+        )
+        logging.info("[Robco][診断] allocation_matrix 総重み: %.1f", total_weights)
         cat_counter = Counter((info or {}).get("Category") for info in ammo_classification.values() if info)
         if cat_counter:
             logging.info("[Robco][診断] カテゴリ内訳:")
@@ -380,7 +380,10 @@ def run(config) -> bool:
                 if not (weap_plugin and weap_fid and ammo_fid):
                     continue
 
-                cat = ammo_category_for(ammo_fid)
+                # 武器側の弾薬FormIDがバニラの可能性があるため、ammo_map でMunitions側のFormIDへ変換
+                mapped_ammo_fid = (ammo_map_dict.get(ammo_fid.lower()) or ammo_fid).upper()
+
+                cat = ammo_category_for(mapped_ammo_fid)
                 if not cat:
                     continue
 

@@ -321,7 +321,7 @@ def setup_logging(log_queue):
     logging.basicConfig(level=logging.INFO, handlers=[file_handler, stream_handler, queue_handler])
 
 if __name__ == '__main__':
-    # ★★★ 追加: 起動時に管理者権限を確認 ★★★
+    
     if not is_admin():
         response = messagebox.askyesno(
             "管理者権限の確認",

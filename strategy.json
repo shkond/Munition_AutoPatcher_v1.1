@@ -236,9 +236,7 @@
   },
   "faction_leveled_lists": {
     "Raiders": "LLI_Raider_Weapons",
-    "Gunners": "LLI_Faction_Gunner_Weapons",
-    "Institute": "LLI_Faction_Institute_Weapons",
-    "BrotherhoodOfSteel": "LLI_Faction_BoS_Weapons",
-    "SuperMutants": "LLI_Faction_SuperMutant_Weapons"
+    "Gunners": "LLI_Hostile_Gunner_Any",
+    "Institute": "LL_InstituteLaserGun"
   }
 }
