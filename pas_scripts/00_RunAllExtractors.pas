@@ -24,6 +24,13 @@ begin
     success := False;
   end;
 
+  // --- ステップ2: 武器とOMOD情報をエクスポート ---
+  if success and (AP_Run_ExportWeaponAmmoDetails() <> 0) then
+  begin
+    LogError('Weapon OMOD export failed.');
+    success := False;
+  end;
+
   // --- ステップ2: レベルドリストをエクスポート ---
   if success and (AP_Run_ExportWeaponLeveledLists() <> 0) then
   begin
@@ -35,14 +42,6 @@ begin
   if success and (AP_Run_ExportMunitionsAmmoIDs() <> 0) then
   begin
     LogError('Munitions ammo ID export failed.');
-    success := False;
-  end;
-
-  // ★★★ 確認・追加ポイント ★★★
-  // --- ステップ4: 武器詳細情報のエクスポート ---
-  if success and (AP_Run_ExportWeaponAmmoDetails() <> 0) then
-  begin
-    LogError('Weapon ammo details export failed.');
     success := False;
   end;
 

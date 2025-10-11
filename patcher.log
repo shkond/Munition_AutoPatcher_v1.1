@@ -1,0 +1,44 @@
+2025-10-11 22:59:30,317 - INFO - 設定が config.ini に正常に保存されました。
+2025-10-11 22:59:30,321 - INFO - ==================== 全自動処理開始 ====================
+2025-10-11 22:59:30,321 - INFO - ---------- ステップ1: xEdit 抽出 ----------
+2025-10-11 22:59:30,323 - INFO - [xEdit] 設定上の game_data_path=E:\SteamLibrary\steamapps\common\Fallout 4\Data
+2025-10-11 22:59:30,341 - INFO - [xEdit] moshortcut URI 自動検出モード - 試行: moshortcut://xEdit
+2025-10-11 22:59:30,341 - INFO - [xEdit] MO2 ショートカット経由でツールを起動します (プロファイル=new2, エントリ名=xEdit)
+2025-10-11 22:59:30,341 - INFO - [xEdit] 実行コマンド(list表示): ['E:\\MO2\\ModOrganizer.exe', '-p', 'new2', 'moshortcut://xEdit', '-script:TEMP_1760191170_3515a2c4b935452195eb7edb5699c373.pas', '-S:E:\\fo4mod\\xedit\\Edit Scripts', '-IKnowWhatImDoing', '-AllowMasterFilesEdit', '-L:E:\\Munition_AutoPatcher_v1.1\\Output\\xEdit_session_1760191170.log', '-cache']
+2025-10-11 22:59:30,348 - INFO - [xEdit] MO2 起動 PID=10136 / xEdit プロセス検出待機
+2025-10-11 22:59:34,874 - INFO - [xEdit] xEdit 検出 PID=7376 / 完了待ち (timeout=600s)
+2025-10-11 23:00:17,771 - INFO - [xEdit] xEdit 終了 (PID=7376)
+2025-10-11 23:00:27,781 - WARNING - [xEdit] success_message 未検出 (fallback: 成果物検証に委ね)
+2025-10-11 23:00:27,783 - INFO - [xEdit] 成果物検証: 2 箇所を探索
+2025-10-11 23:00:27,784 - INFO - [xEdit] 出力確認 OK: weapon_ammo_map.json -> E:\fo4mod\xedit\Edit Scripts\Output\weapon_ammo_map.json
+2025-10-11 23:00:27,784 - INFO - [xEdit] 出力確認 OK: unique_ammo_for_mapping.ini -> E:\fo4mod\xedit\Edit Scripts\Output\unique_ammo_for_mapping.ini
+2025-10-11 23:00:27,785 - INFO - [xEdit] 出力確認 OK: WeaponLeveledLists_Export.csv -> E:\fo4mod\xedit\Edit Scripts\Output\WeaponLeveledLists_Export.csv
+2025-10-11 23:00:27,785 - INFO - [xEdit] 出力確認 OK: munitions_ammo_ids.ini -> E:\fo4mod\xedit\Edit Scripts\Output\munitions_ammo_ids.ini
+2025-10-11 23:00:27,785 - INFO - [xEdit] 成果物 4/5 件検出 → 収集処理開始
+2025-10-11 23:00:27,785 - WARNING - [xEdit] 一部成果物未検出: ['weapon_omod_map.json']
+2025-10-11 23:00:27,785 - INFO - [成果物収集] 期待ファイル: ['weapon_omod_map.json', 'weapon_ammo_map.json', 'unique_ammo_for_mapping.ini', 'WeaponLeveledLists_Export.csv', 'munitions_ammo_ids.ini']
+2025-10-11 23:00:27,789 - INFO - [成果物収集] 探索候補:
+2025-10-11 23:00:27,789 - INFO -   - E:\fo4mod\xedit\Edit Scripts\Output
+2025-10-11 23:00:27,789 - INFO -   - E:\Munition_AutoPatcher_v1.1\Output
+2025-10-11 23:00:27,790 - WARNING - [成果物収集] 見つからない: weapon_omod_map.json
+2025-10-11 23:00:27,790 - INFO - [成果物収集] 最新ファイル選択: E:\Munition_AutoPatcher_v1.1\Output\weapon_ammo_map.json
+2025-10-11 23:00:27,790 - INFO - [成果物収集] 取得: E:\Munition_AutoPatcher_v1.1\Output\weapon_ammo_map.json -> E:\Munition_AutoPatcher_v1.1\Output\weapon_ammo_map.json
+2025-10-11 23:00:27,792 - INFO - [成果物収集] 確定: weapon_ammo_map.json
+2025-10-11 23:00:27,792 - INFO - [成果物収集] 最新ファイル選択: E:\Munition_AutoPatcher_v1.1\Output\unique_ammo_for_mapping.ini
+2025-10-11 23:00:27,793 - INFO - [成果物収集] 取得: E:\Munition_AutoPatcher_v1.1\Output\unique_ammo_for_mapping.ini -> E:\Munition_AutoPatcher_v1.1\Output\unique_ammo_for_mapping.ini
+2025-10-11 23:00:27,794 - INFO - [成果物収集] 確定: unique_ammo_for_mapping.ini
+2025-10-11 23:00:27,794 - INFO - [成果物収集] 最新ファイル選択: E:\Munition_AutoPatcher_v1.1\Output\WeaponLeveledLists_Export.csv
+2025-10-11 23:00:27,795 - INFO - [成果物収集] 取得: E:\Munition_AutoPatcher_v1.1\Output\WeaponLeveledLists_Export.csv -> E:\Munition_AutoPatcher_v1.1\Output\WeaponLeveledLists_Export.csv
+2025-10-11 23:00:27,796 - INFO - [成果物収集] 確定: WeaponLeveledLists_Export.csv
+2025-10-11 23:00:27,797 - INFO - [成果物収集] 最新ファイル選択: E:\fo4mod\xedit\Edit Scripts\Output\munitions_ammo_ids.ini
+2025-10-11 23:00:27,797 - INFO - [成果物収集] 取得: E:\fo4mod\xedit\Edit Scripts\Output\munitions_ammo_ids.ini -> E:\Munition_AutoPatcher_v1.1\Output\munitions_ammo_ids.ini
+2025-10-11 23:00:27,799 - INFO - [成果物収集] 確定: munitions_ammo_ids.ini
+2025-10-11 23:00:27,799 - INFO - [成果物収集] 結果サマリー: 成功=4, 失敗=1
+2025-10-11 23:00:27,799 - INFO - [成果物収集]   成功: ['weapon_ammo_map.json', 'unique_ammo_for_mapping.ini', 'WeaponLeveledLists_Export.csv', 'munitions_ammo_ids.ini']
+2025-10-11 23:00:27,799 - ERROR - [成果物収集] 必須ファイル欠落: ['weapon_omod_map.json']
+2025-10-11 23:00:27,799 - ERROR - [成果物収集] 上記ファイルは次の場所を探索しました:
+2025-10-11 23:00:27,799 - ERROR -   - E:\fo4mod\xedit\Edit Scripts\Output
+2025-10-11 23:00:27,799 - ERROR -   - E:\Munition_AutoPatcher_v1.1\Output
+2025-10-11 23:00:27,800 - ERROR - [xEdit] 成果物の収集に失敗
+2025-10-11 23:00:27,803 - CRITICAL - [Main] xEditによる一括データ抽出に失敗しました。
+2025-10-11 23:00:28,176 - INFO - ==================== 全自動処理が終了しました ====================

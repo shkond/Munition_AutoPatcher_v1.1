@@ -757,57 +757,51 @@ class Orchestrator:
         """
         Robco leveled list 生成用の武器レコードを読み込む。
         サポート形式:
-          - weapon_ammo_details.txt (| 区切り)
-            Format:
-              Plugin|WeaponFormID|WeaponEditorID|AmmoPlugin|AmmoFormID|AmmoEditorID
-          - weapon_records.csv (ヘッダ付 CSV)
-            Columns (同義語許容):
-              plugin,weap_formid,weap_editor_id,ammo_plugin,ammo_formid,ammo_editor_id
+            - weapon_omod_map.json (標準)
         """
         records: list[dict] = []
-        txt = output_dir / "weapon_ammo_details.txt"
-        csvf = output_dir / "weapon_records.csv"
+        json_path = output_dir / "weapon_omod_map.json"
 
-        if txt.is_file():
+        if json_path.is_file():
             try:
-                for ln in txt.read_text(encoding="utf-8", errors="replace").splitlines():
-                    ln = ln.strip()
-                    if not ln or ln.startswith("#") or ln.startswith(";"):
+                data = json.loads(self._read_text_utf8_fallback(json_path))
+            except json.JSONDecodeError as exc:
+                logging.error("[Robco][LL] weapon_omod_map.json 読込失敗: %s (%s)", json_path, exc)
+            else:
+                for entry in data or []:
+                    if not isinstance(entry, dict):
                         continue
-                    parts = [p.strip() for p in ln.split("|")]
-                    if len(parts) < 6:
-                        logging.warning(f"[RobcoLL] weapon_ammo_details.txt フォーマット不正: {ln}")
+                    plugin = (entry.get("weapon_plugin") or "").strip()
+                    weap_formid = (entry.get("weapon_form_id") or "").strip().upper()
+                    if not (plugin and weap_formid):
                         continue
-                    rec = {
-                        "plugin": parts[0],
-                        "weap_formid": parts[1].upper(),
-                        "weap_editor_id": parts[2],
-                        "ammo_plugin": parts[3],
-                        "ammo_formid": parts[4].upper(),
-                        "ammo_editor_id": parts[5],
+                    record = {
+                        "plugin": plugin,
+                        "weap_formid": weap_formid,
+                        "weap_editor_id": (entry.get("weapon_editor_id") or "").strip(),
+                        "weap_name": (entry.get("weapon_name") or "").strip(),
+                        "ammo_plugin": (entry.get("ammo_plugin") or "").strip(),
+                        "ammo_formid": (entry.get("ammo_form_id") or "").strip().upper(),
+                        "ammo_editor_id": (entry.get("ammo_editor_id") or "").strip(),
                     }
-                    if rec["plugin"] and rec["weap_formid"]:
-                        records.append(rec)
-            except Exception as e:
-                logging.error(f"[RobcoLL] weapon_ammo_details.txt 読み込み失敗: {e}")
+                    omod_entries = entry.get("omods") or []
+                    record["omod_form_ids"] = [
+                        (omod.get("omod_form_id") or "").strip().upper()
+                        for omod in omod_entries
+                        if isinstance(omod, dict) and omod.get("omod_form_id")
+                    ]
+                    records.append(record)
+                if records:
+                    logging.info("[Robco][LL] 武器レコード入力: %s (件数=%d)", json_path, len(records))
+                    return records
+                logging.warning("[Robco][LL] weapon_omod_map.json が空です: %s", json_path)
 
-        elif csvf.is_file():
-            try:
-                with csvf.open("r", encoding="utf-8", newline="") as f:
-                    reader = csv.DictReader(f)
-                    for row in reader:
-                        rec = {
-                            "plugin": (row.get("plugin") or row.get("Plugin") or "").strip(),
-                            "weap_formid": (row.get("weap_formid") or row.get("WeaponFormID") or "").strip().upper(),
-                            "weap_editor_id": (row.get("weap_editor_id") or row.get("WeaponEditorID") or "").strip(),
-                            "ammo_plugin": (row.get("ammo_plugin") or row.get("AmmoPlugin") or "").strip(),
-                            "ammo_formid": (row.get("ammo_formid") or row.get("AmmoFormID") or "").strip().upper(),
-                            "ammo_editor_id": (row.get("ammo_editor_id") or row.get("AmmoEditorID") or "").strip(),
-                        }
-                        if rec["plugin"] and rec["weap_formid"]:
-                            records.append(rec)
-            except Exception as e:
-                logging.error(f"[RobcoLL] weapon_records.csv 読み込み失敗: {e}")
+        if not records:
+            logging.warning("[Robco][LL] weapon_omod_map.json から武器レコードを取得できませんでした")
+            candidates = self._candidate_output_dirs()
+            if output_dir not in candidates:
+                candidates.insert(0, output_dir)
+            logging.warning("[Robco][LL] 探索ディレクトリ: %s", " | ".join(str(x) for x in candidates))
 
         return records
 
@@ -1008,18 +1002,18 @@ class Orchestrator:
         # --- ステップ1: データ抽出 (xEdit一括実行) ---
         logging.info(f"{'-' * 10} ステップ1: xEdit 抽出 {'-' * 10}")
         if not self.run_xedit_script(
-            'all_extractors',
-            '[AutoPatcher] All extractions complete.',
-            expected_outputs=[
+             'all_extractors',
+             '[AutoPatcher] All extractions complete.',
+             expected_outputs=[
+                'weapon_omod_map.json',
                 'weapon_ammo_map.json',
                 'unique_ammo_for_mapping.ini',
                 'WeaponLeveledLists_Export.csv',
-                'munitions_ammo_ids.ini',
-                'weapon_ammo_details.txt'
+                'munitions_ammo_ids.ini'
             ]
-        ):
-            logging.critical("[Main] xEditによる一括データ抽出に失敗しました。")
-            return False
+         ):
+             logging.critical("[Main] xEditによる一括データ抽出に失敗しました。")
+             return False
 
         logging.info("[Main] ステップ1 完了")
 

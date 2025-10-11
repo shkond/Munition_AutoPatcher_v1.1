@@ -109,69 +109,6 @@ end;
 // これらの関数は元々 02_ExportWeaponLeveledLists.pas にありましたが、
 // AP_Run_ExportWeaponLeveledLists がここに実装されるため移動します。
 
-// 01_ExportWeaponAmmoDetails の中身をこちらへ移設
-function AP_Run_ExportWeaponAmmoDetails: Integer;
-var
-  i, j: Integer;
-  aFile: IwbFile;
-  group, rec, ammoRec: IInterface;
-  sl: TStringList;
-  outputDir, outPath: string;
-  weapPlugin, weapFormID, weapEdid: string;
-  ammoPlugin, ammoFormID, ammoEdid: string;
-begin
-  Result := 0;
-  sl := TStringList.Create;
-  try
-    // ヘッダ無し、本体のみ（Orchestrator 期待形式）
-    // 1行: Plugin|WeaponFormID|WeaponEditorID|AmmoPlugin|AmmoFormID|AmmoEditorID
-
-    for i := 0 to FileCount - 1 do begin
-      aFile := FileByIndex(i);
-      group := GroupBySignature(aFile, 'WEAP'); // 武器
-      if not Assigned(group) then
-        Continue;
-
-      for j := 0 to ElementCount(group) - 1 do begin
-        rec := ElementByIndex(group, j);
-
-        weapEdid := GetElementEditValues(rec, 'EDID');
-        if weapEdid = '' then
-          Continue;
-
-        // 武器側
-        weapPlugin := GetFileName(GetFile(rec));
-        weapFormID := IntToHex(FixedFormID(rec), 8);
-
-        // 弾薬参照（DNAM\Ammo）
-        ammoRec := LinksTo(ElementByPath(rec, 'DNAM\Ammo'));
-        if not Assigned(ammoRec) then
-          Continue; // 弾薬無しの武器はスキップ（近接等）
-
-        ammoPlugin := GetFileName(GetFile(ammoRec));
-        ammoFormID := IntToHex(FixedFormID(ammoRec), 8);
-        ammoEdid   := EditorID(ammoRec);
-
-        sl.Add(Format('%s|%s|%s|%s|%s|%s',
-          [weapPlugin, weapFormID, weapEdid, ammoPlugin, ammoFormID, ammoEdid]));
-      end;
-    end;
-
-    outputDir := GetOutputDirectory; // 例: Edit Scripts\Output\
-    outPath := outputDir + 'weapon_ammo_details.txt';
-    sl.SaveToFile(outPath);
-
-    AddMessage('[AutoPatcher] SUCCESS: weapon_ammo_details -> ' + outPath);
-  except
-    on E: Exception do begin
-      AddMessage('[AutoPatcher] ERROR: ' + E.Message);
-      Result := 1;
-    end;
-  end;
-  sl.Free;
-end;
-
-// 内部ヘルパー: Munitionsプラグイン探索（デフォルト名→フォールバック）
 function _FindMunitionsFile: IInterface;
 var
   i: integer;
@@ -196,7 +133,6 @@ begin
   end;
 end;
 
-// 03_ExportMunitionsAmmoIDs の中身をこちらへ移設
 function AP_Run_ExportMunitionsAmmoIDs: Integer;
 var
   iniLines: TStringList;
@@ -262,9 +198,6 @@ begin
   iniLines.Free;
 end;
 
-// 00_GenerateStrategyFromMunitions: Munitions AMMO を走査し ammo_classification を構築
-// 備考: 可能なら分類ルール(ammo_categories.json)を Edit Scripts 配下で探索して適用。
-// 見つからない場合は Uncategorized/Power=0 として出力。
 function AP_Run_GenerateStrategyFromMunitions: Integer;
 var
   munitionsPlugin, ammoGroup, rec: IInterface;
@@ -338,6 +271,145 @@ begin
       LogError(E.Message);
       Result := 1;
     end;
+  end;
+end;
+
+function _EscapeJSON(const s: string): string;
+begin
+  Result := StringReplace(s, '\', '\\', [rfReplaceAll]);
+  Result := StringReplace(Result, '"', '\"', [rfReplaceAll]);
+  Result := StringReplace(Result, #13#10, '\n', [rfReplaceAll]);
+  Result := StringReplace(Result, #13, '\n', [rfReplaceAll]);
+  Result := StringReplace(Result, #10, '\n', [rfReplaceAll]);
+end;
+
+function AP_Run_ExportWeaponAmmoDetails: Integer;
+var
+  i, j, k: Integer;
+  aFile: IwbFile;
+  weapGroup, weaponRec, ammoRec, omodList, omodEntry, omodRec: IInterface;
+  jsonLines, uniqueAmmoLines: TStringList;
+  outputDir, jsonPath, uniqueAmmoPath: string;
+  weaponPlugin, weaponFormID, weaponEditorID, weaponName: string;
+  ammoPlugin, ammoFormID, ammoEditorID: string;
+  weaponCount, omodCount: Integer;
+  line: string;
+begin
+  Result := 0;
+  jsonLines := TStringList.Create;
+  uniqueAmmoLines := TStringList.Create;
+  try
+    uniqueAmmoLines.Sorted := True;
+    uniqueAmmoLines.Duplicates := dupIgnore;
+    uniqueAmmoLines.NameValueSeparator := '=';
+
+    outputDir := EnsureTrailingSlash(GetOutputDirectory);
+    ForceDirectories(outputDir);
+    jsonPath := outputDir + 'weapon_omod_map.json';
+    uniqueAmmoPath := outputDir + 'unique_ammo_for_mapping.ini';
+
+    jsonLines.Add('[');
+    weaponCount := 0;
+
+    for i := 0 to Pred(FileCount) do begin
+      aFile := FileByIndex(i);
+      if not Assigned(aFile) then
+        Continue;
+      weapGroup := GroupBySignature(aFile, 'WEAP');
+      if not Assigned(weapGroup) then
+        Continue;
+
+      for j := 0 to Pred(ElementCount(weapGroup)) do begin
+        weaponRec := ElementByIndex(weapGroup, j);
+        if not Assigned(weaponRec) then
+          Continue;
+
+        weaponPlugin := GetFileName(MasterOrSelf(weaponRec));
+        weaponFormID := IntToHex(GetLoadOrderFormID(MasterOrSelf(weaponRec)), 8);
+        weaponEditorID := EditorID(weaponRec);
+        weaponName := GetElementEditValues(weaponRec, 'FULL - Name');
+
+        ammoRec := LinksTo(ElementByPath(weaponRec, 'DNAM\Ammo'));
+        ammoPlugin := '';
+        ammoFormID := '';
+        ammoEditorID := '';
+        if Assigned(ammoRec) then begin
+          ammoPlugin := GetFileName(MasterOrSelf(ammoRec));
+          ammoFormID := IntToHex(GetLoadOrderFormID(MasterOrSelf(ammoRec)), 8);
+          ammoEditorID := EditorID(ammoRec);
+          if (ammoFormID <> '') and (uniqueAmmoLines.IndexOfName(ammoFormID) = -1) then
+            uniqueAmmoLines.Add(Format('%s=%s|%s', [ammoFormID, ammoPlugin, ammoEditorID]));
+        end;
+
+        if weaponCount > 0 then begin
+          jsonLines[jsonLines.Count - 1] := jsonLines[jsonLines.Count - 1] + ',';
+          jsonLines.Add('');
+        end;
+
+        jsonLines.Add('  {');
+        jsonLines.Add(Format('    "weapon_plugin": "%s",', [_EscapeJSON(weaponPlugin)]));
+        jsonLines.Add(Format('    "weapon_form_id": "%s",', [weaponFormID]));
+        jsonLines.Add(Format('    "weapon_editor_id": "%s",', [_EscapeJSON(weaponEditorID)]));
+        jsonLines.Add(Format('    "weapon_name": "%s",', [_EscapeJSON(weaponName)]));
+        jsonLines.Add(Format('    "ammo_plugin": "%s",', [_EscapeJSON(ammoPlugin)]));
+        jsonLines.Add(Format('    "ammo_form_id": "%s",', [ammoFormID]));
+        jsonLines.Add(Format('    "ammo_editor_id": "%s",', [_EscapeJSON(ammoEditorID)]));
+        jsonLines.Add('    "omods": [');
+
+        omodList := ElementByPath(weaponRec, 'OMOD - Object Mods');
+        omodCount := 0;
+        if Assigned(omodList) then
+          omodCount := ElementCount(omodList);
+
+        for k := 0 to Pred(omodCount) do begin
+          omodEntry := ElementByIndex(omodList, k);
+          omodRec := LinksTo(omodEntry);
+          if not Assigned(omodRec) then
+            Continue;
+          line := Format(
+            '      { "omod_plugin": "%s", "omod_form_id": "%s", "omod_editor_id": "%s" }',
+            [_EscapeJSON(GetFileName(MasterOrSelf(omodRec))),
+             IntToHex(GetLoadOrderFormID(MasterOrSelf(omodRec)), 8),
+             _EscapeJSON(EditorID(omodRec))]
+          );
+          if k < omodCount - 1 then
+            line := line + ',';
+          jsonLines.Add(line);
+        end;
+
+        jsonLines.Add('    ]');
+        jsonLines.Add('  }');
+        Inc(weaponCount);
+      end;
+    end;
+
+    jsonLines.Add(']');
+    LogInfo(Format('[WeaponOMOD] 抽出件数: %d', [weaponCount]));
+
+    jsonLines.Add(']');
+    LogInfo(Format('[WeaponOMOD] 抽出件数: %d', [weaponCount]));
+
+    try
+      jsonLines.SaveToFile(jsonPath, TEncoding.UTF8);
+      LogInfo(Format('[WeaponOMOD] weapon_omod_map.json を保存しました: %s', [jsonPath]));
+    except
+      on E: Exception do begin
+        LogError('weapon_omod_map.json の保存に失敗: ' + E.Message);
+        Result := 1;
+        Exit;
+      end;
+    end;
+
+    if uniqueAmmoLines.IndexOf('[UniqueAmmo]') = -1 then
+      uniqueAmmoLines.Insert(0, '[UniqueAmmo]');
+    if not SaveINIToFile(uniqueAmmoLines, uniqueAmmoPath, uniqueAmmoLines.Count - 1) then begin
+      LogWarning('unique_ammo_for_mapping.ini の保存に失敗しました');
+      Result := 1;
+    end else
+      LogComplete('Weapon OMOD export');
+  finally
+    uniqueAmmoLines.Free;
+    jsonLines.Free;
   end;
 end;
 

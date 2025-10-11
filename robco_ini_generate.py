@@ -9,7 +9,7 @@
 # - allocation_matrix は重み％、invertedChance = 100 - weight
 # - ammo_map.json 優先（mappings[].source.formid -> target.formid）、無ければ ammo_map.ini の [UnmappedAmmo]
 # - WeaponLeveledLists_Export.csv 優先（EditorID,FormID,SourceFile）、無ければ leveled_lists.json
-# - 武器 Plugin|FormID は weapon_ammo_details.txt（推奨）または weapon_records.csv から取得
+# - 武器 Plugin|FormID は weapon_omod_map.json から取得
 # - SuperMutants は対象外
 #
 from __future__ import annotations
@@ -25,11 +25,22 @@ from pathlib import Path
 import configparser
 from collections import Counter
 
+
+def _get_config_string(config, section: str, key: str, fallback: str) -> str:
+    if hasattr(config, 'get_string'):
+        try:
+            value = config.get_string(section, key, fallback=fallback)
+        except Exception:
+            value = fallback
+    else:
+        value = fallback
+    return value or fallback
+
 def _read_text_utf8_fallback(path: Path) -> str:
     try:
         return path.read_text(encoding='utf-8')
     except UnicodeDecodeError:
-        enc = locale.getpreferredencoding(False)
+        enc = locale.getpreferredencoding()
         return path.read_text(encoding=enc, errors='replace')
 
 def _get_target_ll_editorids() -> dict:
@@ -163,84 +174,76 @@ def _candidate_paths_for_weapon_records(output_dir: Path, extra: Path | None) ->
 
 def _read_weapon_records(output_dir: Path, xedit_output_dir: Path | None) -> list[dict]:
     """
-    武器 Plugin|FormID を取得。以下の候補ディレクトリを順に探します:
-      - output_dir
-      - output_dir.parent
-      - xEdit 出力 (config Paths.xedit_output_dir を指定した場合)
+    weapon_omod_map.json から武器情報を読み込む。
+    AutoPatcherCore.pas 経由の出力であれば OMOD 情報も含む。
     """
-    candidates = list(_candidate_paths_for_weapon_records(output_dir, xedit_output_dir))
     records: list[dict] = []
     found_at: Path | None = None
+    candidates = list(_candidate_paths_for_weapon_records(output_dir, xedit_output_dir))
 
-    def try_load_txt(p: Path) -> bool:
+    def try_load_json(p: Path) -> bool:
         nonlocal records, found_at
-        txt = p / "weapon_ammo_details.txt"
-        if not txt.is_file():
+        json_path = p / "weapon_omod_map.json"
+        if not json_path.is_file():
             return False
         try:
-            tmp = []
-            for ln in txt.read_text(encoding="utf-8", errors="replace").splitlines():
-                ln = ln.strip()
-                if not ln or ln.startswith("#") or ln.startswith(";"):
-                    continue
-                parts = [s.strip() for s in ln.split("|")]
-                if len(parts) < 6:
-                    logging.warning(f"[RobcoLL] weapon_ammo_details.txt フォーマット不正: {ln}")
-                    continue
-                rec = {
-                    "plugin": parts[0],
-                    "weap_formid": parts[1].upper(),
-                    "weap_editor_id": parts[2],
-                    "ammo_plugin": parts[3],
-                    "ammo_formid": parts[4].upper(),
-                    "ammo_editor_id": parts[5],
-                }
-                if rec["plugin"] and rec["weap_formid"]:
-                    tmp.append(rec)
-            if tmp:
-                records = tmp
-                found_at = txt
-                return True
-        except Exception as e:
-            logging.error(f"[RobcoLL] weapon_ammo_details.txt 読み込み失敗: {e}")
-        return False
-
-    def try_load_csv(p: Path) -> bool:
-        nonlocal records, found_at
-        csvf = p / "weapon_records.csv"
-        if not csvf.is_file():
+            data = json.loads(_read_text_utf8_fallback(json_path))
+        except json.JSONDecodeError as exc:
+            logging.error("[Robco][LL] weapon_omod_map.json 読込失敗: %s (%s)", json_path, exc)
             return False
-        try:
-            tmp = []
-            with csvf.open("r", encoding="utf-8", newline="") as f:
-                reader = csv.DictReader(f)
-                for row in reader:
-                    rec = {
-                        "plugin": (row.get("plugin") or row.get("Plugin") or "").strip(),
-                        "weap_formid": (row.get("weap_formid") or row.get("WeaponFormID") or "").strip().upper(),
-                        "weap_editor_id": (row.get("weap_editor_id") or row.get("WeaponEditorID") or "").strip(),
-                        "ammo_plugin": (row.get("ammo_plugin") or row.get("AmmoPlugin") or "").strip(),
-                        "ammo_formid": (row.get("ammo_formid") or row.get("AmmoFormID") or "").strip().upper(),
-                        "ammo_editor_id": (row.get("ammo_editor_id") or row.get("AmmoEditorID") or "").strip(),
+        temp_records: list[dict] = []
+        for entry in data or []:
+            if not isinstance(entry, dict):
+                continue
+            plugin = (entry.get("weapon_plugin") or "").strip()
+            weap_formid = (entry.get("weapon_form_id") or "").strip().upper()
+            if not (plugin and weap_formid):
+                continue
+            record = {
+                "plugin": plugin,
+                "weap_formid": weap_formid,
+                "weap_editor_id": (entry.get("weapon_editor_id") or "").strip(),
+                "weap_name": (entry.get("weapon_name") or "").strip(),
+                "ammo_plugin": (entry.get("ammo_plugin") or "").strip(),
+                "ammo_formid": (entry.get("ammo_form_id") or "").strip().upper(),
+                "ammo_editor_id": (entry.get("ammo_editor_id") or "").strip(),
+            }
+            omod_entries = entry.get("omods") or []
+            omods: list[dict] = []
+            omod_form_ids: list[str] = []
+            for omod in omod_entries:
+                if not isinstance(omod, dict):
+                    continue
+                omod_plugin = (omod.get("omod_plugin") or "").strip()
+                omod_formid = (omod.get("omod_form_id") or "").strip().upper()
+                if not (omod_plugin and omod_formid):
+                    continue
+                omods.append(
+                    {
+                        "plugin": omod_plugin,
+                        "formid": omod_formid,
+                        "editor_id": (omod.get("omod_editor_id") or "").strip(),
                     }
-                    if rec["plugin"] and rec["weap_formid"]:
-                        tmp.append(rec)
-            if tmp:
-                records = tmp
-                found_at = csvf
-                return True
-        except Exception as e:
-            logging.error(f"[RobcoLL] weapon_records.csv 読み込み失敗: {e}")
+                )
+                omod_form_ids.append(omod_formid)
+            record["omods"] = omods
+            record["omod_form_ids"] = omod_form_ids
+            temp_records.append(record)
+        if temp_records:
+            records.clear()
+            records.extend(temp_records)
+            found_at = json_path
+            return True
         return False
 
     # 候補ディレクトリ順に探索
     for d in candidates:
-        if try_load_txt(d) or try_load_csv(d):
+        if try_load_json(d):
             logging.info("[Robco][LL] 武器レコード入力: %s (件数=%d)", found_at, len(records))
             break
 
     if not records:
-        logging.warning("[Robco][LL] 武器レコードが見つかりませんでした（weapon_ammo_details.txt / weapon_records.csv）")
+        logging.warning("[Robco][LL] weapon_omod_map.json が見つかりませんでした")
         logging.warning("[Robco][LL] 探索ディレクトリ: %s", " | ".join(str(x) for x in candidates))
 
     return records
@@ -293,26 +296,37 @@ def _load_munitions_npc_list_map(output_dir: Path, specified: Path | None) -> di
                 logging.warning(f"[Robco][Ammo] munitions_npc_lists.ini 読込失敗: {e}")
     return {}
 
-def _load_munitions_ammo_id_map(output_dir: Path) -> dict[str, str]:
+def _load_munitions_ammo_id_map(output_dir: Path, plugin_name: str) -> dict[str, dict]:
     """
-    munitions_ammo_ids.ini から FormID -> EditorID のマップを読み込む。
+    munitions_ammo_ids.ini から Munitions 弾薬 FormID -> {plugin, editor_id} を構築。
     """
-    p = output_dir / "munitions_ammo_ids.ini"
-    if not p.is_file():
-        logging.warning("[Robco][Ammo] munitions_ammo_ids.ini が見つかりません。")
-        return {}
-    
-    mapping: dict[str, str] = {}
-    try:
+    candidates = [
+        output_dir / "munitions_ammo_ids.ini",
+        output_dir.parent / "munitions_ammo_ids.ini" if output_dir.parent else None,
+        Path("munitions_ammo_ids.ini"),
+    ]
+    mapping: dict[str, dict] = {}
+    for candidate in candidates:
+        if not candidate or not candidate.is_file():
+            continue
         parser = configparser.ConfigParser()
-        parser.read(p, encoding="utf-8")
+        try:
+            parser.read(candidate, encoding="utf-8")
+        except Exception:
+            parser.read(candidate, encoding=locale.getpreferredencoding(False))
         if parser.has_section("MunitionsAmmo"):
-            for k, v in parser.items("MunitionsAmmo"):
-                mapping[k.upper()] = v
-        return mapping
-    except Exception as e:
-        logging.warning(f"[Robco][Ammo] munitions_ammo_ids.ini 読み込み失敗: {e}")
-    return {}
+            for fid, editor in parser.items("MunitionsAmmo"):
+                fid_norm = (fid or "").strip().upper()
+                if not fid_norm:
+                    continue
+                mapping[fid_norm] = {
+                    "plugin": plugin_name,
+                    "editor_id": (editor or "").strip(),
+                }
+            if mapping:
+                logging.info("[Robco][Ammo] Munitions弾薬マップ読込: %s (件数=%d)", candidate, len(mapping))
+                return mapping
+    return mapping
 
 def run(config) -> bool:
     """
@@ -336,13 +350,11 @@ def run(config) -> bool:
         except Exception:
             leveled_lists_csv_cfg = None
 
-        weapon_data_file = output_dir / 'weapon_ammo_map.json'
         robco_patcher_dir = config.get_path('Paths', 'robco_patcher_dir')
 
         # 必須
         missing = []
         if not strategy_file.is_file(): missing.append(strategy_file)
-        if not weapon_data_file.is_file(): missing.append(weapon_data_file)
         if missing:
             for f in missing:
                 logging.error(f"[Robco] 必須ファイル未存在: {f}")
@@ -350,17 +362,13 @@ def run(config) -> bool:
 
         # 入力読込
         strategy_data = json.loads(_read_text_utf8_fallback(strategy_file))
-        try:
-            weapon_data = json.loads(_read_text_utf8_fallback(weapon_data_file))
-        except json.JSONDecodeError as e:
-            logging.error(f"[Robco] weapon_ammo_map.json 読み込失敗: {e}")
-            return False
 
         ammo_map_dict = _load_ammo_map(ammo_map_file)
         ammo_classification: dict = strategy_data.get('ammo_classification', {})
         allocation_matrix: dict = strategy_data.get('allocation_matrix', {})
         # 戦略側の指定があれば優先、無ければ従来の既定値
         faction_ll_map: dict = strategy_data.get('faction_leveled_lists') or _get_target_ll_editorids()
+        munitions_plugin_name = _get_config_string(config, 'Parameters', 'munitions_plugin_name', 'Munitions - An Ammo Expansion.esl')
 
         # LL 解決（CSV 優先、JSON フォールバック）
         ll_csv_map = _load_ll_from_csv(output_dir, leveled_lists_csv_cfg)
@@ -368,7 +376,6 @@ def run(config) -> bool:
         ll_editorid_to_pf = ll_csv_map if ll_csv_map else ll_json_map
 
         # 診断
-        logging.info("[Robco][診断] weapon_ammo_map.json 件数: %d", len(weapon_data))
         logging.info("[Robco][診断] ammo_classification 件数: %d", len(ammo_classification))
         logging.info("[Robco][診断] allocation_matrix 勢力数: %d", len(allocation_matrix or {}))
         total_weights = sum(
@@ -383,122 +390,101 @@ def run(config) -> bool:
         logging.info("[Robco][診断] ammo_map マッピング数: %d", len(ammo_map_dict))
         logging.info("[Robco][診断] 使用 LL (EditorID): %s", ", ".join(faction_ll_map.values()))
 
-        # 1) robco_ammo_patch.ini - 新構文
-        # Step 1: 独自弾薬を全フォームリストから削除
-        ammo_lines = [
-            "; Robco Ammo Patcher - Auto generated (new syntax)",
-            f"; GeneratedAt={time.strftime('%Y-%m-%d %H:%M:%S')}",
-            "; Step1: formsToRemove=<OriginalAmmoFormID> ; 全フォームリストから削除",
-            "; Step2: filterByWeapons=<Plugin>|<WeaponFormID>:setNewAmmo=<MunitionsAmmoFID>[:setNewAmmoList=<NPCAmmoListFID>]",
-        ""
-        ]
-        added_ammo = 0
-        for orig_fid_lower in sorted(set(ammo_map_dict.keys())):
-            ammo_lines.append(f"formsToRemove={(orig_fid_lower or '').upper()}")
-            added_ammo += 1
 
         # Step 2: 武器が使用する弾薬をMunitionsへ置換（必要に応じてNPCリストも設定）
-        weapon_records = _read_weapon_records(
-            output_dir,
-            config.get_path('Paths', 'xedit_output_dir') if hasattr(config, 'get_path') else None
-        )
+        xedit_output_dir = config.get_path('Paths', 'xedit_output_dir') if hasattr(config, 'get_path') else None
+        weapon_records = _read_weapon_records(output_dir, xedit_output_dir)
+
         try:
             npc_list_map_path = config.get_path('Paths', 'munitions_npc_list_map')
         except Exception:
             npc_list_map_path = None
         npc_list_map = _load_munitions_npc_list_map(output_dir, npc_list_map_path)
-        munitions_id_map = _load_munitions_ammo_id_map(output_dir)
+        munitions_id_map = _load_munitions_ammo_id_map(output_dir, munitions_plugin_name)
 
-        seen_weapon_lines: set[str] = set()
+        # --- INI生成のためのデータ収集 ---
+        # 武器レコードを一度だけループして、各INIに必要な情報を収集する
+        weapon_patch_lines: list[str] = []
+        omod_patch_map: dict[str, dict] = {}
+        formlist_add_lines: list[str] = []
+        
+        seen_comments: set[str] = set()
+        seen_weapon_entries: set[str] = set()
+        seen_ll_lines: set[str] = set()
+
+        # 処理対象となる武器が存在する場合のみLL追加INIのヘッダを追加
+        if weapon_records and ll_editorid_to_pf:
+            formlist_add_lines.append("; Munitions Auto-Patcher: Add Patched Weapons to Leveled Lists")
+            formlist_add_lines.append(f"; GeneratedAt={time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+
         for rec in weapon_records:
             weap_plugin = (rec.get("plugin") or "").strip()
-            weap_fid = (rec.get("weap_formid") or "").upper()
+            weap_fid = (rec.get("weap_formid") or "").strip().upper()
             weap_eid = (rec.get("weap_editor_id") or "").strip()
-            orig_ammo_fid = (rec.get("ammo_formid") or "").upper()
+            orig_ammo_fid = (rec.get("ammo_formid") or "").strip().upper()
             orig_ammo_eid = (rec.get("ammo_editor_id") or "").strip()
 
             if not (weap_plugin and weap_fid and orig_ammo_fid):
                 continue
 
             orig_ammo_fid_lower = orig_ammo_fid.lower()
+            if orig_ammo_fid_lower not in ammo_map_dict:
+                continue
 
-            # --- ロジック分岐 ---
-            if simplify_ini:
-                # 【シンプルモード】マッピング対象の武器のみINIに記述
-                if orig_ammo_fid_lower in ammo_map_dict:
-                    mapped_ammo_fid = ammo_map_dict[orig_ammo_fid_lower].upper()
-                    mapped_ammo_eid = munitions_id_map.get(mapped_ammo_fid, "UNKNOWN_MUNITIONS_AMMO")
+            mapped_ammo_fid = (ammo_map_dict.get(orig_ammo_fid_lower) or orig_ammo_fid).upper()
+            mapped_meta = munitions_id_map.get(mapped_ammo_fid, {})
+            mapped_ammo_eid = mapped_meta.get("editor_id") or "UNKNOWN_MUNITIONS_AMMO"
+            target_plugin = mapped_meta.get("plugin") or munitions_plugin_name
 
-                    comment = f"; [{weap_plugin}] {weap_eid} ({orig_ammo_eid}) -> {mapped_ammo_eid}"
-                    line = f"filterByWeapons={weap_plugin}|{weap_fid}:setNewAmmo={mapped_ammo_fid}"
-                    
-                    npc_list_fid = npc_list_map.get(mapped_ammo_fid)
-                    if npc_list_fid:
-                        line += f":setNewAmmoList={npc_list_fid}"
-                    
-                    if comment not in seen_weapon_lines:
-                        ammo_lines.append(f"\n{comment}")
-                        seen_weapon_lines.add(comment)
-                    if line not in seen_weapon_lines:
-                        ammo_lines.append(line)
-                        seen_weapon_lines.add(line)
-            else:
-                # 【互換モード】全武器をINIに記述（変更がない武器も含む）
-                mapped_ammo_fid = (ammo_map_dict.get(orig_ammo_fid_lower) or orig_ammo_fid).upper()
-                line = f"filterByWeapons={weap_plugin}|{weap_fid}:setNewAmmo={mapped_ammo_fid}"
-                if line not in seen_weapon_lines:
-                    ammo_lines.append(line)
-                    seen_weapon_lines.add(line)
-        
-        # --- 出力先のディレクトリ構造を構築 ---
-        # RobCo_Auto_Patcher/F4SE/Plugins/RobCo_Patcher/ を基準とする
-        robco_base_dir = robco_patcher_dir / "F4SE" / "Plugins" / "RobCo_Patcher"
-        formlist_dir = robco_base_dir / "formlist"
-        weapon_dir = robco_base_dir / "weapon"
-        formlist_dir.mkdir(parents=True, exist_ok=True)
-        weapon_dir.mkdir(parents=True, exist_ok=True)
+            comment = f"; [{weap_plugin}] {weap_eid} ({orig_ammo_eid or orig_ammo_fid}) -> {mapped_ammo_eid}"
+            line = f"filterByWeapons={weap_plugin}|{weap_fid}:setNewAmmo={target_plugin}|{mapped_ammo_fid}"
 
-        # --- INIファイル1: 独自弾薬をフォームリストから削除 ---
-        formlist_remove_lines = [f"; Munitions Auto-Patcher: Remove Custom Ammo from FormLists", f"; GeneratedAt={time.strftime('%Y-%m-%d %H:%M:%S')}", ""]
-        formlist_remove_lines.extend(f"formsToRemove={(orig_fid_lower or '').upper()}" for orig_fid_lower in sorted(set(ammo_map_dict.keys())))
-        
-        if len(formlist_remove_lines) > 3: # ヘッダー以外の行がある場合
-            ammo_out_path = formlist_dir / "Munitions_FormList_RemoveCustomAmmo.ini"
-            ammo_out_path.write_text("\n".join(ammo_lines), encoding="utf-8")
-            logging.info("[Robco][Ammo] 生成: %s (件数=%d, サイズ=%d bytes)",
-                        ammo_out_path.name, added_ammo, ammo_out_path.stat().st_size)
-        else:
-            logging.warning("[Robco][Ammo] 生成対象 0 件")
+            npc_list_fid = npc_list_map.get(mapped_ammo_fid)
+            if npc_list_fid:
+                line += f":setNewAmmoList={npc_list_fid}"
 
-        # 2) robco_ll_patch.ini（新構文・確定追加）
-        # --- INIファイル2: 武器の使用弾薬を変更 ---
-        weapon_patch_lines = [f"; Munitions Auto-Patcher: Set Weapon Ammo", f"; GeneratedAt={time.strftime('%Y-%m-%d %H:%M:%S')}", ""]
-        weapon_patch_lines.extend(line for line in ammo_lines if line.strip().startswith("filterByWeapons") or line.strip().startswith("; ["))
-        
-        if any(line.strip().startswith("filterByWeapons") for line in weapon_patch_lines):
-            weapon_out_path = weapon_dir / "Munitions_Weapon_SetAmmo.ini"
-            weapon_out_path.write_text("\n".join(weapon_patch_lines), encoding="utf-8")
-            logging.info("[Robco][Weapon] 生成: %s (サイズ=%d bytes)", weapon_out_path.name, weapon_out_path.stat().st_size)
+            if comment not in seen_comments:
+                weapon_patch_lines.append(comment)
+                seen_comments.add(comment)
 
-        # --- INIファイル3: 武器をレベルドリストに追加 ---
-        formlist_add_lines = [
-            "; Munitions Auto-Patcher: Add Patched Weapons to Leveled Lists",
-            f"; GeneratedAt={time.strftime('%Y-%m-%d %H:%M:%S')}",
-            ""
-        ]
-        added_ll = 0
+            if line not in seen_weapon_entries:
+                weapon_patch_lines.append(line)
+                seen_weapon_entries.add(line)
 
-        if weapon_records and ll_editorid_to_pf:
-            seen_ll_lines: set[str] = set()
-            for rec in weapon_records:
-                weap_plugin = (rec.get("plugin") or "").strip()
-                weap_eid = (rec.get("weap_editor_id") or "").strip()
-                weap_fid = (rec.get("weap_formid") or "").upper()
-                orig_ammo_fid = (rec.get("ammo_formid") or "").upper()
-                if not (weap_plugin and weap_fid and orig_ammo_fid):
+            # OMODの処理
+            for omod_entry in rec.get("omods") or []:
+                omod_plugin = (omod_entry.get("plugin") or "").strip()
+                omod_fid = (omod_entry.get("formid") or "").strip().upper()
+                omod_eid = (omod_entry.get("editor_id") or "").strip()
+                if not (omod_plugin and omod_fid):
                     continue
-                if orig_ammo_fid.lower() not in ammo_map_dict:
-                    continue
+                omod_key = f"{omod_plugin}|{omod_fid}"
+                ammo_note = orig_ammo_eid or orig_ammo_fid
+                weapon_note = weap_eid or weap_fid
+                context = f"[{weap_plugin}] {weapon_note} (Ammo:{ammo_note})"
+                entry = omod_patch_map.get(omod_key)
+                if entry:
+                    if entry["target_ammo"] != mapped_ammo_fid:
+                        logging.warning(
+                            "[Robco][OMOD] 競合: %s は異なる弾薬にマップ済み (%s -> %s)",
+                            omod_key,
+                            entry["target_ammo"],
+                            mapped_ammo_fid,
+                        )
+                        continue
+                    entry["contexts"].add(context)
+                else:
+                    omod_patch_map[omod_key] = {
+                        "plugin": omod_plugin,
+                        "formid": omod_fid,
+                        "editor_id": omod_eid,
+                        "target_ammo": mapped_ammo_fid,
+                        "target_plugin": target_plugin,
+                        "contexts": {context},
+                    }
+            
+            # Leveled Listへの追加処理
+            if ll_editorid_to_pf:
                 for faction, lli_editorid in faction_ll_map.items():
                     pf = ll_editorid_to_pf.get(lli_editorid) or {}
                     ll_fid = (pf.get("formid") or "").upper()
@@ -506,23 +492,109 @@ def run(config) -> bool:
                         logging.warning(f"[Robco][LL] LL 未解決: {lli_editorid}（CSV/JSON を確認）")
                         continue
                     
-                    comment = f"; Add [{weap_plugin}] {weap_eid} to {faction}"
-                    line = f"filterByFormLists={ll_fid}:formsToAdd={weap_plugin}|{weap_fid}"
-                    if comment not in seen_ll_lines:
-                        formlist_add_lines.append(f"\n{comment}")
-                        seen_ll_lines.add(comment)
-                    if line not in seen_ll_lines:
-                        formlist_add_lines.append(line)
-                        seen_ll_lines.add(line)
-                        added_ll += 1
+                    ll_comment = f"; Add [{weap_plugin}] {weap_eid} to {faction}"
+                    ll_line = f"filterByFormLists={ll_fid}:formsToAdd={weap_plugin}|{weap_fid}"
+                    if ll_line not in seen_ll_lines:
+                        formlist_add_lines.append(f"\n{ll_comment}")
+                        formlist_add_lines.append(ll_line)
+                        seen_ll_lines.add(ll_line)
+        
+        # --- 出力先のディレクトリ構造を構築 ---
+        # RobCo_Auto_Patcher/F4SE/Plugins/RobCo_Patcher/ を基準とする
+        robco_base_dir = robco_patcher_dir / "F4SE" / "Plugins" / "RobCo_Patcher"
+        formlist_dir = robco_base_dir / "formlist"
+        weapon_dir = robco_base_dir / "weapon"
+        omod_dir = robco_base_dir / "omod"
+        formlist_dir.mkdir(parents=True, exist_ok=True)
+        weapon_dir.mkdir(parents=True, exist_ok=True)
+        omod_dir.mkdir(parents=True, exist_ok=True)
 
+        # --- INIファイル1: 独自弾薬をフォームリストから削除 (FormList Remove) ---
+        custom_ammo_ids = sorted(set(ammo_map_dict.keys()))
+        if custom_ammo_ids:
+            formlist_remove_lines = [
+                "; Munitions Auto-Patcher: Remove Custom Ammo from FormLists",
+                f"; GeneratedAt={time.strftime('%Y-%m-%d %H:%M:%S')}",
+                "; Step1: formsToRemove=<OriginalAmmoFormID> ; 全フォームリストから削除",
+                ""
+            ]
+            for orig_fid_lower in custom_ammo_ids:
+                formlist_remove_lines.append(f"formsToRemove={(orig_fid_lower or '').upper()}")
+            
+            formlist_remove_lines.append("")
+            formlist_remove_lines.append("; Step2: filterByWeapons=<Plugin>|<WeaponFormID>:setNewAmmo=<MunitionsAmmoFID>[:setNewAmmoList=<NPCAmmoListFID>]")
+            formlist_remove_lines.append("")
+            formlist_remove_path = formlist_dir / "Munitions_FormList_RemoveCustomAmmo.ini"
+            formlist_remove_path.write_text("\n".join(formlist_remove_lines), encoding="utf-8")
+            logging.info(
+                "[Robco][Ammo] 生成: %s (件数=%d, サイズ=%d bytes)",
+                formlist_remove_path.name,
+                len(custom_ammo_ids),
+                formlist_remove_path.stat().st_size,
+            )
+        else:
+            logging.info("[Robco][Ammo] 生成対象 0 件")
+
+        # --- INIファイル2: 武器の使用弾薬を変更 (Weapon SetAmmo) ---
+        if seen_weapon_entries:
+            weapon_ini_content = [
+                "; Munitions Auto-Patcher: Set Weapon Ammo",
+                f"; GeneratedAt={time.strftime('%Y-%m-%d %H:%M:%S')}",
+                ""
+            ]
+            weapon_ini_content.extend(weapon_patch_lines)
+
+            weapon_out_path = weapon_dir / "Munitions_Weapon_SetAmmo.ini"
+            weapon_out_path.write_text("\n".join(weapon_ini_content), encoding="utf-8")
+            logging.info(
+                "[Robco][Weapon] 生成: %s (件数=%d, サイズ=%d bytes)",
+                weapon_out_path.name,
+                len(seen_weapon_entries),
+                weapon_out_path.stat().st_size,
+            )
+        else:
+            logging.info("[Robco][Weapon] 生成対象 0 件")
+
+        # --- INIファイル3: OMOD の弾薬を変更 ---
+        if omod_patch_map:
+            logging.info("[Robco][OMOD] 変換候補 OMOD 数: %d", len(omod_patch_map))
+        else:
+            logging.info("[Robco][OMOD] 変換候補 OMOD が見つかりませんでした")
+
+        if omod_patch_map:
+            omod_lines = [
+                "; Munitions Auto-Patcher: OMOD Ammo Conversion",
+                f"; GeneratedAt={time.strftime('%Y-%m-%d %H:%M:%S')}",
+                "; syntax: filterByOMod=<Plugin>|<FormID>:changeOModPropertiesForm=Ammo=<Plugin>|<FormID>",
+                ""
+            ]
+            for omod_key in sorted(omod_patch_map.keys()):
+                payload = omod_patch_map[omod_key]
+                target_label = f"{payload['target_plugin']}|{payload['target_ammo']}"
+                editor_id = payload.get("editor_id") or ""
+                for ctx in sorted(payload["contexts"]):
+                    omod_lines.append(f"; {ctx} -> {target_label}")
+                if editor_id:
+                    omod_lines.append(f";   OMOD EditorID: {editor_id}")
+                omod_lines.append(
+                    f"filterByOMod={payload['plugin']}|{payload['formid']}:changeOModPropertiesForm=Ammo={target_label}"
+                )
+                omod_lines.append("")
+            omod_out_path = omod_dir / "Munitions_OMOD_SetAmmo.ini"
+            omod_out_path.write_text("\n".join(omod_lines).strip() + "\n", encoding="utf-8")
+            logging.info("[Robco][OMOD] 生成: %s (件数=%d, サイズ=%d bytes)",
+                         omod_out_path.name, len(omod_patch_map), omod_out_path.stat().st_size)
+        else:
+            logging.info("[Robco][OMOD] 生成対象 0 件")
+
+        # --- INIファイル4: 武器をレベルドリストに追加 (FormList Add) ---
         ll_out_path = formlist_dir / "Munitions_FormList_AddWeaponsToLL.ini"
-        if added_ll > 0:
+        if seen_ll_lines:
             ll_out_path.write_text("\n".join(formlist_add_lines), encoding="utf-8")
             logging.info("[Robco][LL] 生成: %s (件数=%d, サイズ=%d bytes)",
-                        ll_out_path.name, added_ll, ll_out_path.stat().st_size)
+                        ll_out_path.name, len(seen_ll_lines), ll_out_path.stat().st_size)
         else:
-            logging.warning("[Robco][LL] 生成対象 0 件（weapon_records / CSV/JSON / allocation_matrix を確認）")
+            logging.warning("[Robco][LL] 生成対象 0 件（weapon_records / CSV/JSON を確認）")
 
         # --- ZIPアーカイブの作成 ---
         try:
@@ -537,8 +609,8 @@ def run(config) -> bool:
             shutil.make_archive(
                 base_name=str(zip_output_path.with_suffix('')), # 出力ファイル名 (拡張子なし)
                 format='zip',                                  # フォーマット
-                root_dir=robco_patcher_dir,                    # アーカイブのルートを RobCo_Auto_Patcher に設定
-                base_dir='F4SE'                                # F4SE ディレクトリからアーカイブを開始
+                root_dir=robco_patcher_dir.parent,             # アーカイブのルートをプロジェクト直下に設定
+                base_dir=robco_patcher_dir.name                # RobCo_Auto_Patcher ディレクトリからアーカイブを開始
             )
             logging.info(f"[Robco][ZIP] {zip_output_path.name} の作成が完了しました。")
         except Exception as e:
