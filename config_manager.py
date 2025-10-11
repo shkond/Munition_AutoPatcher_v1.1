@@ -52,7 +52,19 @@ class ConfigManager:
 
     def get_path(self, section: str, key: str) -> Path:
         """指定されたセクションとキーからパスを Path オブジェクトとして返す。"""
-        return self._resolve_path(self.config.get(section, key))
+        # 特別ルール: xedit_output_dir は xedit_executable から動的に導出
+        if section == 'Paths' and key == 'xedit_output_dir':
+            try:
+                # 無限再帰を避けるため、configから直接文字列を取得して解決
+                xedit_exe_str = self.config.get('Paths', 'xedit_executable')
+                xedit_exe_path = self._resolve_path(xedit_exe_str)
+                return xedit_exe_path.parent / 'Edit Scripts' / 'Output'
+            except (configparser.NoSectionError, configparser.NoOptionError) as e:
+                raise ValueError("xedit_output_dir を導出するには、config.ini の [Paths] に xedit_executable の設定が必要です。") from e
+
+        # 通常のパス取得処理
+        path_str = self.config.get(section, key)
+        return self._resolve_path(path_str)
 
     def get_string(self, section: str, key: str, fallback: str = '') -> str:
         """指定されたセクションとキーから値を文字列として返す。"""

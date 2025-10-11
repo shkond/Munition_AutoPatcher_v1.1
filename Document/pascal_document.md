@@ -72,3 +72,17 @@ xEditからのスクリプト実行は、以下の階層で行われます。
 | `GetFullFormID` | レコードのロードオーダーを考慮した完全なFormID (例: `FE008001`) を取得します。 |
 | `LowerTrim`, `SplitCSVToList`, etc. | 文字列の整形やリスト操作を行うための汎用ユーティリティです。 |
 | `GetEditorIdSafe` | `EditorID()` で取得できない場合でも、`GetElementEditValues` を使って安全にEditorIDを取得します。 |
+
+---
+
+### 6. 生成されるファイルと役割
+
+xEditスクリプトは、後続のPython処理で利用される中間ファイルを `Output` ディレクトリに生成します。
+
+| ファイル名 | 生成元スクリプト | 内容 | 利用先 (Python) |
+| :--- | :--- | :--- | :--- |
+| `weapon_ammo_map.json` | `ExtractWeaponAmmoMappingLogic.pas` | 武器（WEAP）のEditorIDと、それが使用する弾薬（AMMO）のFormIDを関連付けたJSON配列。 | `robco_ini_generate.py`: 武器と弾薬の基本的な関連を把握するために使用。 |
+| `unique_ammo_for_mapping.ini` | `ExtractWeaponAmmoMappingLogic.pas` | `weapon_ammo_map.json` の中で見つかった、Munitions以外のMODが追加したユニークな弾薬のリスト。`[UnmappedAmmo]`セクションに `FormID=ESP名|EditorID` の形式で記録される。 | `mapper.py`: このリストを元に、ユーザーが手動でMunitions弾薬への変換（マッピング）を行うための入力データとして使用。 |
+| `WeaponLeveledLists_Export.csv` | `ExportLeveledListsLogic.pas` | 武器が配布される可能性のあるレベルドリスト（LVLI）の情報をCSV形式で出力したもの。`EditorID`, `FormID`, `SourceFile`などの列を含む。 | `robco_ini_generate.py`: `LLI_Hostile_Gunner_Any` などの特定のレベルドリストのFormIDを解決するために使用。これにより、Robco Patcherがどのレベルドリストに武器を追加すべきかを判断できる。 |
+| `munitions_ammo_ids.ini` | `AutoPatcherCore.pas` (`AP_Run_ExportMunitionsAmmoIDs`) | `Munitions - An Ammo Expansion.esl` に含まれる全ての弾薬のFormIDとEditorIDをINI形式で出力したもの。`[MunitionsAmmo]`セクションに `FormID=EditorID` の形式で記録される。 | `Orchestrator.py` (`run_strategy_generation`): このリストと分類ルール (`ammo_categories.json`) を照合し、各弾薬のカテゴリ（Pistol, Rifleなど）を決定する。<br>`mapper.py`: ユーザーが弾薬をマッピングする際の、変換先候補リストとして使用。 |
+| `weapon_ammo_details.txt` | `AutoPatcherCore.pas` (`AP_Run_ExportWeaponAmmoDetails`) | MODが追加した武器と、それが使用する弾薬の詳細情報（プラグイン名、FormID、EditorID）を `|` 区切りで出力したもの。 | `robco_ini_generate.py`: Robco Patcherがレベルドリストに武器を追加する際の、武器の完全な識別情報（`Plugin|FormID`）を取得するために使用。 |

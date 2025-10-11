@@ -20,6 +20,7 @@ import json
 import locale
 import logging
 import time
+import shutil
 from pathlib import Path
 import configparser
 from collections import Counter
@@ -99,7 +100,7 @@ def _load_ll_from_json(output_dir: Path) -> dict:
         data = json.loads(_read_text_utf8_fallback(p))
         return data.get("LeveledLists", {}) or {}
     except Exception as e:
-        logging.warning(f"[Robco][LL] leveled_lists.json 読込失敗（フォールバック無効）: {e}")
+        logging.warning(f"[Robco][LL] leveled_lists.json 読み込み失敗（フォールバック無効）: {e}")
         return {}
 
 def _load_ammo_map(ammo_map_file: Path) -> dict:
@@ -262,6 +263,57 @@ def _category_to_group(category: str) -> str | None:
         return "rifle"
     return None
 
+def _load_munitions_npc_list_map(output_dir: Path, specified: Path | None) -> dict[str, str]:
+    """
+    Munitions弾薬FormID -> NPC用フォームリストFormID のマップを読み込む。
+    INI形式想定: [AmmoNPCList] <AmmoFormID>=<FormListFormID>
+    """
+    candidates: list[Path] = []
+    if specified and specified.is_file():
+        candidates.append(specified)
+    candidates.append(output_dir / "munitions_npc_lists.ini")
+    if output_dir.parent and output_dir.parent.exists():
+        candidates.append(output_dir.parent / "munitions_npc_lists.ini")
+    for p in candidates:
+        if p.is_file():
+            try:
+                parser = configparser.ConfigParser()
+                parser.read(p, encoding="utf-8")
+                mapping: dict[str, str] = {}
+                if parser.has_section("AmmoNPCList"):
+                    for k, v in parser.items("AmmoNPCList"):
+                        k_norm = (k or "").strip().upper()
+                        v_norm = (v or "").strip().upper()
+                        if k_norm and v_norm:
+                            mapping[k_norm] = v_norm
+                if mapping:
+                    logging.info("[Robco][Ammo] NPC用フォームリストMap読込: %s (件数=%d)", p, len(mapping))
+                    return mapping
+            except Exception as e:
+                logging.warning(f"[Robco][Ammo] munitions_npc_lists.ini 読込失敗: {e}")
+    return {}
+
+def _load_munitions_ammo_id_map(output_dir: Path) -> dict[str, str]:
+    """
+    munitions_ammo_ids.ini から FormID -> EditorID のマップを読み込む。
+    """
+    p = output_dir / "munitions_ammo_ids.ini"
+    if not p.is_file():
+        logging.warning("[Robco][Ammo] munitions_ammo_ids.ini が見つかりません。")
+        return {}
+    
+    mapping: dict[str, str] = {}
+    try:
+        parser = configparser.ConfigParser()
+        parser.read(p, encoding="utf-8")
+        if parser.has_section("MunitionsAmmo"):
+            for k, v in parser.items("MunitionsAmmo"):
+                mapping[k.upper()] = v
+        return mapping
+    except Exception as e:
+        logging.warning(f"[Robco][Ammo] munitions_ammo_ids.ini 読み込み失敗: {e}")
+    return {}
+
 def run(config) -> bool:
     """
     Robco Patcher 用 INI を生成。
@@ -269,6 +321,12 @@ def run(config) -> bool:
     - robco_ll_patch.ini（入力が揃った場合のみ）
     """
     logging.info(f"{'-' * 10} ステップ4: Robco Patcher INI 生成 {'-' * 10}")
+
+    # --- 設定の読み込み ---
+    simplify_ini = True # デフォルトはシンプル出力
+    if hasattr(config, 'get_boolean'):
+        simplify_ini = config.get_boolean('Parameters', 'simplify_robco_ammo_ini', fallback=True)
+
     try:
         strategy_file = config.get_path('Paths', 'strategy_file')
         output_dir = config.get_path('Paths', 'output_dir')
@@ -295,7 +353,7 @@ def run(config) -> bool:
         try:
             weapon_data = json.loads(_read_text_utf8_fallback(weapon_data_file))
         except json.JSONDecodeError as e:
-            logging.error(f"[Robco] weapon_ammo_map.json 読込失敗: {e}")
+            logging.error(f"[Robco] weapon_ammo_map.json 読み込失敗: {e}")
             return False
 
         ammo_map_dict = _load_ammo_map(ammo_map_file)
@@ -325,93 +383,168 @@ def run(config) -> bool:
         logging.info("[Robco][診断] ammo_map マッピング数: %d", len(ammo_map_dict))
         logging.info("[Robco][診断] 使用 LL (EditorID): %s", ", ".join(faction_ll_map.values()))
 
-        # 1) robco_ammo_patch.ini
-        munitions_plugin_name = "Munitions - An Ammo Expansion.esl"
+        # 1) robco_ammo_patch.ini - 新構文
+        # Step 1: 独自弾薬を全フォームリストから削除
         ammo_lines = [
-            "; Robco Ammo Patcher - Auto generated",
+            "; Robco Ammo Patcher - Auto generated (new syntax)",
             f"; GeneratedAt={time.strftime('%Y-%m-%d %H:%M:%S')}",
-            "; syntax: filterByAmmos=<Plugin>|<FormID>:ammoCategory=pistol|rifle:attackDamage=none:setNewProjectile=none:addToFormList=none",
-            ""
+            "; Step1: formsToRemove=<OriginalAmmoFormID> ; 全フォームリストから削除",
+            "; Step2: filterByWeapons=<Plugin>|<WeaponFormID>:setNewAmmo=<MunitionsAmmoFID>[:setNewAmmoList=<NPCAmmoListFID>]",
+        ""
         ]
         added_ammo = 0
-        for formid_upper, info in ammo_classification.items():
-            group = _category_to_group((info or {}).get("Category", ""))
-            if not group:
-                continue
-            mapped = ammo_map_dict.get(formid_upper.lower(), formid_upper).upper()
-            ammo_lines.append(
-                f"filterByAmmos={munitions_plugin_name}|{mapped}:ammoCategory={group}:attackDamage=none:setNewProjectile=none:addToFormList=none"
-            )
+        for orig_fid_lower in sorted(set(ammo_map_dict.keys())):
+            ammo_lines.append(f"formsToRemove={(orig_fid_lower or '').upper()}")
             added_ammo += 1
 
-        robco_patcher_dir.mkdir(parents=True, exist_ok=True)
-        ammo_out_path = robco_patcher_dir / "robco_ammo_patch.ini"
-        if added_ammo > 0:
+        # Step 2: 武器が使用する弾薬をMunitionsへ置換（必要に応じてNPCリストも設定）
+        weapon_records = _read_weapon_records(
+            output_dir,
+            config.get_path('Paths', 'xedit_output_dir') if hasattr(config, 'get_path') else None
+        )
+        try:
+            npc_list_map_path = config.get_path('Paths', 'munitions_npc_list_map')
+        except Exception:
+            npc_list_map_path = None
+        npc_list_map = _load_munitions_npc_list_map(output_dir, npc_list_map_path)
+        munitions_id_map = _load_munitions_ammo_id_map(output_dir)
+
+        seen_weapon_lines: set[str] = set()
+        for rec in weapon_records:
+            weap_plugin = (rec.get("plugin") or "").strip()
+            weap_fid = (rec.get("weap_formid") or "").upper()
+            weap_eid = (rec.get("weap_editor_id") or "").strip()
+            orig_ammo_fid = (rec.get("ammo_formid") or "").upper()
+            orig_ammo_eid = (rec.get("ammo_editor_id") or "").strip()
+
+            if not (weap_plugin and weap_fid and orig_ammo_fid):
+                continue
+
+            orig_ammo_fid_lower = orig_ammo_fid.lower()
+
+            # --- ロジック分岐 ---
+            if simplify_ini:
+                # 【シンプルモード】マッピング対象の武器のみINIに記述
+                if orig_ammo_fid_lower in ammo_map_dict:
+                    mapped_ammo_fid = ammo_map_dict[orig_ammo_fid_lower].upper()
+                    mapped_ammo_eid = munitions_id_map.get(mapped_ammo_fid, "UNKNOWN_MUNITIONS_AMMO")
+
+                    comment = f"; [{weap_plugin}] {weap_eid} ({orig_ammo_eid}) -> {mapped_ammo_eid}"
+                    line = f"filterByWeapons={weap_plugin}|{weap_fid}:setNewAmmo={mapped_ammo_fid}"
+                    
+                    npc_list_fid = npc_list_map.get(mapped_ammo_fid)
+                    if npc_list_fid:
+                        line += f":setNewAmmoList={npc_list_fid}"
+                    
+                    if comment not in seen_weapon_lines:
+                        ammo_lines.append(f"\n{comment}")
+                        seen_weapon_lines.add(comment)
+                    if line not in seen_weapon_lines:
+                        ammo_lines.append(line)
+                        seen_weapon_lines.add(line)
+            else:
+                # 【互換モード】全武器をINIに記述（変更がない武器も含む）
+                mapped_ammo_fid = (ammo_map_dict.get(orig_ammo_fid_lower) or orig_ammo_fid).upper()
+                line = f"filterByWeapons={weap_plugin}|{weap_fid}:setNewAmmo={mapped_ammo_fid}"
+                if line not in seen_weapon_lines:
+                    ammo_lines.append(line)
+                    seen_weapon_lines.add(line)
+        
+        # --- 出力先のディレクトリ構造を構築 ---
+        # RobCo_Auto_Patcher/F4SE/Plugins/RobCo_Patcher/ を基準とする
+        robco_base_dir = robco_patcher_dir / "F4SE" / "Plugins" / "RobCo_Patcher"
+        formlist_dir = robco_base_dir / "formlist"
+        weapon_dir = robco_base_dir / "weapon"
+        formlist_dir.mkdir(parents=True, exist_ok=True)
+        weapon_dir.mkdir(parents=True, exist_ok=True)
+
+        # --- INIファイル1: 独自弾薬をフォームリストから削除 ---
+        formlist_remove_lines = [f"; Munitions Auto-Patcher: Remove Custom Ammo from FormLists", f"; GeneratedAt={time.strftime('%Y-%m-%d %H:%M:%S')}", ""]
+        formlist_remove_lines.extend(f"formsToRemove={(orig_fid_lower or '').upper()}" for orig_fid_lower in sorted(set(ammo_map_dict.keys())))
+        
+        if len(formlist_remove_lines) > 3: # ヘッダー以外の行がある場合
+            ammo_out_path = formlist_dir / "Munitions_FormList_RemoveCustomAmmo.ini"
             ammo_out_path.write_text("\n".join(ammo_lines), encoding="utf-8")
             logging.info("[Robco][Ammo] 生成: %s (件数=%d, サイズ=%d bytes)",
-                         ammo_out_path.name, added_ammo, ammo_out_path.stat().st_size)
+                        ammo_out_path.name, added_ammo, ammo_out_path.stat().st_size)
         else:
             logging.warning("[Robco][Ammo] 生成対象 0 件")
 
-        # 2) robco_ll_patch.ini（条件が揃えば生成）
-        ll_lines = [
-            "; Robco LL Patcher - Auto generated",
+        # 2) robco_ll_patch.ini（新構文・確定追加）
+        # --- INIファイル2: 武器の使用弾薬を変更 ---
+        weapon_patch_lines = [f"; Munitions Auto-Patcher: Set Weapon Ammo", f"; GeneratedAt={time.strftime('%Y-%m-%d %H:%M:%S')}", ""]
+        weapon_patch_lines.extend(line for line in ammo_lines if line.strip().startswith("filterByWeapons") or line.strip().startswith("; ["))
+        
+        if any(line.strip().startswith("filterByWeapons") for line in weapon_patch_lines):
+            weapon_out_path = weapon_dir / "Munitions_Weapon_SetAmmo.ini"
+            weapon_out_path.write_text("\n".join(weapon_patch_lines), encoding="utf-8")
+            logging.info("[Robco][Weapon] 生成: %s (サイズ=%d bytes)", weapon_out_path.name, weapon_out_path.stat().st_size)
+
+        # --- INIファイル3: 武器をレベルドリストに追加 ---
+        formlist_add_lines = [
+            "; Munitions Auto-Patcher: Add Patched Weapons to Leveled Lists",
             f"; GeneratedAt={time.strftime('%Y-%m-%d %H:%M:%S')}",
-            "; syntax: filterByLLs=<Plugin>|<FormID>:addToLLs=<Plugin>|<FormID>~1~1~<invertedChance>",
             ""
         ]
         added_ll = 0
-        weapon_records = _read_weapon_records(
-        output_dir,
-        # 任意: config.ini に Paths.xedit_output_dir を追加しておくとここで参照されます
-        config.get_path('Paths', 'xedit_output_dir') if hasattr(config, 'get_path') else None
-        )
 
-        if weapon_records and ll_editorid_to_pf and allocation_matrix:
-            # ammo_formid -> category
-            def ammo_category_for(fid: str) -> str | None:
-                info = ammo_classification.get((fid or "").upper())
-                return (info or {}).get("Category") if info else None
-
+        if weapon_records and ll_editorid_to_pf:
+            seen_ll_lines: set[str] = set()
             for rec in weapon_records:
-                ammo_fid = (rec.get("ammo_formid") or "").upper()
-                weap_plugin = rec.get("plugin") or ""
+                weap_plugin = (rec.get("plugin") or "").strip()
+                weap_eid = (rec.get("weap_editor_id") or "").strip()
                 weap_fid = (rec.get("weap_formid") or "").upper()
-                if not (weap_plugin and weap_fid and ammo_fid):
+                orig_ammo_fid = (rec.get("ammo_formid") or "").upper()
+                if not (weap_plugin and weap_fid and orig_ammo_fid):
                     continue
-
-                # 武器側の弾薬FormIDがバニラの可能性があるため、ammo_map でMunitions側のFormIDへ変換
-                mapped_ammo_fid = (ammo_map_dict.get(ammo_fid.lower()) or ammo_fid).upper()
-
-                cat = ammo_category_for(mapped_ammo_fid)
-                if not cat:
+                if orig_ammo_fid.lower() not in ammo_map_dict:
                     continue
-
                 for faction, lli_editorid in faction_ll_map.items():
-                    weight = (allocation_matrix.get(faction) or {}).get(cat, 0)
-                    if weight <= 0:
-                        continue
-
                     pf = ll_editorid_to_pf.get(lli_editorid) or {}
-                    if not (pf.get("plugin") and pf.get("formid")):
+                    ll_fid = (pf.get("formid") or "").upper()
+                    if not ll_fid:
                         logging.warning(f"[Robco][LL] LL 未解決: {lli_editorid}（CSV/JSON を確認）")
                         continue
+                    
+                    comment = f"; Add [{weap_plugin}] {weap_eid} to {faction}"
+                    line = f"filterByFormLists={ll_fid}:formsToAdd={weap_plugin}|{weap_fid}"
+                    if comment not in seen_ll_lines:
+                        formlist_add_lines.append(f"\n{comment}")
+                        seen_ll_lines.add(comment)
+                    if line not in seen_ll_lines:
+                        formlist_add_lines.append(line)
+                        seen_ll_lines.add(line)
+                        added_ll += 1
 
-                    inv = _invert_robco_chance(weight)
-                    ll_lines.append(
-                        f"filterByLLs={pf['plugin']}|{pf['formid']}:addToLLs={weap_plugin}|{weap_fid}~1~1~{inv}"
-                    )
-                    added_ll += 1
-
-            if added_ll > 0:
-                outp = robco_patcher_dir / "robco_ll_patch.ini"
-                outp.write_text("\n".join(ll_lines), encoding="utf-8")
-                logging.info("[Robco][LL] 生成: %s (行=%d, サイズ=%d bytes)", outp.name, added_ll, outp.stat().st_size)
-            else:
-                logging.warning("[Robco][LL] 生成対象 0 件（weapon_records / CSV/JSON / allocation_matrix を確認）")
+        ll_out_path = formlist_dir / "Munitions_FormList_AddWeaponsToLL.ini"
+        if added_ll > 0:
+            ll_out_path.write_text("\n".join(formlist_add_lines), encoding="utf-8")
+            logging.info("[Robco][LL] 生成: %s (件数=%d, サイズ=%d bytes)",
+                        ll_out_path.name, added_ll, ll_out_path.stat().st_size)
         else:
-            logging.info("[Robco][LL] 必要データ不足のためスキップ")
+            logging.warning("[Robco][LL] 生成対象 0 件（weapon_records / CSV/JSON / allocation_matrix を確認）")
 
+        # --- ZIPアーカイブの作成 ---
+        try:
+            # ZIPファイルはプロジェクトルートに出力
+            zip_output_path = robco_patcher_dir.parent / f"{robco_patcher_dir.name}.zip"
+            logging.info(f"[Robco][ZIP] ZIPアーカイブを作成します: {zip_output_path}")
+
+            # 既存のZIPファイルを削除
+            if zip_output_path.exists():
+                zip_output_path.unlink()
+
+            shutil.make_archive(
+                base_name=str(zip_output_path.with_suffix('')), # 出力ファイル名 (拡張子なし)
+                format='zip',                                  # フォーマット
+                root_dir=robco_patcher_dir,                    # アーカイブのルートを RobCo_Auto_Patcher に設定
+                base_dir='F4SE'                                # F4SE ディレクトリからアーカイブを開始
+            )
+            logging.info(f"[Robco][ZIP] {zip_output_path.name} の作成が完了しました。")
+        except Exception as e:
+            logging.error(f"[Robco][ZIP] ZIPアーカイブの作成中にエラーが発生しました: {e}", exc_info=True)
+
+        logging.info("[Robco] Robco INI 生成完了")
         return True
 
     except Exception as e:

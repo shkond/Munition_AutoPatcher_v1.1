@@ -116,6 +116,10 @@ class Application(tk.Frame):
         self.run_button = ttk.Button(run_frame, text="2. 全自動処理を開始", command=self.start_full_process)
         self.run_button.grid(row=0, column=1, padx=5, pady=10, sticky="ew")
 
+        self.simplify_ini_var = tk.BooleanVar()
+        self.simplify_ini_check = ttk.Checkbutton(run_frame, text="Robco INI の出力をシンプルにする (推奨: 変更対象の武器のみ記録)", variable=self.simplify_ini_var)
+        self.simplify_ini_check.grid(row=1, column=0, columnspan=2, sticky="w", padx=5, pady=(0, 10))
+
         log_frame = ttk.LabelFrame(self, text="ログ")
         log_frame.pack(fill="both", expand=True, pady=5)
         log_frame.grid_propagate(False)
@@ -200,6 +204,8 @@ class Application(tk.Frame):
             instance_name = self.config_manager.get_string('Environment', 'mo2_instance_name') or ''
             self.mo2_instance_name_var.set(instance_name)
             
+            self.simplify_ini_var.set(self.config_manager.get_boolean('Parameters', 'simplify_robco_ammo_ini', fallback=True))
+
             self.xedit_executable_var.set(str(self.config_manager.get_path('Paths', 'xedit_executable')))
             
         except Exception as e:
@@ -219,6 +225,8 @@ class Application(tk.Frame):
             self.config_manager.save_setting('Environment', 'mo2_shortcut_format', self.mo2_shortcut_format_var.get())
             self.config_manager.save_setting('Environment', 'mo2_instance_name', self.mo2_instance_name_var.get())
             
+            self.config_manager.save_setting('Parameters', 'simplify_robco_ammo_ini', str(self.simplify_ini_var.get()))
+
             self.config_manager.save_setting('Paths', 'xedit_executable', self.xedit_executable_var.get())
             
             logging.info("設定が config.ini に正常に保存されました。")
