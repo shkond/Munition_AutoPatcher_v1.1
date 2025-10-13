@@ -7,6 +7,21 @@
 
 unit mteElements;
 
+uses xEditAPI, SysUtils;
+
+interface
+
+(*
+const
+  // VARIANT TYPES
+  varInteger = 3;
+  varDouble = 5;
+  varShortInt = 16;
+  varString =  256; { Pascal string }
+  varUString = 258; { Unicode string }
+  { SEE http://stackoverflow.com/questions/24731098/ for more }
+*)
+
 {****************************************************}
 { ELEMENT COMPARISON
   Methods for comparing or evaluating elements.
@@ -15,6 +30,8 @@ unit mteElements;
   - StructMatches
 }
 {****************************************************}
+
+implementation
 
 function IsValue(element: IInterface): Boolean;
 var
@@ -84,7 +101,8 @@ begin
   if (path = '') then begin
     // if value isn't a string, raise exception because comparison will fail
     if (vt <> vtString) and (vt <> vtUString) then
-      raise Exception.Create(Format('StructMatches: Unable to compare value at path '+'"%s" against variant of type %d', [Path(struct), vt]));
+      raise Exception.Create(Format('StructMatches: Unable to compare value at path '+
+        '"%s" against variant of type %d', [Path(struct), vt]);
     
     // get key for struct - use SortKey if container is sorted else use GetAllValues
     if IsSorted(container) then

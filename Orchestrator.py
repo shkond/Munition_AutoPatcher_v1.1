@@ -449,7 +449,7 @@ class Orchestrator:
                     f"-S:{edit_scripts_dir}",
                     "-IKnowWhatImDoing",
                     "-AllowMasterFilesEdit",
-                    f"-L:{session_log_path}",
+                    f"-Log:{session_log_path}",
                     "-cache",
                 ]
 
@@ -476,7 +476,7 @@ class Orchestrator:
                     "-IKnowWhatImDoing",
                     "-AllowMasterFilesEdit",
                     f"-script:{temp_script_filename}",
-                    f"-L:{session_log_path}"
+                    f"-Log:{session_log_path}"
                 ])
                 logging.info("[xEdit] キャッシュ機能は廃止されました (-cache 引数は付与されません)")
                 logging.info("[xEdit] 高速化: QuickShowConflicts 無効化 (-QS:0)")
@@ -559,8 +559,47 @@ class Orchestrator:
                     except Exception:
                         pass
                 time.sleep(poll_interval)
-
             # ★★★ 修正: 成功判定ポリシー ★★★
+            # セッションログの検出に失敗した場合、xEdit が別名のデバッグログ
+            # (xEdit_debug_*.txt) を出力している可能性があるため、代替ログを
+            # 探索して success_message の有無を確認する。
+            if not success_found:
+                try:
+                    alt_candidates = []
+                    # アプリケーションの output_dir をチェック
+                    try:
+                        alt_candidates.extend(list(output_dir.glob('xEdit_debug_*.txt')))
+                    except Exception:
+                        pass
+                    # xEdit の Edit Scripts/Output を先にチェック
+                    try:
+                        edit_out = edit_scripts_dir / 'Output'
+                        if edit_out.exists():
+                            alt_candidates.extend(list(edit_out.glob('xEdit_debug_*.txt')))
+                    except Exception:
+                        pass
+
+                    if alt_candidates:
+                        # 最新ファイルを選ぶ
+                        alt_candidates.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+                        for alt in alt_candidates:
+                            try:
+                                text = alt.read_text(encoding='utf-8', errors='replace')
+                            except Exception as e:
+                                logging.debug(f"[xEdit] 代替ログ読み取り失敗: {alt} - {e}")
+                                continue
+                            logging.info(f"[xEdit] 代替ログ検出: {alt}")
+                            if success_message in text:
+                                success_found = True
+                                break
+                            # エラーメッセージをログに出力しておく
+                            if 'Exception' in text or 'Error' in text or 'Traceback' in text:
+                                logging.warning(f"[xEdit] 代替ログにエラーらしき記述を検出: {alt}")
+                                logging.debug(text)
+                                break
+                except Exception:
+                    pass
+
             if exit_code != 0:
                 logging.error(f"[xEdit] 失敗: exit code={exit_code}")
                 return False
@@ -572,7 +611,19 @@ class Orchestrator:
             if expected_outputs:
                 # 候補ディレクトリを確認して成果物の存在を検証
                 candidates = self._candidate_output_dirs()
-                
+
+                # 明示的に Edit Scripts/Output を先頭に追加して優先検査する。
+                # xEdit 本体が作成する出力は通常ここに置かれるため、
+                # セッションログが見つからない場合でも成果物を拾えるようにする。
+                try:
+                    edit_scripts_output = edit_scripts_dir / 'Output'
+                    if edit_scripts_output.exists():
+                        if not any(str(p.resolve()) == str(edit_scripts_output.resolve()) for p in candidates):
+                            candidates.insert(0, edit_scripts_output)
+                except Exception:
+                    # ここで失敗しても探索は続ける
+                    pass
+
                 logging.info(f"[xEdit] 成果物検証: {len(candidates)} 箇所を探索")
                 for idx, d in enumerate(candidates, 1):
                     logging.debug(f"[xEdit]   {idx}. {d}")
@@ -644,9 +695,20 @@ class Orchestrator:
         finally:
             # クリーンアップ: 一時スクリプトとlibバックアップの処理
             try:
+                # Allow debugging by keeping temp scripts when environment flag set
+                keep_temp = False
+                try:
+                    keep_flag = (self.config.get_string('Environment', 'keep_temp_scripts', 'false') or '').lower()
+                    if keep_flag in ('1', 'true', 'yes'):
+                        keep_temp = True
+                except Exception:
+                    keep_temp = False
                 if temp_script_path.exists():
-                    temp_script_path.unlink()
-                    logging.debug(f"[xEdit] 一時スクリプト削除: {temp_script_path}")
+                    if not keep_temp:
+                        temp_script_path.unlink()
+                        logging.debug(f"[xEdit] 一時スクリプト削除: {temp_script_path}")
+                    else:
+                        logging.info(f"[xEdit] デバッグモード: 一時スクリプトを保持します: {temp_script_path}")
             except Exception as e:
                 logging.warning(f"[xEdit] 一時スクリプト削除失敗: {e}")
 

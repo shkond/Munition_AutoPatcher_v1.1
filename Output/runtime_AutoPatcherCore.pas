@@ -23,14 +23,6 @@ function AP_Run_GenerateStrategyFromMunitions: Integer;
 
 implementation
 
-uses
-  xEditAPI, Classes, SysUtils, StrUtils, Windows,
-  // 'lib/AutoPatcherLib',
-  'lib/mteBase',
-  'lib/mteElements',
-  'lib/mteFiles',
-  'lib/mteRecords';
-
 // --- 内部ヘルパー: 文字列ユーティリティ ---
 function _LowerTrim(const s: string): string;
 begin
@@ -380,7 +372,7 @@ begin
   jsonLines := TStringList.Create;
   uniqueAmmoLines := TStringList.Create;
   try
-  LogDebug('AP_Run_ExportWeaponAmmoDetails: start');
+    LogDebug('AP_Run_ExportWeaponAmmoDetails: 開始');
 
     // Early instrumentation: write a short manual debug log so we can detect the script started
     // even if xEdit crashes before the main save occurs.
@@ -479,19 +471,6 @@ begin
         try
           try
             AddMessage(Format('[PROBE_WEAPON] idx=%d plugin=%s editor=%s form=%s', [weaponCount, weaponPlugin, weaponEditorID, weaponFormID]));
-            // Extra FormID probes: raw element value + hex-safe representation
-            try
-              // raw FormID via GetElementNativeValues (may return numeric/variant or string)
-              AddMessage(Format('[PROBE_FORMID_RAW] editor=%s raw=%s', [weaponEditorID, VarToStr(GetElementNativeValues(weaponRec, 'Record Header\FormID'))]));
-            except
-              // ignore
-            end;
-            try
-              // Also try the low-level FormID retrieval and explicit formatting
-              AddMessage(Format('[PROBE_FORMID_HEX] editor=%s hex=%s', [weaponEditorID, GetFullFormID(weaponRec)]));
-            except
-              // ignore
-            end;
           except
             // ignore
           end;
@@ -526,25 +505,25 @@ begin
         jsonLines.Add(Format('    "ammo_editor_id": "%s",', [_EscapeJSON(ammoEditorID)]));
         jsonLines.Add('    "omods": [');
 
-  LogDebug(Format('[OMOD] Weapon: %s (%s) processing OMODs', [weaponEditorID, weaponFormID]));
+        LogDebug(Format('[OMOD] 武器: %s (%s) のOMOD処理を開始', [weaponEditorID, weaponFormID]));
         omodList := ElementByPath(weaponRec, 'OMOD - Object Mods');
         omodCount := 0;
         if Assigned(omodList) then begin
           omodCount := ElementCount(omodList);
-          LogDebug(Format('[OMOD]   list found. count: %d', [omodCount]));
+          LogDebug(Format('[OMOD]   リスト発見。件数: %d', [omodCount]));
         end else begin
-          LogDebug('[OMOD]   list not found');
+          LogDebug('[OMOD]   リストなし');
         end;
 
         for k := 0 to Pred(omodCount) do begin
           omodEntry := ElementByIndex(omodList, k);
           omodRec := LinksTo(omodEntry);
           if not Assigned(omodRec) then begin
-            LogWarning(Format('[OMOD]     - OMOD[%d]: linked record not found. skipping.', [k]));
+            LogWarning(Format('[OMOD]     - OMOD[%d]: リンク先のレコードが見つかりません。スキップします。', [k]));
             Continue;
           end;
 
-          LogDebug(Format('[OMOD]     - OMOD[%d]: %s (%s) processing', [k, EditorID(omodRec), GetFullFormID(omodRec)]));
+          LogDebug(Format('[OMOD]     - OMOD[%d]: %s (%s) を処理中', [k, EditorID(omodRec), GetFullFormID(omodRec)]));
           line := Format(
             '      { "omod_plugin": "%s", "omod_form_id": "%s", "omod_editor_id": "%s" }',
             [_EscapeJSON(GetFileName(MasterOrSelf(omodRec))),
@@ -563,13 +542,13 @@ begin
   end;
 
     jsonLines.Add(']');
-  LogDebug(Format('[WeaponOMOD] extracted weapon count: %d', [weaponCount]));
+    LogDebug(Format('[WeaponOMOD] 抽出武器件数: %d', [weaponCount]));
 
     // この2行は重複しているため、1行削除します
     // jsonLines.Add(']');
     // LogInfo(Format('[WeaponOMOD] 抽出件数: %d', [weaponCount]));
 
-  LogDebug(Format('Starting save of weapon_omod_map.json... (TStringList.Count: %d)', [jsonLines.Count]));
+    LogDebug(Format('weapon_omod_map.json の保存を開始します... (TStringList.Size: %d)', [jsonLines.Size]));
     // Use the library helper which logs success/failure and optionally fixes JSON quoting issues.
     if not SaveAndCleanJSONToFile(jsonLines, jsonPath, weaponCount, True) then
         try
@@ -578,7 +557,7 @@ begin
           // ignore
         end;
       LogComplete('Weapon OMOD export');
-  LogDebug('AP_Run_ExportWeaponAmmoDetails: finished');
+    LogDebug('AP_Run_ExportWeaponAmmoDetails: 正常終了');
   finally
     uniqueAmmoLines.Free;
     jsonLines.Free;

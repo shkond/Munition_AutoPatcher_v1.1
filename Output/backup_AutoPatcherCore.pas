@@ -5,7 +5,7 @@ uses ExtractWeaponAmmoMappingLogic, // AP_Run_ExtractWeaponAmmoMapping の実装
      ExportLeveledListsLogic;     // AP_Run_ExportWeaponLeveledLists の実装を外部化
 uses
   xEditAPI, Classes, SysUtils, StrUtils, Windows,
-  // 'lib/AutoPatcherLib',
+  'lib/AutoPatcherLib',
   'lib/mteBase',
   'lib/mteElements',
   'lib/mteFiles',
@@ -22,14 +22,6 @@ function AP_Run_ExportMunitionsAmmoIDs: Integer;
 function AP_Run_GenerateStrategyFromMunitions: Integer;
 
 implementation
-
-uses
-  xEditAPI, Classes, SysUtils, StrUtils, Windows,
-  // 'lib/AutoPatcherLib',
-  'lib/mteBase',
-  'lib/mteElements',
-  'lib/mteFiles',
-  'lib/mteRecords';
 
 // --- 内部ヘルパー: 文字列ユーティリティ ---
 function _LowerTrim(const s: string): string;
@@ -320,87 +312,36 @@ var
   weaponCount, omodCount: Integer;
   line: string;
   dbgF: TextFile; // per-weapon debug append file
-  totalFiles: Integer;
-  _stage: TStringList;
-  // Helper locals (declare here to satisfy PascalScript parser)
-  _early: TStringList;
-  _f: TextFile;
-  _dbg: TStringList;
-  placeholder: TStringList;
-  probeF: TextFile;
 begin
   Result := 0;
-  // Very early, unconditional probe: write a tiny marker file so we can
-  // detect that this function was entered even if xEdit crashes shortly
-  // afterwards. We attempt to write to both the configured Output folder
-  // and the program folder (ProgramPath) as best-effort targets.
-  try
-    try
-      _early := TStringList.Create;
-      try
-        _early.Add('[EarlyProbe] AP_Run_ExportWeaponAmmoDetails entered');
-        _early.Add(Format('Time=%s', [DateTimeToStr(Now)]));
-        // Try runtime output dir first
-        try
-          _early.SaveToFile(EnsureTrailingSlash(GetOutputDirectory) + 'early_stage_start.txt');
-        except
-          // ignore write failures
-        end;
-        // Also try program folder as an alternative (best-effort)
-        try
-          _early.SaveToFile(EnsureTrailingSlash(ProgramPath) + 'early_stage_start.txt');
-        except
-          // ignore write failures
-        end;
-      finally
-        _early.Free;
-      end;
-    except
-      // swallow any unexpected exception from the probe
-    end;
-  except
-  end;
-  // Also emit an AddMessage so the xEdit debug/session log contains a visible marker.
-  try
-    AddMessage(Format('[EARLY_PROBE] AP_Run_ExportWeaponAmmoDetails entered at %s', [DateTimeToStr(Now)]));
-  except
-  end;
-    // Emit a raw early probe marker via AddMessage (AssignFile not available in this runtime)
-    try
-      try
-        AddMessage(Format('[EARLY_RAW] %s', [DateTimeToStr(Now)]));
-      except
-        // ignore
-      end;
-    except
-    end;
-
-  Result := 0;
-
   jsonLines := TStringList.Create;
   uniqueAmmoLines := TStringList.Create;
   try
-  LogDebug('AP_Run_ExportWeaponAmmoDetails: start');
+    LogDebug('AP_Run_ExportWeaponAmmoDetails: 開始');
 
     // Early instrumentation: write a short manual debug log so we can detect the script started
     // even if xEdit crashes before the main save occurs.
     try
-      ForceDirectories(EnsureTrailingSlash(GetOutputDirectory));
-    except
-      // ignore
-    end;
-      // Emit a manual probe via AddMessage (file write not available in this runtime)
       try
-        AddMessage('[ManualProbe] AP_Run_ExportWeaponAmmoDetails start');
+        ForceDirectories(EnsureTrailingSlash(GetOutputDirectory));
+      except
+      end;
+      try
+        var _dbg := TStringList.Create;
         try
-          AddMessage(Format('ProgramPath=%s', [ProgramPath]));
-        except
-          AddMessage('ProgramPath=<unavailable>');
+          _dbg.Add('[ManualProbe] AP_Run_ExportWeaponAmmoDetails start');
+          _dbg.Add(Format('ProgramPath=%s', [ProgramPath]));
+          _dbg.Add(Format('Time=%s', [DateTimeToStr(Now)]));
+          _dbg.SaveToFile(EnsureTrailingSlash(GetOutputDirectory) + 'manual_debug_log.txt');
+        finally
+          _dbg.Free;
         end;
-        AddMessage(Format('Time=%s', [DateTimeToStr(Now)]));
       except
         // ignore
       end;
+
+    except
+    end;
 
     uniqueAmmoLines.Sorted := True;
     uniqueAmmoLines.Duplicates := dupIgnore;
@@ -410,53 +351,25 @@ begin
     ForceDirectories(outputDir);
     jsonPath := outputDir + 'weapon_omod_map.json';
     uniqueAmmoPath := outputDir + 'unique_ammo_for_mapping.ini';
-    LogDebug(Format('\u51fa\u529b\u5148JSON: %s', [jsonPath]));
+    LogDebug(Format('出力先JSON: %s', [jsonPath]));
 
+    jsonLines.Add('[');
     // Create a minimal placeholder file early so we can detect partial runs/crashes.
     try
-      placeholder := TStringList.Create;
+      var _placeholder := TStringList.Create;
       try
-        placeholder.Add('[]');
-        SaveAndCleanJSONToFile(placeholder, jsonPath, 0, True);
+        _placeholder.Add('[]');
+        SaveAndCleanJSONToFile(_placeholder, jsonPath, 0, True);
       finally
-        placeholder.Free;
+        _placeholder.Free;
       end;
     except
       // ignore placeholder failures
     end;
-
     weaponCount := 0;
 
-    // Write a quick stage marker and record FileCount so we can see progress
-    try
-      // Emit stage/filecount via AddMessage instead of writing files
-      try
-        totalFiles := FileCount;
-        AddMessage(Format('[STAGE] Time=%s FileCount=%d', [DateTimeToStr(Now), totalFiles]));
-        AddMessage('[STAGE] Stage=before_file_loop');
-      except
-        // ignore
-      end;
-    except
-      // ignore stage failures
-    end;
-
-  for i := 0 to Pred(FileCount) do begin
+    for i := 0 to Pred(FileCount) do begin
       aFile := FileByIndex(i);
-      // update last-processed file index (lightweight marker)
-      try
-        // Emit lightweight last-file marker via AddMessage
-        try
-          if Assigned(aFile) then
-            AddMessage(Format('[STAGE_LAST] Time=%s LastFileIndex=%d LastFileName=%s', [DateTimeToStr(Now), i, GetFileName(aFile)]))
-          else
-            AddMessage(Format('[STAGE_LAST] Time=%s LastFileIndex=%d', [DateTimeToStr(Now), i]));
-        except
-          // ignore
-        end;
-      except
-        // ignore
-      end;
       if not Assigned(aFile) then
         Continue;
       weapGroup := GroupBySignature(aFile, 'WEAP');
@@ -475,28 +388,23 @@ begin
         weaponEditorID := EditorID(weaponRec);
         weaponName := GetElementEditValues(weaponRec, 'FULL - Name');
 
-        // Per-weapon probe: AddMessage + small per-weapon file so we can detect where processing stops
+        // Per-weapon append to debug file (best-effort) so we can see progress
         try
           try
-            AddMessage(Format('[PROBE_WEAPON] idx=%d plugin=%s editor=%s form=%s', [weaponCount, weaponPlugin, weaponEditorID, weaponFormID]));
-            // Extra FormID probes: raw element value + hex-safe representation
+            AssignFile(dbgF, outputDir + 'omod_debug_log.txt');
+            if FileExists(outputDir + 'omod_debug_log.txt') then
+              Append(dbgF)
+            else
+              Rewrite(dbgF);
             try
-              // raw FormID via GetElementNativeValues (may return numeric/variant or string)
-              AddMessage(Format('[PROBE_FORMID_RAW] editor=%s raw=%s', [weaponEditorID, VarToStr(GetElementNativeValues(weaponRec, 'Record Header\FormID'))]));
-            except
-              // ignore
-            end;
-            try
-              // Also try the low-level FormID retrieval and explicit formatting
-              AddMessage(Format('[PROBE_FORMID_HEX] editor=%s hex=%s', [weaponEditorID, GetFullFormID(weaponRec)]));
-            except
-              // ignore
+              Writeln(dbgF, Format('%d,%s,%s', [weaponCount, weaponEditorID, weaponFormID]));
+            finally
+              CloseFile(dbgF);
             end;
           except
-            // ignore
+            // ignore write failures
           end;
         except
-          // ignore
         end;
 
         ammoRec := LinksTo(ElementByPath(weaponRec, 'DNAM\Ammo'));
@@ -526,25 +434,25 @@ begin
         jsonLines.Add(Format('    "ammo_editor_id": "%s",', [_EscapeJSON(ammoEditorID)]));
         jsonLines.Add('    "omods": [');
 
-  LogDebug(Format('[OMOD] Weapon: %s (%s) processing OMODs', [weaponEditorID, weaponFormID]));
+        LogDebug(Format('[OMOD] 武器: %s (%s) のOMOD処理を開始', [weaponEditorID, weaponFormID]));
         omodList := ElementByPath(weaponRec, 'OMOD - Object Mods');
         omodCount := 0;
         if Assigned(omodList) then begin
           omodCount := ElementCount(omodList);
-          LogDebug(Format('[OMOD]   list found. count: %d', [omodCount]));
+          LogDebug(Format('[OMOD]   リスト発見。件数: %d', [omodCount]));
         end else begin
-          LogDebug('[OMOD]   list not found');
+          LogDebug('[OMOD]   リストなし');
         end;
 
         for k := 0 to Pred(omodCount) do begin
           omodEntry := ElementByIndex(omodList, k);
           omodRec := LinksTo(omodEntry);
           if not Assigned(omodRec) then begin
-            LogWarning(Format('[OMOD]     - OMOD[%d]: linked record not found. skipping.', [k]));
+            LogWarning(Format('[OMOD]     - OMOD[%d]: リンク先のレコードが見つかりません。スキップします。', [k]));
             Continue;
           end;
 
-          LogDebug(Format('[OMOD]     - OMOD[%d]: %s (%s) processing', [k, EditorID(omodRec), GetFullFormID(omodRec)]));
+          LogDebug(Format('[OMOD]     - OMOD[%d]: %s (%s) を処理中', [k, EditorID(omodRec), GetFullFormID(omodRec)]));
           line := Format(
             '      { "omod_plugin": "%s", "omod_form_id": "%s", "omod_editor_id": "%s" }',
             [_EscapeJSON(GetFileName(MasterOrSelf(omodRec))),
@@ -560,25 +468,37 @@ begin
         jsonLines.Add('  }');
         Inc(weaponCount);
       end;
-  end;
+    end;
 
     jsonLines.Add(']');
-  LogDebug(Format('[WeaponOMOD] extracted weapon count: %d', [weaponCount]));
+    LogDebug(Format('[WeaponOMOD] 抽出武器件数: %d', [weaponCount]));
 
     // この2行は重複しているため、1行削除します
     // jsonLines.Add(']');
     // LogInfo(Format('[WeaponOMOD] 抽出件数: %d', [weaponCount]));
 
-  LogDebug(Format('Starting save of weapon_omod_map.json... (TStringList.Count: %d)', [jsonLines.Count]));
+    LogDebug(Format('weapon_omod_map.json の保存を開始します... (TStringList.Size: %d)', [jsonLines.Size]));
     // Use the library helper which logs success/failure and optionally fixes JSON quoting issues.
     if not SaveAndCleanJSONToFile(jsonLines, jsonPath, weaponCount, True) then
-        try
-          AddMessage(Format('[OMOD_DEBUG] %d,%s,%s', [weaponCount, weaponEditorID, weaponFormID]));
-        except
-          // ignore
-        end;
+    begin
+      LogError(Format('weapon_omod_map.json の保存に失敗 (SaveAndCleanJSONToFile): %s', [jsonPath]));
+      Result := 1;
+      Exit;
+    end
+    else
+    begin
+      // The helper already emits an AddMessage on success; also emit an INFO-style message for clarity.
+      LogInfo(Format('[WeaponOMOD] weapon_omod_map.json を保存しました: %s', [jsonPath]));
+    end;
+
+    if uniqueAmmoLines.IndexOf('[UnmappedAmmo]') = -1 then
+      uniqueAmmoLines.Insert(0, '[UnmappedAmmo]');
+    if not SaveINIToFile(uniqueAmmoLines, uniqueAmmoPath, uniqueAmmoLines.Count - 1) then begin
+      LogWarning('unique_ammo_for_mapping.ini の保存に失敗しました');
+      Result := 1;
+    end else
       LogComplete('Weapon OMOD export');
-  LogDebug('AP_Run_ExportWeaponAmmoDetails: finished');
+    LogDebug('AP_Run_ExportWeaponAmmoDetails: 正常終了');
   finally
     uniqueAmmoLines.Free;
     jsonLines.Free;

@@ -38,9 +38,12 @@ end;
 // Returns the output directory used by scripts: <ProgramPath>\Edit Scripts\Output\
 function GetOutputDirectory: string;
 begin
-  // Return the workspace absolute Output directory so the script can reliably write files
-  // NOTE: This is a debugging stub used during local testing.
-  Result := 'E:\\Munition_AutoPatcher_v1.1\\Output\\';
+  try
+    Result := EnsureTrailingSlash(ProgramPath) + 'Edit Scripts\\Output\\';
+  except
+    // Fallback to a relative Output folder near ProgramPath
+    Result := EnsureTrailingSlash(ProgramPath) + 'Edit Scripts\\Output\\';
+  end;
 end;
 
 function GetEditorIdSafe(rec: IInterface): string;
@@ -66,8 +69,6 @@ var
   f: IInterface;
   loadOrder: Integer;
   rawFormID: Cardinal;
-  fidVar: Variant;
-  fidStr: string;
 begin
   Result := '';
   if not Assigned(rec) then Exit;
@@ -82,43 +83,14 @@ begin
     try
       rawFormID := GetElementNativeValues(rec, 'Record Header\FormID');
     except
-      // Fallback 1: try to obtain FormID via FormID(rec) and parse accordingly
-      rawFormID := 0;
+      // Fallback: use integer part of FormID(rec) if available
       try
-        fidVar := FormID(rec);
-        try
-          // If it's numeric, cast directly
-          rawFormID := Integer(fidVar);
-        except
-          // Otherwise, try to parse string forms like '0x...' or '$...' or decimal
-          try
-            fidStr := VarToStr(fidVar);
-            fidStr := Trim(fidStr);
-            fidStr := LowerCase(fidStr);
-            if (Length(fidStr) > 2) and (Copy(fidStr,1,2) = '0x') then
-              rawFormID := StrToInt('$' + Copy(fidStr,3,Length(fidStr)-2))
-            else if (Length(fidStr) > 0) and (fidStr[1] = '$') then
-              rawFormID := StrToInt(fidStr)
-            else
-              rawFormID := StrToInt(fidStr);
-          except
-            rawFormID := 0;
-          end;
-        end;
+        rawFormID := Integer(FormID(rec));
       except
         rawFormID := 0;
       end;
     end;
-    // Mask and format using IntToHex to avoid Format() type errors in PascalScript runtime
-    try
-      // Ensure numeric types and mask to expected widths
-      if loadOrder < 0 then loadOrder := 0;
-      loadOrder := loadOrder and $FF; // two hex digits
-      rawFormID := rawFormID and $FFFFFF; // six hex digits
-      Result := UpperCase(IntToHex(loadOrder, 2) + IntToHex(rawFormID, 6));
-    except
-      Result := '';
-    end;
+    Result := UpperCase(Format('%2.2x%6.6x', [loadOrder, rawFormID]));
   except
     Result := '';
   end;
