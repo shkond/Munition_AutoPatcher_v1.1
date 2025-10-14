@@ -1,0 +1,66 @@
+{
+  "ammo_classification": {
+    "FE011005": { "Category": "Uncategorized", "Power": 0 },
+    "FE01101C": { "Category": "Uncategorized", "Power": 0 },
+    "FE011022": { "Category": "Uncategorized", "Power": 0 },
+    "FE011029": { "Category": "Uncategorized", "Power": 0 },
+    "FE011030": { "Category": "Uncategorized", "Power": 0 },
+    "FE011058": { "Category": "Uncategorized", "Power": 0 },
+    "FE011061": { "Category": "Uncategorized", "Power": 0 },
+    "FE01106D": { "Category": "Uncategorized", "Power": 0 },
+    "FE011075": { "Category": "Uncategorized", "Power": 0 },
+    "FE0110BB": { "Category": "Uncategorized", "Power": 0 },
+    "FE0116C8": { "Category": "Uncategorized", "Power": 0 },
+    "FE0116C9": { "Category": "Uncategorized", "Power": 0 },
+    "FE0116CA": { "Category": "Uncategorized", "Power": 0 },
+    "FE0116CB": { "Category": "Uncategorized", "Power": 0 },
+    "FE0116CC": { "Category": "Uncategorized", "Power": 0 },
+    "FE0116D6": { "Category": "Uncategorized", "Power": 0 },
+    "FE0116D7": { "Category": "Uncategorized", "Power": 0 },
+    "FE0116D8": { "Category": "Uncategorized", "Power": 0 },
+    "FE0116DD": { "Category": "Uncategorized", "Power": 0 },
+    "FE0116E2": { "Category": "Uncategorized", "Power": 0 },
+    "FE0116E3": { "Category": "Uncategorized", "Power": 0 },
+    "FE0116E4": { "Category": "Uncategorized", "Power": 0 },
+    "FE0116EE": { "Category": "Uncategorized", "Power": 0 },
+    "FE011716": { "Category": "Uncategorized", "Power": 0 },
+    "FE011717": { "Category": "Uncategorized", "Power": 0 },
+    "FE011796": { "Category": "Uncategorized", "Power": 0 },
+    "FE0117A1": { "Category": "Uncategorized", "Power": 0 },
+    "FE0117A2": { "Category": "Uncategorized", "Power": 0 },
+    "FE0117EE": { "Category": "Uncategorized", "Power": 0 },
+    "FE0117EF": { "Category": "Uncategorized", "Power": 0 },
+    "FE0117F0": { "Category": "Uncategorized", "Power": 0 },
+    "FE0117F3": { "Category": "Uncategorized", "Power": 0 },
+    "FE0117F4": { "Category": "Uncategorized", "Power": 0 },
+    "FE011812": { "Category": "Uncategorized", "Power": 0 },
+    "FE011FA8": { "Category": "Uncategorized", "Power": 0 },
+    "FE011FAA": { "Category": "Uncategorized", "Power": 0 },
+    "FE011FAC": { "Category": "Uncategorized", "Power": 0 },
+    "FE011FAE": { "Category": "Uncategorized", "Power": 0 },
+    "FE011FAF": { "Category": "Uncategorized", "Power": 0 },
+    "FE011FB0": { "Category": "Uncategorized", "Power": 0 },
+    "FE011FB1": { "Category": "Uncategorized", "Power": 0 },
+    "FE011FB2": { "Category": "Uncategorized", "Power": 0 },
+    "FE011FC6": { "Category": "Uncategorized", "Power": 0 },
+    "FE011FC7": { "Category": "Uncategorized", "Power": 0 },
+    "FE011FC8": { "Category": "Uncategorized", "Power": 0 },
+    "FE011FCA": { "Category": "Uncategorized", "Power": 0 },
+    "FE011FD3": { "Category": "Uncategorized", "Power": 0 },
+    "FE011001": { "Category": "Uncategorized", "Power": 0 }
+  },
+
+  "allocation_matrix": {
+    "Raiders": { "Primitive": 30, "StandardBallistic_Low": 40, "Shotgun_Standard": 20, "StandardBallistic_Medium": 10, "AdvancedBallistic": 0, "Explosive": 0 },
+    "SuperMutants": { "Primitive": 20, "StandardBallistic_Low": 25, "StandardBallistic_Medium": 20, "AdvancedBallistic": 15, "MilitaryGrade": 10, "Shotgun_Heavy": 5, "Explosive": 5 }
+  },
+
+  "faction_leveled_lists": {
+    "Raiders": "LLI_Raider_Weapons",
+    "Gunners": "LLI_Faction_Gunner_Weapons",
+    "Institute": "LLI_Faction_Institute_Weapons",
+    "BrotherhoodOfSteel": "LLI_Faction_BoS_Weapons",
+    "SuperMutants": "LLI_Faction_SuperMutant_Weapons"
+  }
+
+}

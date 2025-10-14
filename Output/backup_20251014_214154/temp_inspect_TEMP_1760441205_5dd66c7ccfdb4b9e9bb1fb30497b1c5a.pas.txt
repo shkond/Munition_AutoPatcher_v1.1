@@ -1,0 +1,3 @@
+source=E:\Munition_AutoPatcher_v1.1\pas_scripts\00_RunAllExtractors.pas
+exists=True
+size=2961

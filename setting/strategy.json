@@ -1,5 +1,198 @@
 {
-  "ammo_classification": {},
+  "ammo_classification": {
+    "FE008005": {
+      "Category": "Shotgun_Standard",
+      "Power": 2
+    },
+    "FE00801C": {
+      "Category": "Exotic",
+      "Power": 4
+    },
+    "FE008022": {
+      "Category": "StandardBallistic_Medium",
+      "Power": 2
+    },
+    "FE008029": {
+      "Category": "AdvancedBallistic",
+      "Power": 3
+    },
+    "FE008030": {
+      "Category": "StandardBallistic_Low",
+      "Power": 1
+    },
+    "FE008058": {
+      "Category": "Energy_Advanced",
+      "Power": 4
+    },
+    "FE008061": {
+      "Category": "Exotic",
+      "Power": 4
+    },
+    "FE00806D": {
+      "Category": "Energy_Advanced",
+      "Power": 4
+    },
+    "FE008075": {
+      "Category": "Energy_Advanced",
+      "Power": 4
+    },
+    "FE0080BB": {
+      "Category": "MilitaryGrade",
+      "Power": 4
+    },
+    "FE0086C8": {
+      "Category": "StandardBallistic_Low",
+      "Power": 1
+    },
+    "FE0086C9": {
+      "Category": "StandardBallistic_Low",
+      "Power": 1
+    },
+    "FE0086CA": {
+      "Category": "StandardBallistic_Low",
+      "Power": 1
+    },
+    "FE0086CB": {
+      "Category": "AdvancedBallistic",
+      "Power": 3
+    },
+    "FE0086CC": {
+      "Category": "MilitaryGrade",
+      "Power": 4
+    },
+    "FE0086D6": {
+      "Category": "StandardBallistic_Medium",
+      "Power": 2
+    },
+    "FE0086D7": {
+      "Category": "StandardBallistic_Medium",
+      "Power": 2
+    },
+    "FE0086D8": {
+      "Category": "StandardBallistic_Medium",
+      "Power": 2
+    },
+    "FE0086DD": {
+      "Category": "Energy_Advanced",
+      "Power": 4
+    },
+    "FE0086E2": {
+      "Category": "AdvancedBallistic",
+      "Power": 3
+    },
+    "FE0086E3": {
+      "Category": "AdvancedBallistic",
+      "Power": 3
+    },
+    "FE0086E4": {
+      "Category": "Explosive",
+      "Power": 3
+    },
+    "FE0086EE": {
+      "Category": "StandardBallistic_Medium",
+      "Power": 2
+    },
+    "FE008716": {
+      "Category": "StandardBallistic_Low",
+      "Power": 1
+    },
+    "FE008717": {
+      "Category": "StandardBallistic_Medium",
+      "Power": 2
+    },
+    "FE008796": {
+      "Category": "Shotgun_Standard",
+      "Power": 2
+    },
+    "FE0087A1": {
+      "Category": "StandardBallistic_Medium",
+      "Power": 2
+    },
+    "FE0087A2": {
+      "Category": "StandardBallistic_Medium",
+      "Power": 2
+    },
+    "FE0087EE": {
+      "Category": "StandardBallistic_Low",
+      "Power": 1
+    },
+    "FE0087EF": {
+      "Category": "AdvancedBallistic",
+      "Power": 3
+    },
+    "FE0087F0": {
+      "Category": "Exotic",
+      "Power": 4
+    },
+    "FE0087F3": {
+      "Category": "MilitaryGrade",
+      "Power": 4
+    },
+    "FE0087F4": {
+      "Category": "Exotic",
+      "Power": 4
+    },
+    "FE008812": {
+      "Category": "StandardBallistic_Low",
+      "Power": 1
+    },
+    "FE008FA8": {
+      "Category": "Energy_Advanced",
+      "Power": 4
+    },
+    "FE008FAA": {
+      "Category": "StandardBallistic_Medium",
+      "Power": 2
+    },
+    "FE008FAC": {
+      "Category": "Shotgun_Standard",
+      "Power": 2
+    },
+    "FE008FAE": {
+      "Category": "MilitaryGrade",
+      "Power": 4
+    },
+    "FE008FAF": {
+      "Category": "StandardBallistic_Low",
+      "Power": 1
+    },
+    "FE008FB0": {
+      "Category": "StandardBallistic_Low",
+      "Power": 1
+    },
+    "FE008FB1": {
+      "Category": "StandardBallistic_Low",
+      "Power": 1
+    },
+    "FE008FB2": {
+      "Category": "StandardBallistic_Low",
+      "Power": 1
+    },
+    "FE008FC6": {
+      "Category": "Explosive",
+      "Power": 3
+    },
+    "FE008FC7": {
+      "Category": "Explosive",
+      "Power": 3
+    },
+    "FE008FC8": {
+      "Category": "Explosive",
+      "Power": 3
+    },
+    "FE008FCA": {
+      "Category": "StandardBallistic_Medium",
+      "Power": 2
+    },
+    "FE008FD3": {
+      "Category": "Energy_Standard",
+      "Power": 2
+    },
+    "FE008001": {
+      "Category": "Shotgun_Standard",
+      "Power": 2
+    }
+  },
   "allocation_matrix": {
     "Institute": {
       "Primitive": 0,

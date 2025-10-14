@@ -87,10 +87,7 @@ class ConfigManager:
             settings['xedit_profile_name'] = self.get_string('Environment', 'xedit_profile_name')
             settings['mo2_xedit_entry_name'] = self.get_string('Environment', 'mo2_xedit_entry_name', '')
             settings['game_data_path'] = self.get_path('Paths', 'game_data_path')
-            # Overwriteディレクトリのパスを取得
-            # ★★★ 修正点: Orchestratorから 'overwrite_path' として参照できるようにする ★★★
-            overwrite_dir = self.get_string('Environment', 'mo2_overwrite_dir')
-            self.config.set('Paths', 'overwrite_path', overwrite_dir)
+            # overwrite_path は、呼び出し元が config_manager.get_path('Paths', 'overwrite_path') を使って直接取得します。
         return settings
 
     def get_parameter(self, key: str) -> str:

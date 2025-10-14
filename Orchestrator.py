@@ -787,7 +787,12 @@ class Orchestrator:
         """
         logging.info(f"{'=' * 16} 戦略ファイル生成処理開始 {'=' * 16}")
         try:
-            categories_file = self.config.get_path('Paths', 'project_root') / 'ammo_categories.json'
+            # Prefer explicit path from config: Paths.ammo_categories_file
+            try:
+                categories_file = self.config.get_path('Paths', 'ammo_categories_file')
+            except Exception:
+                # Fallback for older config: look for ammo_categories.json in project_root
+                categories_file = self.config.get_path('Paths', 'project_root') / 'ammo_categories.json'
             munitions_id_file = self.config.get_path('Paths', 'output_dir') / 'munitions_ammo_ids.ini'
             strategy_file = self.config.get_path('Paths', 'strategy_file')
 

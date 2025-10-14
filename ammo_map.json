@@ -1,0 +1,36 @@
+{
+  "meta": {
+    "version": 1,
+    "generated_at": "2025-10-14T13:03:13.239822+00:00",
+    "mapping_count": 1,
+    "source": "mapper.py"
+  },
+  "mappings": [
+    {
+      "original_form_id": "0001aaaa",
+      "target_form_id": "fe008001",
+      "target_plugin": "Munitions - An Ammo Expansion.esl",
+      "source": {
+        "formid": "0001aaaa",
+        "plugin": "MyMod.esp",
+        "editor_id": "CustomAmmoID"
+      },
+      "target": {
+        "formid": "fe008001",
+        "plugin": "Munitions - An Ammo Expansion.esl",
+        "editor_id": "Munitions_Ammo8GaugeShell"
+      },
+      "original_plugin": "MyMod.esp",
+      "original_editor_id": "CustomAmmoID",
+      "target_editor_id": "Munitions_Ammo8GaugeShell",
+      "omods": [
+        {
+          "omod_plugin": "MyMod.esp",
+          "omod_form_id": "02000bbb"
+        }
+      ],
+      "weapon_plugin": "MyMod.esp",
+      "weapon_form_id": "01000abc"
+    }
+  ]
+}
