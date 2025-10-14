@@ -1,0 +1,4842 @@
+[
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000001F4",
+    "weapon_editor_id": "UnarmedDefault",
+    "weapon_name": "UnarmedDefault",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000001F6",
+    "weapon_editor_id": "GasTrapDummy",
+    "weapon_name": "GasTrapDummy",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0000463F",
+    "weapon_editor_id": "AssaultRifle",
+    "weapon_name": "AssaultRifle",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo556",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00004822",
+    "weapon_editor_id": "10mm",
+    "weapon_name": "10mm",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00019B47",
+    "weapon_editor_id": "TurretMountedLaserGun02",
+    "weapon_name": "TurretMountedLaserGun02",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00019B4E",
+    "weapon_editor_id": "TurretMountedLaserGun03",
+    "weapon_name": "TurretMountedLaserGun03",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00019B52",
+    "weapon_editor_id": "TurretBubbleLaserGun04",
+    "weapon_name": "TurretBubbleLaserGun04",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0001DACF",
+    "weapon_editor_id": "LaserMusket",
+    "weapon_name": "LaserMusket",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0001F669",
+    "weapon_editor_id": "Minigun",
+    "weapon_name": "Minigun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo5mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00024F55",
+    "weapon_editor_id": "PipeGun",
+    "weapon_name": "PipeGun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo38Caliber",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0003175B",
+    "weapon_editor_id": "WeapBloatfly",
+    "weapon_name": "WeapBloatfly",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoBloatfly",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00031FB8",
+    "weapon_editor_id": "BloodBugBloodWeap",
+    "weapon_name": "BloodBugBloodWeap",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoBloodBug",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00033FE0",
+    "weapon_editor_id": "Machete",
+    "weapon_name": "Machete",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0003F6F8",
+    "weapon_editor_id": "MissileLauncher",
+    "weapon_name": "MissileLauncher",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoMissile",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0004F46A",
+    "weapon_editor_id": "HuntingRifle",
+    "weapon_name": "HuntingRifle",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo308Caliber",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0005524B",
+    "weapon_editor_id": "Knuckles",
+    "weapon_name": "Knuckles",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00056917",
+    "weapon_editor_id": "BoSVertibirdGrenade",
+    "weapon_name": "BoSVertibirdGrenade",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000589F2",
+    "weapon_editor_id": "SynthTeleportGrenade",
+    "weapon_name": "SynthTeleportGrenade",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0005A665",
+    "weapon_editor_id": "MQ203InstituteLaserGun",
+    "weapon_name": "MQ203InstituteLaserGun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0005BBA4",
+    "weapon_editor_id": "CompMcCreadyHuntingRifle",
+    "weapon_name": "CompMcCreadyHuntingRifle",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo308Caliber",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0005BBA6",
+    "weapon_editor_id": "CompDanseLaserGun",
+    "weapon_name": "CompDanseLaserGun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0005BBA7",
+    "weapon_editor_id": "CompValentinePipeRevolver",
+    "weapon_name": "CompValentinePipeRevolver",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo45Caliber",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0005C250",
+    "weapon_editor_id": "Board",
+    "weapon_name": "Board",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0005DE31",
+    "weapon_editor_id": "WorkshopArtilleryWeapon",
+    "weapon_name": "Mortar",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "WorkshopArtilleryAmmo",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0005DF2D",
+    "weapon_editor_id": "CompPiper10mm",
+    "weapon_name": "10mm",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0005DF2E",
+    "weapon_editor_id": "CompStrongSledgehammer",
+    "weapon_name": "CompStrongSledgehammer",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0005DF30",
+    "weapon_editor_id": "CompCaitDoubleBarrelShotgun",
+    "weapon_name": "CompCaitDoubleBarrelShotgun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmoShotgunShell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00062AA3",
+    "weapon_editor_id": "CompHancockKnife",
+    "weapon_name": "a??a??a??",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00062AA4",
+    "weapon_editor_id": "CompHancockDoubleBarrelShotgun",
+    "weapon_name": "CompHancockDoubleBarrelShotgun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmoShotgunShell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00062AA6",
+    "weapon_editor_id": "CompPrestonLaserMusket",
+    "weapon_name": "CompPrestonLaserMusket",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00063B72",
+    "weapon_editor_id": "WorkshopArtilleryWeaponClose",
+    "weapon_name": "Mortar",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "WorkshopArtilleryAmmoClose",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00063B73",
+    "weapon_editor_id": "WorkshopArtilleryWeaponFar",
+    "weapon_name": "Mortar",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "WorkshopArtilleryAmmoFar",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00064B87",
+    "weapon_editor_id": "Minigun_Vertibird_Player",
+    "weapon_name": "Minigun_Vertibird_Player",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo5mm_NonPlayable",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00065DEC",
+    "weapon_editor_id": "MS02HomingBeacon",
+    "weapon_name": "MS02HomingBeacon",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00065DF2",
+    "weapon_editor_id": "MS02NukeMissileFar",
+    "weapon_name": "MS02NukeMissileFar",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "MS02NukeMissileAmmoFar",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000662A7",
+    "weapon_editor_id": "BehemothBoulderSwan",
+    "weapon_name": "BehemothBoulderSwan",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0006E514",
+    "weapon_editor_id": "DummyHandmadeDontUse",
+    "weapon_name": "DummyHandmadeDontUse",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000865E9",
+    "weapon_editor_id": "FusionCoreKnightWeapon",
+    "weapon_name": "FusionCoreKnightWeapon",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCoreKnightMeltdown",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000897FF",
+    "weapon_editor_id": "FusionCoreWeapon",
+    "weapon_name": "FusionCoreWeapon",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCoreMeltdown",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0008C14D",
+    "weapon_editor_id": "Baton",
+    "weapon_name": "a??a??a?3",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0008E736",
+    "weapon_editor_id": "BaseballBat",
+    "weapon_name": "a??a??a??",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000913CA",
+    "weapon_editor_id": "Knife",
+    "weapon_name": "a?3a?3a??a??a??a??a??a??",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00092217",
+    "weapon_editor_id": "DoubleBarrelShotgun",
+    "weapon_name": "DoubleBarrelShotgun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoShotgunShell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00092A60",
+    "weapon_editor_id": "HandyPincherMiddle",
+    "weapon_name": "a??a?3a??",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00092A61",
+    "weapon_editor_id": "HandySawLeft",
+    "weapon_name": "HandySawLeft",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00092A62",
+    "weapon_editor_id": "HandyFlamethrowerRight",
+    "weapon_name": "HandyFlamethrowerRight",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFlamerFuel",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0009983B",
+    "weapon_editor_id": "LaserGun",
+    "weapon_name": "LaserGun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0009F24D",
+    "weapon_editor_id": "WeapMirelurkhunter01",
+    "weapon_name": "WeapMirelurkhunter01",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoMirelurkHunter",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000A7DA4",
+    "weapon_editor_id": "WeapEyebot",
+    "weapon_name": "WeapEyebot",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCellEyebot",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000AB6AE",
+    "weapon_editor_id": "TutorialDummy10mm",
+    "weapon_name": "TutorialDummy10mm",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000B0F56",
+    "weapon_editor_id": "SentryBotLeftMinigun",
+    "weapon_name": "SentryBotLeftMinigun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo556",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000B0F58",
+    "weapon_editor_id": "SentryBotRightMiniRocketLauncher",
+    "weapon_name": "SentryBotRightMiniRocketLauncher",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoMissile",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000BB6C0",
+    "weapon_editor_id": "TurretTripodMachineGunMkI",
+    "weapon_name": "TurretTripodMachineGunMkI",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo556",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000BB6C1",
+    "weapon_editor_id": "TurretMountedLaserGun01",
+    "weapon_name": "TurretMountedLaserGun01",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000BD56F",
+    "weapon_editor_id": "Fatman",
+    "weapon_name": "Fatman",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFatManMiniNuke",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000C2C27",
+    "weapon_editor_id": "UnarmedHuman",
+    "weapon_name": "UnarmedHuman",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000C2C28",
+    "weapon_editor_id": "UnarmedBloodbug",
+    "weapon_name": "UnarmedBloodbug",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000C2C29",
+    "weapon_editor_id": "UnarmedBrahmin",
+    "weapon_name": "UnarmedBrahmin",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000C2C2A",
+    "weapon_editor_id": "UnarmedDeathclaw",
+    "weapon_name": "UnarmedDeathclaw",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000C2C2B",
+    "weapon_editor_id": "UnarmedDogmeat",
+    "weapon_name": "UnarmedDogmeat",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000C2C2C",
+    "weapon_editor_id": "UnarmedFeralGhoul",
+    "weapon_name": "UnarmedFeralGhoul",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000C2C2D",
+    "weapon_editor_id": "UnarmedMutantHound",
+    "weapon_name": "UnarmedMutantHound",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000C2C2E",
+    "weapon_editor_id": "UnarmedMirelurkHunter",
+    "weapon_name": "UnarmedMirelurkHunter",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000C2C2F",
+    "weapon_editor_id": "UnarmedMirelurkKing",
+    "weapon_name": "UnarmedMirelurkKing",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000C2C30",
+    "weapon_editor_id": "UnarmedMirelurk",
+    "weapon_name": "UnarmedMirelurk",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000C2C31",
+    "weapon_editor_id": "UnarmedMolerat",
+    "weapon_name": "UnarmedMolerat",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000C2C32",
+    "weapon_editor_id": "UnarmedPowerArmor",
+    "weapon_name": "UnarmedPowerArmor",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000C2C33",
+    "weapon_editor_id": "UnarmedRadStag",
+    "weapon_name": "UnarmedRadStag",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000C2C34",
+    "weapon_editor_id": "UnarmedRadRoach",
+    "weapon_name": "UnarmedRadRoach",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000C2C35",
+    "weapon_editor_id": "UnarmedRadScorpion",
+    "weapon_name": "UnarmedRadScorpion",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000C2C36",
+    "weapon_editor_id": "UnarmedStingwing",
+    "weapon_name": "UnarmedStingwing",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000C2C37",
+    "weapon_editor_id": "UnarmedBehemoth",
+    "weapon_name": "UnarmedBehemoth",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000C2C38",
+    "weapon_editor_id": "UnarmedYaoGuai",
+    "weapon_name": "UnarmedYaoGuai",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000C2C39",
+    "weapon_editor_id": "UnarmedViciousDog",
+    "weapon_name": "UnarmedViciousDog",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000C9799",
+    "weapon_editor_id": "UnarmedStingwingNoPoison",
+    "weapon_name": "UnarmedStingwingNoPoison",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000CA0B0",
+    "weapon_editor_id": "DN029CannonLauncher",
+    "weapon_name": "DN029CannonLauncher",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DN029CannonLauncherAmmo",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000CE97D",
+    "weapon_editor_id": "44",
+    "weapon_name": ".44",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo44",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000CFB49",
+    "weapon_editor_id": "SentryBotRightMinigun",
+    "weapon_name": "SentryBotRightMinigun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo556",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000CFB4D",
+    "weapon_editor_id": "SentryBotLeftMiniRocketLauncher",
+    "weapon_name": "SentryBotLeftMiniRocketLauncher",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoMissile",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000D1EB0",
+    "weapon_editor_id": "GaussRifle",
+    "weapon_name": "GaussRifle",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo2mmEC",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000D76F1",
+    "weapon_editor_id": "OxygenTankTrap",
+    "weapon_name": "OxygenTankTrap",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoOxygenTrap",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000D83BF",
+    "weapon_editor_id": "PipeWrench",
+    "weapon_name": "PipeWrench",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000D8576",
+    "weapon_editor_id": "DeathclawGauntlet",
+    "weapon_name": "DeathclawGauntlet",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000DC8E7",
+    "weapon_editor_id": "Deliverer",
+    "weapon_name": "Deliverer",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000DD4B1",
+    "weapon_editor_id": "AssaultronLaser",
+    "weapon_name": "AssaultronLaser",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoAssaultron",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000DDB7C",
+    "weapon_editor_id": "GammaGun",
+    "weapon_name": "GammaGun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoGammaCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "010DF259",
+    "weapon_editor_id": "AssaultronRightClaw",
+    "weapon_name": "AssaultronRightClaw",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "010DF25A",
+    "weapon_editor_id": "AssaultronLeftClaw",
+    "weapon_name": "AssaultronLeftClaw",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000DF42E",
+    "weapon_editor_id": "CombatRifle",
+    "weapon_name": "CombatRifle",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo45Caliber",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000DF621",
+    "weapon_editor_id": "FireHydrantBat",
+    "weapon_name": "FireHydrantBat",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000E07C4",
+    "weapon_editor_id": "Protectron01HeadLaser",
+    "weapon_name": "Protectron01HeadLaser",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000E27A3",
+    "weapon_editor_id": "VertibirdGunLeft",
+    "weapon_name": "VertibirdGunLeft",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo5mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000E27A4",
+    "weapon_editor_id": "VertibirdGunRight",
+    "weapon_name": "VertibirdGunRight",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo5mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000E27BC",
+    "weapon_editor_id": "GatlingLaser",
+    "weapon_name": "GatlingLaser",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCore",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000E56C2",
+    "weapon_editor_id": "fragMine",
+    "weapon_name": "fragMine",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000E5750",
+    "weapon_editor_id": "nukaGrenade",
+    "weapon_name": "nukaGrenade",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000E5881",
+    "weapon_editor_id": "Flamer",
+    "weapon_name": "Flamer",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFlamerFuel",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000E7AB9",
+    "weapon_editor_id": "Sledgehammer",
+    "weapon_name": "Sledgehammer",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000E942B",
+    "weapon_editor_id": "JunkJet",
+    "weapon_name": "JunkJet",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoJunkJet",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000E98E5",
+    "weapon_editor_id": "DN102_FrenzyGrenade",
+    "weapon_name": "DN102_FrenzyGrenade",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000E9A43",
+    "weapon_editor_id": "DN070WorldSeriesBat_OBSOLETE",
+    "weapon_name": "DN070WorldSeriesBat_OBSOLETE",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000EB340",
+    "weapon_editor_id": "UnarmedSuperMutant",
+    "weapon_name": "UnarmedSuperMutant",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000ED6E4",
+    "weapon_editor_id": "UnarmedGorilla",
+    "weapon_name": "UnarmedGorilla",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000EDCE8",
+    "weapon_editor_id": "HandyFlamethrowerLeft",
+    "weapon_name": "HandyFlamethrowerLeft",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFlamerFuel",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000EDCE9",
+    "weapon_editor_id": "HandyFlamethrowerMiddle",
+    "weapon_name": "HandyFlamethrowerMiddle",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFlamerFuel",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000EDCEA",
+    "weapon_editor_id": "HandyPincherLeft",
+    "weapon_name": "a??a?3a??",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000EDCEB",
+    "weapon_editor_id": "HandyPincherRight",
+    "weapon_name": "a??a?3a??",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000EDCEC",
+    "weapon_editor_id": "HandySawRight",
+    "weapon_name": "HandySawRight",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000EDCED",
+    "weapon_editor_id": "HandySawMiddle",
+    "weapon_name": "HandySawMiddle",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000EEBED",
+    "weapon_editor_id": "fragGrenade",
+    "weapon_name": "fragGrenade",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000FA2F6",
+    "weapon_editor_id": "Ripper",
+    "weapon_name": "Ripper",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000FA2FB",
+    "weapon_editor_id": "Shishkebab",
+    "weapon_name": "Shishkebab",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000FA3E8",
+    "weapon_editor_id": "PoolCue",
+    "weapon_name": "PoolCue",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000FC3EC",
+    "weapon_editor_id": "WeapMirelurkKing",
+    "weapon_name": "WeapMirelurkKing",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoMirelurkKing",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000FC9C3",
+    "weapon_editor_id": "LeadPipe",
+    "weapon_name": "LeadPipe",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000FCDC7",
+    "weapon_editor_id": "Protectron01RightArmLaserGun",
+    "weapon_name": "Protectron01RightArmLaserGun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000FD11B",
+    "weapon_editor_id": "Broadsider",
+    "weapon_name": "Broadsider",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoCannonBall",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000FDC7D",
+    "weapon_editor_id": "WalkingCane",
+    "weapon_name": "a??",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000FDC81",
+    "weapon_editor_id": "Switchblade",
+    "weapon_name": "Switchblade",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000FE268",
+    "weapon_editor_id": "RailwayRifle",
+    "weapon_name": "RailwayRifle",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoRRSpike",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000FF21D",
+    "weapon_editor_id": "CryoGrenade",
+    "weapon_name": "CryoGrenade",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000FF21F",
+    "weapon_editor_id": "PulseGrenade",
+    "weapon_name": "PulseGrenade",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000FF276",
+    "weapon_editor_id": "TrapGrenadeBouquetWeaponFrag3",
+    "weapon_name": "TrapGrenadeBouquetWeaponFrag3",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "TrapAmmoFragGrenade",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000FF964",
+    "weapon_editor_id": "SuperSledge",
+    "weapon_name": "SuperSledge",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "000FF995",
+    "weapon_editor_id": "AlienBlaster",
+    "weapon_name": "AlienBlaster",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoAlienBlaster",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00100AE9",
+    "weapon_editor_id": "PlasmaGun",
+    "weapon_name": "a??a?ca?oa??",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoPlasmaCartridge",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001025AC",
+    "weapon_editor_id": "FlareGun",
+    "weapon_name": "FlareGun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFlareGun",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00102796",
+    "weapon_editor_id": "UnarmedMirelurkQueen",
+    "weapon_name": "UnarmedMirelurkQueen",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0010771F",
+    "weapon_editor_id": "BottlecapMine",
+    "weapon_name": "BottlecapMine",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00107BD6",
+    "weapon_editor_id": "BaseballGrenade",
+    "weapon_name": "BaseballGrenade",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0010845C",
+    "weapon_editor_id": "TrapGrenadeBouquetWeaponFrag1",
+    "weapon_name": "TrapGrenadeBouquetWeaponFrag1",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "TrapAmmoFragGrenade",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0010A33D",
+    "weapon_editor_id": "PlasmaGrenade",
+    "weapon_name": "PlasmaGrenade",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0010A340",
+    "weapon_editor_id": "NukeMine",
+    "weapon_name": "NukeMine",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0010A342",
+    "weapon_editor_id": "PlasmaMine",
+    "weapon_name": "PlasmaMine",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0010A344",
+    "weapon_editor_id": "PulseMine",
+    "weapon_name": "PulseMine",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0010C3C6",
+    "weapon_editor_id": "MolotovCocktail",
+    "weapon_name": "MolotovCocktail",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0010C669",
+    "weapon_editor_id": "CryoMine",
+    "weapon_name": "CryoMine",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0010E689",
+    "weapon_editor_id": "FatManBomb",
+    "weapon_name": "FatManBomb",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0010FFFD",
+    "weapon_editor_id": "UnarmedSentryBot",
+    "weapon_name": "UnarmedSentryBot",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00110414",
+    "weapon_editor_id": "LibertyPrimeLaser",
+    "weapon_name": "LibertyPrimeLaser",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoLibertyPrime",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0011271C",
+    "weapon_editor_id": "WeapMirelurkQueenLeft",
+    "weapon_name": "WeapMirelurkQueenLeft",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoMirelurkQueen",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0011271D",
+    "weapon_editor_id": "WeapMirelurkQueenRight",
+    "weapon_name": "WeapMirelurkQueenRight",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoMirelurkQueen",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00113339",
+    "weapon_editor_id": "DeathclawDirtThrow",
+    "weapon_name": "DeathclawDirtThrow",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoDeathclawThrow",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0011B336",
+    "weapon_editor_id": "PowerFist",
+    "weapon_name": "PowerFist",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001262F3",
+    "weapon_editor_id": "TurretMountedLaserGunLtBlue",
+    "weapon_name": "TurretMountedLaserGunLtBlue",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCellLtBlue",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001299A6",
+    "weapon_editor_id": "Minigun_Vertibird",
+    "weapon_name": "Minigun_Vertibird",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo5mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0012E2CA",
+    "weapon_editor_id": "ArtillerySmokeFlare",
+    "weapon_name": "ArtillerySmokeFlare",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00134271",
+    "weapon_editor_id": "SentryBotLeftShoulderClusterLauncher",
+    "weapon_name": "SentryBotLeftShoulderClusterLauncher",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoSentryShoulder",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00134272",
+    "weapon_editor_id": "SentryBotRightShoulderClusterLauncher",
+    "weapon_name": "SentryBotRightShoulderClusterLauncher",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoSentryShoulder",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0014245D",
+    "weapon_editor_id": "SuperMutantSuiciderBomb",
+    "weapon_name": "SuperMutantSuiciderBomb",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00142FAB",
+    "weapon_editor_id": "RollingPin",
+    "weapon_name": "RollingPin",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00143AB5",
+    "weapon_editor_id": "RevolutionarySword",
+    "weapon_name": "RevolutionarySword",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00144A6C",
+    "weapon_editor_id": "AnchorHammer",
+    "weapon_name": "AnchorHammer",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00144FAA",
+    "weapon_editor_id": "Protectron02HeadLaser",
+    "weapon_name": "Protectron02HeadLaser",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00144FAB",
+    "weapon_editor_id": "Protectron02LeftArmLaserGun",
+    "weapon_name": "Protectron02LeftArmLaserGun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00144FAD",
+    "weapon_editor_id": "Protectron03HeadLaser",
+    "weapon_name": "Protectron03HeadLaser",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00144FAE",
+    "weapon_editor_id": "Protectron03LeftArmLaserGun",
+    "weapon_name": "Protectron03LeftArmLaserGun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00144FAF",
+    "weapon_editor_id": "Protectron03RightArmLaserGun",
+    "weapon_name": "Protectron03RightArmLaserGun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0014781E",
+    "weapon_editor_id": "SelfDestructBot",
+    "weapon_name": "a??a??a?? - Unarmed",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00147BE4",
+    "weapon_editor_id": "ChineseOfficerSword",
+    "weapon_name": "ChineseOfficerSword",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0014831A",
+    "weapon_editor_id": "PipeBoltAction",
+    "weapon_name": "PipeBoltAction",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo308Caliber",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0014831B",
+    "weapon_editor_id": "PipeRevolver",
+    "weapon_name": "PipeRevolver",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo45Caliber",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0014831C",
+    "weapon_editor_id": "CombatShotgun",
+    "weapon_name": "CombatShotgun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoShotgunShell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0014831D",
+    "weapon_editor_id": "AAA_StandardGun",
+    "weapon_name": "AAA_StandardGun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo556",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00148B40",
+    "weapon_editor_id": "MrGutsy_44_Left",
+    "weapon_name": "44",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo44",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00148B42",
+    "weapon_editor_id": "Gutsy01RightArmSawOBSOLETE",
+    "weapon_name": "Gutsy01RightArmSawOBSOLETE",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00148B45",
+    "weapon_editor_id": "MrGutsy_44_Right",
+    "weapon_name": ".44",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo44",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00148B47",
+    "weapon_editor_id": "Gutsy02LeftArmCombatRifle",
+    "weapon_name": "Gutsy02LeftArmCombatRifle",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo45Caliber",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00148B48",
+    "weapon_editor_id": "Gutsy02LeftArmLaserGunAuto",
+    "weapon_name": "Gutsy02LeftArmLaserGunAuto",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0014BBDA",
+    "weapon_editor_id": "BehemothBoulder",
+    "weapon_name": "BehemothBoulder",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0014D09E",
+    "weapon_editor_id": "PipeSyringer",
+    "weapon_name": "PipeSyringer",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoSyringer",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0015B043",
+    "weapon_editor_id": "SubmachineGun",
+    "weapon_name": "SubmachineGun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo45Caliber",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0015B0DA",
+    "weapon_editor_id": "Protectron02LeftArmFlamer",
+    "weapon_name": "Protectron02LeftArmFlamer",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFlamerFuel",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0015B0DB",
+    "weapon_editor_id": "Protectron02RightArmFlamer",
+    "weapon_name": "Protectron02RightArmFlamer",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFlamerFuel",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0015E649",
+    "weapon_editor_id": "WeapEyebotMM",
+    "weapon_name": "WeapEyebotMM",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCellEyebot",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001633CC",
+    "weapon_editor_id": "InstituteLaserGun",
+    "weapon_name": "InstituteLaserGun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0016498F",
+    "weapon_editor_id": "BoxingGlove",
+    "weapon_name": "BoxingGlove",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00171B2B",
+    "weapon_editor_id": "Cryolator",
+    "weapon_name": "Cryolator",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoCryoCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00174F8F",
+    "weapon_editor_id": "InstituteBeaconGrenade",
+    "weapon_name": "InstituteBeaconGrenade",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0017D52A",
+    "weapon_editor_id": "LibertyPrimeBomb",
+    "weapon_name": "LibertyPrimeBomb",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0018325E",
+    "weapon_editor_id": "PulseGrenadeInstitute",
+    "weapon_name": "PulseGrenadeInstitute",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00183FCD",
+    "weapon_editor_id": "DN160_GrognakAxe",
+    "weapon_name": "DN160_GrognakAxe",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00185D25",
+    "weapon_editor_id": "TireIron",
+    "weapon_name": "TireIron",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001AD8CA",
+    "weapon_editor_id": "Gutsy01LeftArmSawOBSOLETE",
+    "weapon_name": "Gutsy01LeftArmSawOBSOLETE",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001B3137",
+    "weapon_editor_id": "Protectron01LeftArmNailGun",
+    "weapon_name": "Protectron01LeftArmNailGun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoRRSpike",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001B3139",
+    "weapon_editor_id": "Protectron01RightArmNailGun",
+    "weapon_name": "Protectron01RightArmNailGun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoRRSpike",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001B3182",
+    "weapon_editor_id": "Protectron01LeftArmLaserGunBlue",
+    "weapon_name": "Protectron01LeftArmLaserGunBlue",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCellLtBlue",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001B5ED8",
+    "weapon_editor_id": "TurretTripodMachineGunMkIII",
+    "weapon_name": "TurretTripodMachineGunMkIII",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo556",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001B5EDA",
+    "weapon_editor_id": "TurretTripodMachineGunMkV",
+    "weapon_name": "TurretTripodMachineGunMkV",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo556",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001B5EDD",
+    "weapon_editor_id": "TurretTripodMachineGunMkVII",
+    "weapon_name": "TurretTripodMachineGunMkVII",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo556",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001B9AF3",
+    "weapon_editor_id": "Protectron01LeftArmLaserGun",
+    "weapon_name": "Protectron01LeftArmLaserGun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001B9AF4",
+    "weapon_editor_id": "Protectron02RightArmLaserGun",
+    "weapon_name": "Protectron02RightArmLaserGun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001BBF98",
+    "weapon_editor_id": "TurretMountedBallistic",
+    "weapon_name": "TurretMountedBallistic",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001BBF99",
+    "weapon_editor_id": "TurretBubbleBallistic3shot",
+    "weapon_name": "TurretBubbleBallistic3shot",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001BBF9E",
+    "weapon_editor_id": "TurretMountedLaserGun6shot",
+    "weapon_name": "TurretMountedLaserGun6shot",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001BD15A",
+    "weapon_editor_id": "UnarmedAssaultron",
+    "weapon_name": "UnarmedAssaultron",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001BD15B",
+    "weapon_editor_id": "UnarmedProtectron",
+    "weapon_name": "UnarmedProtectron",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001BDDB7",
+    "weapon_editor_id": "UnarmedLibertyPrime",
+    "weapon_name": "UnarmedLibertyPrime",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001C403B",
+    "weapon_editor_id": "UnarmedGlowingOne",
+    "weapon_name": "UnarmedGlowingOne",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001D77A5",
+    "weapon_editor_id": "Protectron02LeftArmCryo01",
+    "weapon_name": "Protectron02LeftArmCryo01",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoCryoCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001D77A6",
+    "weapon_editor_id": "Protectron02RightArmCryo01",
+    "weapon_name": "Protectron02RightArmCryo01",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoCryoCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001E0951",
+    "weapon_editor_id": "MrGutsy_CombatRifle_Right",
+    "weapon_name": "MrGutsy_CombatRifle_Right",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo45Caliber",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001E0952",
+    "weapon_editor_id": "MrGutsy_LaserGun_Middle",
+    "weapon_name": "MrGutsy_LaserGun_Middle",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001E0953",
+    "weapon_editor_id": "MrHandy_Hand_Left_Saw",
+    "weapon_name": "MrHandy_Hand_Left_Saw",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001E0954",
+    "weapon_editor_id": "MrHandy_Hand_Right_Saw",
+    "weapon_name": "MrHandy_Hand_Right_Saw",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001E0955",
+    "weapon_editor_id": "MrHandy_Hand_Middle_Saw",
+    "weapon_name": "MrHandy_Hand_Middle_Saw",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001E0956",
+    "weapon_editor_id": "MrGutsy_LaserGun_Left",
+    "weapon_name": "MrGutsy_LaserGun_Left",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001E0957",
+    "weapon_editor_id": "MrGutsy_CombatRifle_Middle",
+    "weapon_name": "MrGutsy_CombatRifle_Middle",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo45Caliber",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001E0958",
+    "weapon_editor_id": "MrGutsy_LaserGun_Right",
+    "weapon_name": "MrGutsy_LaserGun_Right",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "001E0959",
+    "weapon_editor_id": "MrGutsy_CombatRifle_Left",
+    "weapon_name": "MrGutsy_CombatRifle_Left",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo45Caliber",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0020413E",
+    "weapon_editor_id": "WorkshopTrapFlamethrowerWeap01",
+    "weapon_name": "WorkshopTrapFlamethrowerWeap01",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "WorkshopTrapAmmoFlamethrowerFuel",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0020413F",
+    "weapon_editor_id": "WorkshopTrapFlamethrowerWeap02",
+    "weapon_name": "WorkshopTrapFlamethrowerWeap02",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "WorkshopTrapAmmoFlamethrowerFuel",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "01210B62",
+    "weapon_editor_id": "AssaultronLeftBlade",
+    "weapon_name": "AssaultronLeftBlade",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "01210B63",
+    "weapon_editor_id": "AssaultronRightBlade",
+    "weapon_name": "AssaultronRightBlade",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00215CE3",
+    "weapon_editor_id": "CompDeaconHuntingRifle",
+    "weapon_name": "CompDeaconHuntingRifle",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo308Caliber",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00215CE4",
+    "weapon_editor_id": "CompX6-88InstituteLaserRifle",
+    "weapon_name": "CompX6-88InstituteLaserRifle",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0021635F",
+    "weapon_editor_id": "SentryBotLeftShoulderClusterLauncherIndoors",
+    "weapon_name": "SentryBotLeftShoulderClusterLauncherIndoors",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoSentryShoulder",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00216360",
+    "weapon_editor_id": "SentryBotRightShoulderClusterLauncherIndoors",
+    "weapon_name": "SentryBotRightShoulderClusterLauncherIndoors",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoSentryShoulder",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00221235",
+    "weapon_editor_id": "RailwayRifle_Fake",
+    "weapon_name": "RailwayRifle_Fake",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoRRSpike",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "002216CF",
+    "weapon_editor_id": "MrGutsy_Saw_Middle",
+    "weapon_name": "MrGutsy_Saw_Middle",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "002216D0",
+    "weapon_editor_id": "MrGutsy_Saw_Right",
+    "weapon_name": "MrGutsy_Saw_Right",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "002216D1",
+    "weapon_editor_id": "MrGutsy_Saw_Left",
+    "weapon_name": "MrGutsy_Saw_Left",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0022B18B",
+    "weapon_editor_id": "TurretMountedShotgun01",
+    "weapon_name": "TurretMountedShotgun01",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoShotgunShell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0022B18C",
+    "weapon_editor_id": "TurretMissileLauncher01",
+    "weapon_name": "TurretMissileLauncher01",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoMissile",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0022B194",
+    "weapon_editor_id": "TurretMountedSpotlight01",
+    "weapon_name": "TurretMountedSpotlight01",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoSpotlight",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0022CC13",
+    "weapon_editor_id": "CompCurieLaserGun",
+    "weapon_name": "CompCurieLaserGun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00232261",
+    "weapon_editor_id": "MinFlareWeapon",
+    "weapon_name": "MinFlareWeapon",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFlareGun",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0023CACB",
+    "weapon_editor_id": "RR301SynthTeleportGrenade",
+    "weapon_name": "RR301SynthTeleportGrenade",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0023F492",
+    "weapon_editor_id": "SynthMelee",
+    "weapon_name": "a??a??a?? - Unarmed",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "002491A5",
+    "weapon_editor_id": "CompCurie_LaserGun_Left",
+    "weapon_name": "CompCurie_LaserGun_Left",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "002491A8",
+    "weapon_editor_id": "CompCodsworthFlamethrowerRight",
+    "weapon_name": "CompCodsworthFlamethrowerRight",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmoFlamerFuel",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "002492A8",
+    "weapon_editor_id": "RESceneKMK_MQ202KelloggWeapon",
+    "weapon_name": ".44",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo44",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00249820",
+    "weapon_editor_id": "TestGammaGun",
+    "weapon_name": "TestGammaGun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoGammaCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "00249D38",
+    "weapon_editor_id": "CompIngramLaserGun",
+    "weapon_name": "CompIngramLaserGun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0024A3A1",
+    "weapon_editor_id": "VRWorkshopShared_44_NonPlayable",
+    "weapon_name": "<Error: Unknown lstring ID 000369B9>",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo44",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0024A3A2",
+    "weapon_editor_id": "VRWorkshopShared_AssaultRifle_NonPlayable",
+    "weapon_name": "<Error: Unknown lstring ID 0003699F>",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo556",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0024A3A3",
+    "weapon_editor_id": "VRWorkshopShared_Board_NonPlayable",
+    "weapon_name": "<Error: Unknown lstring ID 000369DB>",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0024A3A4",
+    "weapon_editor_id": "VRWorkshopShared_CombatRifle_NonPlayable",
+    "weapon_name": "<Error: Unknown lstring ID 00036A21>",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo45Caliber",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0024A3A5",
+    "weapon_editor_id": "VRWorkshopShared_CombatShotgun_NonPlayable",
+    "weapon_name": "<Error: Unknown lstring ID 00036A91>",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoShotgunShell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0024A3A6",
+    "weapon_editor_id": "VRWorkshopShared_Flamer_NonPlayable",
+    "weapon_name": "<Error: Unknown lstring ID 00036A18>",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFlamerFuel",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0024A3A7",
+    "weapon_editor_id": "VRWorkshopShared_HuntingRifle_NonPlayable",
+    "weapon_name": "<Error: Unknown lstring ID 000369F7>",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo308Caliber",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0024A3A8",
+    "weapon_editor_id": "VRWorkshopShared_InstituteLaserGun_NonPlayable",
+    "weapon_name": "<Error: Unknown lstring ID 00036AFA>",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0024A3A9",
+    "weapon_editor_id": "VRWorkshopShared_LaserGun_NonPlayable",
+    "weapon_name": "<Error: Unknown lstring ID 000369EE>",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0024A3AA",
+    "weapon_editor_id": "VRWorkshopShared_Minigun_NonPlayable",
+    "weapon_name": "<Error: Unknown lstring ID 00036AA8>",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo5mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0024A3AB",
+    "weapon_editor_id": "VRWorkshopShared_MissileLauncher_NonPlayable",
+    "weapon_name": "<Error: Unknown lstring ID 00036AEF>",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoMissile",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0024A3AC",
+    "weapon_editor_id": "VRWorkshopShared_PipeGun_NonPlayable",
+    "weapon_name": "<Error: Unknown lstring ID 000369D3>",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo38Caliber",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0024A3AD",
+    "weapon_editor_id": "VRWorkshopShared_PlasmaGun_NonPlayable",
+    "weapon_name": "<Error: Unknown lstring ID 00036AB0>",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoPlasmaCartridge",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0024A3AE",
+    "weapon_editor_id": "VRWorkshopShared_Sledgehammer_NonPlayable",
+    "weapon_name": "<Error: Unknown lstring ID 000369FC>",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0024A3AF",
+    "weapon_editor_id": "VRWorkshopShared_SuperSledge_NonPlayable",
+    "weapon_name": "<Error: Unknown lstring ID 00036AE8>",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0024A3B0",
+    "weapon_editor_id": "VRWorkshopShared_AlienBlaster_NonPlayable",
+    "weapon_name": "<Error: Unknown lstring ID 00036A31>",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoAlienBlaster",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0024A3B1",
+    "weapon_editor_id": "VRWorkshopShared_GaussRifle_NonPlayable",
+    "weapon_name": "<Error: Unknown lstring ID 00036ADF>",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo2mmEC",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "0024A3B2",
+    "weapon_editor_id": "VRWorkshopShared_10mm_NonPlayable",
+    "weapon_name": "<Error: Unknown lstring ID 000369B0>",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01002E2D",
+    "weapon_editor_id": "DLC01BotWeapLaserGunRight",
+    "weapon_name": "DLC01BotWeapLaserGunRight",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01002E2C",
+    "weapon_editor_id": "DLC01BotWeapLaserGunLeft",
+    "weapon_name": "DLC01BotWeapLaserGunLeft",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01002E2B",
+    "weapon_editor_id": "DLC01BotWeapLaserGunAutoRight",
+    "weapon_name": "DLC01BotWeapLaserGunAutoRight",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01002E2A",
+    "weapon_editor_id": "DLC01BotWeapLaserGunAutoLeft",
+    "weapon_name": "DLC01BotWeapLaserGunAutoLeft",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01002E29",
+    "weapon_editor_id": "DLC01BotMeleeViceRight",
+    "weapon_name": "DLC01BotMeleeViceRight",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01002E28",
+    "weapon_editor_id": "DLC01BotMeleeViceLeft",
+    "weapon_name": "DLC01BotMeleeViceLeft",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01002E1C",
+    "weapon_editor_id": "DLC01UnarmedMrHandyRMOptional",
+    "weapon_name": "DLC01UnarmedMrHandyRMOptional",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01002E1B",
+    "weapon_editor_id": "DLC01UnarmedMrHandyLMOptional",
+    "weapon_name": "DLC01UnarmedMrHandyLMOptional",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01002CA3",
+    "weapon_editor_id": "DLC01BotWeapRobobrainSmokeBombRightNoVats",
+    "weapon_name": "DLC01BotWeapRobobrainSmokeBombRight",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01002CA2",
+    "weapon_editor_id": "DLC01BotWeapRobobrainSmokeBombLeftNoVats",
+    "weapon_name": "DLC01BotWeapRobobrainSmokeBombLeft",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01002962",
+    "weapon_editor_id": "DLC01BotMeleeMrHandy_Pincer_Right",
+    "weapon_name": "a??a?3a??",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01002961",
+    "weapon_editor_id": "DLC01BotMeleeMrHandy_Pincer_Left",
+    "weapon_name": "a??a?3a??",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01002960",
+    "weapon_editor_id": "DLC01BotMeleeMrHandy_Hand_Right_Saw",
+    "weapon_name": "a??a?3a?Ra?a",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "0100295F",
+    "weapon_editor_id": "DLC01BotMeleeMrHandy_Hand_Middle_Saw",
+    "weapon_name": "a??a?3a?Ra?a",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "0100295E",
+    "weapon_editor_id": "DLC01BotMeleeMrHandy_Pincer_Middle",
+    "weapon_name": "a??a?3a??",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "0100295D",
+    "weapon_editor_id": "DLC01BotMeleeMrHandy_Hand_Left_Saw",
+    "weapon_name": "a??a?3a?Ra?a",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "0100272C",
+    "weapon_editor_id": "DLC01BotMeleeAssaultronBladeRight",
+    "weapon_name": "DLC01BotMeleeAssaultronBladeRight",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "0100272B",
+    "weapon_editor_id": "DLC01BotMeleeAssaultronBladeLeft",
+    "weapon_name": "DLC01BotMeleeAssaultronBladeLeft",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01001249",
+    "weapon_editor_id": "DLC01BotMeleeStunRight",
+    "weapon_name": "DLC01BotMeleeStunRight",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01001248",
+    "weapon_editor_id": "DLC01BotMeleeStunLeft",
+    "weapon_name": "DLC01BotMeleeStunLeft",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01000A67",
+    "weapon_editor_id": "DLC01BotMeleeAssaultronClawRight",
+    "weapon_name": "DLC01BotMeleeAssaultronClawRight",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01000A66",
+    "weapon_editor_id": "DLC01BotMeleeAssaultronClawLeft",
+    "weapon_name": "DLC01BotMeleeAssaultronClawLeft",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "010009D0",
+    "weapon_editor_id": "DLC01BotWeapMrHandy_LaserGun_Right",
+    "weapon_name": "DLC01BotWeapMrHandy_LaserGun_Right",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "010009C5",
+    "weapon_editor_id": "DLC01BotWeapMrHandy_LaserGun_Middle",
+    "weapon_name": "DLC01BotWeapMrHandy_LaserGun_Middle",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "010009C4",
+    "weapon_editor_id": "DLC01BotWeapMrHandy_LaserGun_Left",
+    "weapon_name": "DLC01BotWeapMrHandy_LaserGun_Left",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "0100096E",
+    "weapon_editor_id": "DLC01EyebotSelfDestructBot",
+    "weapon_name": "DLC01EyebotSelfDestructBot",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01011163",
+    "weapon_editor_id": "DLC01BotWeapSentryBotRightMinigun",
+    "weapon_name": "DLC01BotWeapSentryBotRightMinigun",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmo556",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01011162",
+    "weapon_editor_id": "DLC01BotWeapSentryBotLeftMinigun",
+    "weapon_name": "DLC01BotWeapSentryBotLeftMinigun",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmo556",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01011161",
+    "weapon_editor_id": "DLC01BotWeapSentryCanonRight",
+    "weapon_name": "DLC01BotWeapSentryCanonRight",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoMissile",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01011160",
+    "weapon_editor_id": "DLC01BotWeapSentryCanonLeft",
+    "weapon_name": "DLC01BotWeapSentryCanonLeft",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoMissile",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "0101115F",
+    "weapon_editor_id": "DLC01BotWeapLaserSuperRight",
+    "weapon_name": "DLC01BotWeapLaserSuperRight",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "0101115E",
+    "weapon_editor_id": "DLC01BotWeapLaserSuperLeft",
+    "weapon_name": "DLC01BotWeapLaserSuperLeft",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "0101115D",
+    "weapon_editor_id": "DLC01BotWeapLaserScatteredRight",
+    "weapon_name": "DLC01BotWeapLaserScatteredRight",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "0101115C",
+    "weapon_editor_id": "DLC01BotWeapLaserScatteredLeft",
+    "weapon_name": "DLC01BotWeapLaserScatteredLeft",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "0101115B",
+    "weapon_editor_id": "DLC01BotWeapProtectron01LaserGunRight",
+    "weapon_name": "DLC01BotWeapProtectron01LaserGunRight",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "0101115A",
+    "weapon_editor_id": "DLC01BotWeapProtectron01LaserGunLeft",
+    "weapon_name": "DLC01BotWeapProtectron01LaserGunLeft",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01011159",
+    "weapon_editor_id": "DLC01BotWeapProtectron02ArmFlamerRight",
+    "weapon_name": "DLC01BotWeapProtectron02ArmFlamerRight",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFlamerFuel",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01011158",
+    "weapon_editor_id": "DLC01BotWeapProtectron02ArmFlamerLeft",
+    "weapon_name": "DLC01BotWeapProtectron02ArmFlamerLeft",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFlamerFuel",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01011157",
+    "weapon_editor_id": "DLC01BotWeapProtectron02ArmCryo01Right",
+    "weapon_name": "DLC01BotWeapProtectron02ArmCryo01Right",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoCryoCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01011156",
+    "weapon_editor_id": "DLC01BotWeapProtectron02ArmCryo01Left",
+    "weapon_name": "DLC01BotWeapProtectron02ArmCryo01Left",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoCryoCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01011155",
+    "weapon_editor_id": "DLC01BotWeapProtectron03LaserGunAutoRight",
+    "weapon_name": "DLC01BotWeapProtectron03LaserGunAutoRight",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01011154",
+    "weapon_editor_id": "DLC01BotWeapProtectron03LaserGunAutoLeft",
+    "weapon_name": "DLC01BotWeapProtectron03LaserGunAutoLeft",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "0101111E",
+    "weapon_editor_id": "DLC01BotMeleeConstructionLeft",
+    "weapon_name": "DLC01BotMeleeConstructionLeft",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "0101111D",
+    "weapon_editor_id": "DLC01BotMeleeConstructionRight",
+    "weapon_name": "DLC01BotMeleeConstructionRight",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "0101111C",
+    "weapon_editor_id": "DLC01BotMeleeProtectronClawRight",
+    "weapon_name": "DLC01BotMeleeProtectronClawRight",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "0101111B",
+    "weapon_editor_id": "DLC01BotMeleeProtectronClawLeft",
+    "weapon_name": "DLC01BotMeleeProtectronClawLeft",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "0101111A",
+    "weapon_editor_id": "DLC01BotMeleeSkullRight",
+    "weapon_name": "DLC01BotMeleeSkullRight",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01011119",
+    "weapon_editor_id": "DLC01BotMeleeSkullLeft",
+    "weapon_name": "DLC01BotMeleeSkullLeft",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01011118",
+    "weapon_editor_id": "DLC01BotMeleeSawRight",
+    "weapon_name": "DLC01BotMeleeSawRight",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01011117",
+    "weapon_editor_id": "DLC01BotMeleeSawLeft",
+    "weapon_name": "DLC01BotMeleeSawLeft",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01011116",
+    "weapon_editor_id": "DLC01BotMeleeHookRight",
+    "weapon_name": "DLC01BotMeleeHookRight",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01011115",
+    "weapon_editor_id": "DLC01BotMeleeHookLeft",
+    "weapon_name": "DLC01BotMeleeHookLeft",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01011114",
+    "weapon_editor_id": "DLC01BotMeleeHammerRight",
+    "weapon_name": "DLC01BotMeleeHammerRight",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01011113",
+    "weapon_editor_id": "DLC01BotMeleeHammerLeft",
+    "weapon_name": "DLC01BotMeleeHammerLeft",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01011112",
+    "weapon_editor_id": "DLC01BotMeleeDrillRight",
+    "weapon_name": "DLC01BotMeleeDrillRight",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01011111",
+    "weapon_editor_id": "DLC01BotMeleeDrillLeft",
+    "weapon_name": "DLC01BotMeleeDrillLeft",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01011110",
+    "weapon_editor_id": "DLC01BotMeleeBatonRight",
+    "weapon_name": "DLC01BotMeleeBatonRight",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "0101110F",
+    "weapon_editor_id": "DLC01BotMeleeBatonLeft",
+    "weapon_name": "DLC01BotMeleeBatonLeft",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "0101110E",
+    "weapon_editor_id": "DLC01BotMeleeAxeRight",
+    "weapon_name": "DLC01BotMeleeAxeRight",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "0101110D",
+    "weapon_editor_id": "DLC01BotMeleeAxeLeft",
+    "weapon_name": "DLC01BotMeleeAxeLeft",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01010E33",
+    "weapon_editor_id": "DLC01BotWeapGatlingLaserLeft",
+    "weapon_name": "DLC01BotWeapGatlingLaserLeft",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01010E32",
+    "weapon_editor_id": "DLC01BotWeapGatlingLaserRight",
+    "weapon_name": "DLC01BotWeapGatlingLaserRight",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01010E12",
+    "weapon_editor_id": "DLC01BotWeapGammaGunRight",
+    "weapon_name": "DLC01BotWeapGammaGunRight",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoGammaCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01010E11",
+    "weapon_editor_id": "DLC01BotWeapGammaGunLeft",
+    "weapon_name": "DLC01BotWeapGammaGunLeft",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoGammaCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01010A5A",
+    "weapon_editor_id": "DLC01BotMeleeHammerSawRight",
+    "weapon_name": "a??a?3a??a??a??a??",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01010A59",
+    "weapon_editor_id": "DLC01BotMeleeHammerSawLeft",
+    "weapon_name": "a??a?3a??a??a??a??",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01010321",
+    "weapon_editor_id": "DLC01BotWeapProtectron01ArmNailGunRight",
+    "weapon_name": "DLC01BotWeapProtectron01ArmNailGunRight",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoRRSpike",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01010320",
+    "weapon_editor_id": "DLC01BotWeapProtectron01ArmNailGunLeft",
+    "weapon_name": "DLC01BotWeapProtectron01ArmNailGunLeft",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoRRSpike",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "0101010F",
+    "weapon_editor_id": "DLC01BotMeleeShishkebabRight",
+    "weapon_name": "DLC01BotMeleeShishkebabRight",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "0101010E",
+    "weapon_editor_id": "DLC01BotMeleeShishkebabLeft",
+    "weapon_name": "DLC01BotMeleeShishkebabLeft",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "010100B7",
+    "weapon_editor_id": "DLC01AssaultronHeadCharging",
+    "weapon_name": "DLC01AssaultronHeadCharging",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "0100F590",
+    "weapon_editor_id": "DLC01BotWeapSentryBotRightFlamer",
+    "weapon_name": "DLC01BotWeapSentryBotRightFlamer",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFlamerFuel",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "0100F58F",
+    "weapon_editor_id": "DLC01BotWeapSentryBotLeftFlamer",
+    "weapon_name": "DLC01BotWeapSentryBotLeftFlamer",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFlamerFuel",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "01210B63",
+    "weapon_editor_id": "AssaultronRightBlade",
+    "weapon_name": "AssaultronRightBlade",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "01210B62",
+    "weapon_editor_id": "AssaultronLeftBlade",
+    "weapon_name": "AssaultronLeftBlade",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "010DF25A",
+    "weapon_editor_id": "AssaultronLeftClaw",
+    "weapon_name": "AssaultronLeftClaw",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "Fallout4.esm",
+    "weapon_form_id": "010DF259",
+    "weapon_editor_id": "AssaultronRightClaw",
+    "weapon_name": "AssaultronRightClaw",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01008B8E",
+    "weapon_editor_id": "DLC01_AssaultronBlade",
+    "weapon_name": "DLC01_AssaultronBlade",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01008B24",
+    "weapon_editor_id": "DLC01_TurretMountedLightningGun",
+    "weapon_name": "DLC01_TurretMountedLightningGun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "010087BB",
+    "weapon_editor_id": "DLC01BotWeapRobobrainMezmatronHead",
+    "weapon_name": "a?!a?1a?!a??a?-a?3",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01AmmoMezmatron",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "010087BA",
+    "weapon_editor_id": "DLC01BotWeapRobobrainSmokeBombRight",
+    "weapon_name": "DLC01BotWeapRobobrainSmokeBombRight",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "010087B9",
+    "weapon_editor_id": "DLC01BotWeapRobobrainSmokeBombLeft",
+    "weapon_name": "DLC01BotWeapRobobrainSmokeBombLeft",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01008081",
+    "weapon_editor_id": "DLC01BotWeapLightningGunMrHandyRight",
+    "weapon_name": "DLC01BotWeapLightningGunMrHandyRight",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01008080",
+    "weapon_editor_id": "DLC01BotWeapLightningGunMrHandyLeft",
+    "weapon_name": "DLC01BotWeapLightningGunMrHandyLeft",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "0100807F",
+    "weapon_editor_id": "DLC01BotWeapLightningGunMrHandyMiddle",
+    "weapon_name": "DLC01BotWeapLightningGunMrHandyMiddle",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "0100807E",
+    "weapon_editor_id": "DLC01BotWeapLightningGunRight",
+    "weapon_name": "DLC01BotWeapLightningGunRight",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "0100807D",
+    "weapon_editor_id": "DLC01BotWeapLightningGunLeft",
+    "weapon_name": "DLC01BotWeapLightningGunLeft",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01008001",
+    "weapon_editor_id": "DLC01_Unstable_Weap_SentryShoulderLauncherFatManRight",
+    "weapon_name": "DLC01_Unstable_Weap_SentryShoulderLauncherFatManRight",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFatManMiniNuke",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01008000",
+    "weapon_editor_id": "DLC01_Unstable_Weap_SentryShoulderLauncherFatManLeft",
+    "weapon_name": "DLC01_Unstable_Weap_SentryShoulderLauncherFatManLeft",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFatManMiniNuke",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01007FFB",
+    "weapon_editor_id": "DLC01_Unstable_Weap_SentryGatlingLaserLeft",
+    "weapon_name": "DLC01_Unstable_Weap_SentryGatlingLaserLeft",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01007B46",
+    "weapon_editor_id": "DLC01_Unstable_Weap_SentryShoulderLauncherClusterFrenzyGasRight",
+    "weapon_name": "DLC01_Unstable_Weap_SentryShoulderLauncherClusterFrenzyGasRight",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01_Unstable_SentryFrenzyGasAmmo",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01007B45",
+    "weapon_editor_id": "DLC01_Unstable_Weap_SentryShoulderLauncherClusterFrenzyGasLeft",
+    "weapon_name": "DLC01_Unstable_Weap_SentryShoulderLauncherClusterFrenzyGasLeft",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01_Unstable_SentryFrenzyGasAmmo",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01007B28",
+    "weapon_editor_id": "DLC01_Unstable_Weap_SentryExplosiveMinigunRight",
+    "weapon_name": "DLC01_Unstable_Weap_SentryExplosiveMinigunRight",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmo556",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01007B27",
+    "weapon_editor_id": "DLC01_Unstable_Weap_SentryExplosiveMinigunLeft",
+    "weapon_name": "DLC01_Unstable_Weap_SentryExplosiveMinigunLeft",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmo556",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01007987",
+    "weapon_editor_id": "DLC01_Unstable_Weap_SentryGatlingLaserRight",
+    "weapon_name": "DLC01_Unstable_Weap_SentryGatlingLaserRight",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01007986",
+    "weapon_editor_id": "DLC01_SentryBotRightMiniFatMan",
+    "weapon_name": "DLC01_SentryBotRightMiniFatMan",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFatManMiniNuke",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01007940",
+    "weapon_editor_id": "DLC01Sparks_WeapLightningGun",
+    "weapon_name": "DLC01Sparks_WeapLightningGun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCellEyebot",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01003E07",
+    "weapon_editor_id": "DLC01LightningGun",
+    "weapon_name": "DLC01LightningGun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01002775",
+    "weapon_editor_id": "DLC01UnarmedRoboBrain",
+    "weapon_name": "DLC01UnarmedRoboBrain",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01002120",
+    "weapon_editor_id": "DLC01_PulseMineMechanist",
+    "weapon_name": "DLC01_PulseMineMechanist",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "0100211C",
+    "weapon_editor_id": "DLC01_PulseGrenadeMechanist",
+    "weapon_name": "DLC01_PulseGrenadeMechanist",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "010020F8",
+    "weapon_editor_id": "DLC01MrHandyBuzzBlade",
+    "weapon_name": "DLC01MrHandyBuzzBlade",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01001978",
+    "weapon_editor_id": "MrHandy_LaserGun_Right",
+    "weapon_name": "MrHandy_LaserGun_Right",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01001977",
+    "weapon_editor_id": "MrHandy_LaserGun_Middle",
+    "weapon_name": "MrHandy_LaserGun_Middle",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01001976",
+    "weapon_editor_id": "MrHandy_LaserGun_Left",
+    "weapon_name": "MrHandy_LaserGun_Left",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01001975",
+    "weapon_editor_id": "DLC01BotWeapMrHandy_Flamethrower_Right",
+    "weapon_name": "DLC01BotWeapMrHandy_Flamethrower_Right",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFlamerFuel",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01001974",
+    "weapon_editor_id": "DLC01BotWeapMrHandy_Flamethrower_Middle",
+    "weapon_name": "DLC01BotWeapMrHandy_Flamethrower_Middle",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFlamerFuel",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01001973",
+    "weapon_editor_id": "DLC01BotWeapMrHandy_Flamethrower_Left",
+    "weapon_name": "DLC01BotWeapMrHandy_Flamethrower_Left",
+    "ammo_plugin": "DLCRobot.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC01BotAmmoFlamerFuel",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01001972",
+    "weapon_editor_id": "MrHandy_Pincher_Right",
+    "weapon_name": "a??a?3a??",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01001971",
+    "weapon_editor_id": "MrHandy_Pincher_Middle",
+    "weapon_name": "a??a?3a??",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCRobot.esm",
+    "weapon_form_id": "01001970",
+    "weapon_editor_id": "MrHandy_Pincher_Left",
+    "weapon_name": "a??a?3a??",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "0305D0BC",
+    "weapon_editor_id": "DLC03WeapPaintballYellowRight",
+    "weapon_name": "DLC03WeapPaintballYellowRight",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "0305D0BB",
+    "weapon_editor_id": "DLC03WeapPaintballYellowLeft",
+    "weapon_name": "DLC03WeapPaintballYellowLeft",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "0305D0BA",
+    "weapon_editor_id": "DLC03WeapPaintballWhiteRight",
+    "weapon_name": "DLC03WeapPaintballWhiteRight",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "0305D0B9",
+    "weapon_editor_id": "DLC03WeapPaintballWhiteLeft",
+    "weapon_name": "DLC03WeapPaintballWhiteLeft",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "0305D0B8",
+    "weapon_editor_id": "DLC03WeapPaintballRedRight",
+    "weapon_name": "DLC03WeapPaintballRedRight",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "0305D0B7",
+    "weapon_editor_id": "DLC03WeapPaintballRedLeft",
+    "weapon_name": "DLC03WeapPaintballRedLeft",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "0305D0B6",
+    "weapon_editor_id": "DLC03WeapPaintballOrangeRight",
+    "weapon_name": "DLC03WeapPaintballOrangeRight",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "0305D0B5",
+    "weapon_editor_id": "DLC03WeapPaintballOrangeLeft",
+    "weapon_name": "DLC03WeapPaintballOrangeLeft",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "0305D0B4",
+    "weapon_editor_id": "DLC03WeapPaintballGreenRight",
+    "weapon_name": "DLC03WeapPaintballGreenRight",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "0305D0B3",
+    "weapon_editor_id": "DLC03WeapPaintballGreenLeft",
+    "weapon_name": "DLC03WeapPaintballGreenLeft",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "0305D0B1",
+    "weapon_editor_id": "DLC03WeapPaintballBlueLeft",
+    "weapon_name": "DLC03WeapPaintballBlueLeft",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "0305D0B0",
+    "weapon_editor_id": "DLC03WeapPaintballBlueRight",
+    "weapon_name": "DLC03WeapPaintballBlueRight",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "03054448",
+    "weapon_editor_id": "DLC03WorkshopTeammate_PipeGun",
+    "weapon_name": "DLC03WorkshopTeammate_PipeGun",
+    "ammo_plugin": "DLCCoast.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC03WorkshopTeammate_Ammo38Caliber",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "030540F7",
+    "weapon_editor_id": "DLC03_ThrowingBearTrapWeaponBleeding",
+    "weapon_name": "DLC03_ThrowingBearTrapWeaponBleeding",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "030540ED",
+    "weapon_editor_id": "DLC03_ThrowingCaltropWeaponPoisoned",
+    "weapon_name": "DLC03_ThrowingCaltropWeaponPoisoned",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "03054072",
+    "weapon_editor_id": "DLC03_ThrowingBearTrapWeapon",
+    "weapon_name": "DLC03_ThrowingBearTrapWeapon",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "0305406E",
+    "weapon_editor_id": "DLC03_ThrowingCaltropWeapon",
+    "weapon_name": "DLC03_ThrowingCaltropWeapon",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "0304D39B",
+    "weapon_editor_id": "DLC03_CompLeverGun",
+    "weapon_name": "DLC03_CompLeverGun",
+    "ammo_plugin": "DLCCoast.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC03_CompAmmo4570",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "0304B5F4",
+    "weapon_editor_id": "DLC03_MeatHook",
+    "weapon_name": "DLC03_MeatHook",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "03048EC7",
+    "weapon_editor_id": "DLC03AnglerVomit",
+    "weapon_name": "DLC03AnglerVomit",
+    "ammo_plugin": "DLCCoast.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC03_AmmoAnglerSpitBlob",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "03048C0D",
+    "weapon_editor_id": "DLC03_UnarmedGulper",
+    "weapon_name": "DLC03_UnarmedGulper",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "03043224",
+    "weapon_editor_id": "DLC03_UnarmedWolf",
+    "weapon_name": "DLC03_UnarmedWolf",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "0302F835",
+    "weapon_editor_id": "DLC03_TestLeverGun",
+    "weapon_name": "DLC03_TestLeverGun",
+    "ammo_plugin": "DLCCoast.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC03_Ammo4570",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "0302C8B0",
+    "weapon_editor_id": "DLC03_LeverGun",
+    "weapon_name": "DLC03_LeverGun",
+    "ammo_plugin": "DLCCoast.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC03_Ammo4570",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "0302BBF5",
+    "weapon_editor_id": "DLC03_TestHuntingRifle",
+    "weapon_name": "DLC03_TestHuntingRifle",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo308Caliber",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "03028203",
+    "weapon_editor_id": "DLC03_UnarmedAngler",
+    "weapon_name": "DLC03_UnarmedAngler",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "03025FC4",
+    "weapon_editor_id": "DLC03_RadiumRifle",
+    "weapon_name": "DLC03_RadiumRifle",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo45Caliber",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "030180A6",
+    "weapon_editor_id": "DLC03_UnarmedHermitCrab",
+    "weapon_name": "DLC03_UnarmedHermitCrab",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "03017ECB",
+    "weapon_editor_id": "DLC03_UnarmedFogCrawler",
+    "weapon_name": "DLC03_UnarmedFogCrawler",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "03010B81",
+    "weapon_editor_id": "DLC03_HarpoonGun",
+    "weapon_name": "DLC03_HarpoonGun",
+    "ammo_plugin": "DLCCoast.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC03_AmmoHarpoon",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "03009582",
+    "weapon_editor_id": "DLC03_PoleHook",
+    "weapon_name": "DLC03_PoleHook",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "0300848E",
+    "weapon_editor_id": "DLC03VRBeam",
+    "weapon_name": "DLC03VRBeam",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCCoast.esm",
+    "weapon_form_id": "03007524",
+    "weapon_editor_id": "DLC03WeapEyebot",
+    "weapon_name": "DLC03WeapEyebot",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCellEyebot",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCworkshop02.esm",
+    "weapon_form_id": "04000D9A",
+    "weapon_editor_id": "DLC05PaintballGunYellow",
+    "weapon_name": "DLC05PaintballGunYellow",
+    "ammo_plugin": "DLCworkshop02.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC05AmmoPaintballYellow",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCworkshop02.esm",
+    "weapon_form_id": "04000D99",
+    "weapon_editor_id": "DLC05PaintballGunWhite",
+    "weapon_name": "DLC05PaintballGunWhite",
+    "ammo_plugin": "DLCworkshop02.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC05AmmoPaintballWhite",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCworkshop02.esm",
+    "weapon_form_id": "04000D98",
+    "weapon_editor_id": "DLC05PaintballGunGlow",
+    "weapon_name": "DLC05PaintballGunGlow",
+    "ammo_plugin": "DLCworkshop02.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC05AmmoPaintballGlow",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCworkshop02.esm",
+    "weapon_form_id": "04000D97",
+    "weapon_editor_id": "DLC05PaintballGunOrange",
+    "weapon_name": "DLC05PaintballGunOrange",
+    "ammo_plugin": "DLCworkshop02.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC05AmmoPaintballOrange",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCworkshop02.esm",
+    "weapon_form_id": "04000D96",
+    "weapon_editor_id": "DLC05PaintballGunRed",
+    "weapon_name": "DLC05PaintballGunRed",
+    "ammo_plugin": "DLCworkshop02.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC05AmmoPaintballRed",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCworkshop02.esm",
+    "weapon_form_id": "04000D95",
+    "weapon_editor_id": "DLC05PaintballGunGreen",
+    "weapon_name": "DLC05PaintballGunGreen",
+    "ammo_plugin": "DLCworkshop02.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC05AmmoPaintballGreen",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCworkshop02.esm",
+    "weapon_form_id": "04000D92",
+    "weapon_editor_id": "DLC05PaintballGunBlue",
+    "weapon_name": "DLC05PaintballGunBlue",
+    "ammo_plugin": "DLCworkshop02.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC05AmmoPaintballBlue",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCworkshop02.esm",
+    "weapon_form_id": "04000D81",
+    "weapon_editor_id": "DLC05WorkshopFireworkWeaponPalmGold",
+    "weapon_name": "DLC05WorkshopFireworkWeaponPalmGold",
+    "ammo_plugin": "DLCworkshop02.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC05FireworkAmmoPalmGold",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCworkshop02.esm",
+    "weapon_form_id": "04000D7B",
+    "weapon_editor_id": "DLC05WorkshopFireworkWeaponPalmSilver",
+    "weapon_name": "DLC05WorkshopFireworkWeaponPalmSilver",
+    "ammo_plugin": "DLCworkshop02.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC05FireworkAmmoPalmSilver",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCworkshop02.esm",
+    "weapon_form_id": "04000D2A",
+    "weapon_editor_id": "DLC05WorkshopFireworkWeaponPeonyBlue",
+    "weapon_name": "DLC05WorkshopFireworkWeaponPeonyBlue",
+    "ammo_plugin": "DLCworkshop02.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC05FireworkAmmoPeonyBlue",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCworkshop02.esm",
+    "weapon_form_id": "04000D29",
+    "weapon_editor_id": "DLC05WorkshopFireworkWeaponPeonyCrackle",
+    "weapon_name": "DLC05WorkshopFireworkWeaponPeonyCrackle",
+    "ammo_plugin": "DLCworkshop02.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC05FireworkAmmoCrackle",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCworkshop02.esm",
+    "weapon_form_id": "04000D28",
+    "weapon_editor_id": "DLC05WorkshopFireworkWeaponPeonyYellow",
+    "weapon_name": "DLC05WorkshopFireworkWeaponPeonyYellow",
+    "ammo_plugin": "DLCworkshop02.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC05FireworkAmmoPeonyYellow",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCworkshop02.esm",
+    "weapon_form_id": "04000D27",
+    "weapon_editor_id": "DLC05WorkshopFireworkWeaponPeonyPink",
+    "weapon_name": "DLC05WorkshopFireworkWeaponPeonyPink",
+    "ammo_plugin": "DLCworkshop02.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC05FireworkAmmoPeonyPink",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCworkshop02.esm",
+    "weapon_form_id": "04000A9B",
+    "weapon_editor_id": "DLC05WorkshopFireworkWeaponWeatherRain",
+    "weapon_name": "DLC05WorkshopFireworkWeaponWeatherRain",
+    "ammo_plugin": "DLCworkshop02.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC05FireworkAmmoWeatherRain",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCworkshop02.esm",
+    "weapon_form_id": "04000A9A",
+    "weapon_editor_id": "DLC05WorkshopFireworkWeaponWeatherRadstorm",
+    "weapon_name": "DLC05WorkshopFireworkWeaponWeatherRadstorm",
+    "ammo_plugin": "DLCworkshop02.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC05FireworkAmmoWeatherRadstorm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCworkshop02.esm",
+    "weapon_form_id": "04000A99",
+    "weapon_editor_id": "DLC05WorkshopFireworkWeaponWeatherClear",
+    "weapon_name": "DLC05WorkshopFireworkWeaponWeatherClear",
+    "ammo_plugin": "DLCworkshop02.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC05FireworkAmmoWeatherClear",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCworkshop02.esm",
+    "weapon_form_id": "04000A98",
+    "weapon_editor_id": "DLC05WorkshopFireworkWeaponPeonyRed",
+    "weapon_name": "DLC05WorkshopFireworkWeaponPeonyRed",
+    "ammo_plugin": "DLCworkshop02.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC05FireworkAmmoPeonyRed",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCworkshop02.esm",
+    "weapon_form_id": "04000A97",
+    "weapon_editor_id": "DLC05WorkshopFireworkWeaponPeonyGreen",
+    "weapon_name": "DLC05WorkshopFireworkWeaponPeonyGreen",
+    "ammo_plugin": "DLCworkshop02.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC05FireworkAmmoPeonyGreen",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCworkshop02.esm",
+    "weapon_form_id": "04000A96",
+    "weapon_editor_id": "DLC05WorkshopFireworkWeaponMinutemenFlare",
+    "weapon_name": "DLC05WorkshopFireworkWeaponMinutemenFlare",
+    "ammo_plugin": "DLCworkshop02.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC05FireworkAmmoMinutemenFlare",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06052926",
+    "weapon_editor_id": "DLC04_CommieWhacker",
+    "weapon_name": "DLC04_CommieWhacker",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "0605221E",
+    "weapon_editor_id": "DLC04_44_Disciples",
+    "weapon_name": ".44",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo44",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06052215",
+    "weapon_editor_id": "DLC04_Board_Pack",
+    "weapon_name": "DLC04_Board_Pack",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "0604BEFC",
+    "weapon_editor_id": "DLC04_TurretMountedLaserGunSpaceBlue",
+    "weapon_name": "DLC04_TurretMountedLaserGunSpaceBlue",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "0604A619",
+    "weapon_editor_id": "DLC04RaiderOverboss_FragGrenadeSingleNP",
+    "weapon_name": "DLC04RaiderOverboss_FragGrenadeSingleNP",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "0604A380",
+    "weapon_editor_id": "DLC04Bot_Weap_SentryBotRightShoulderClusterLauncher",
+    "weapon_name": "DLC04Bot_Weap_SentryBotRightShoulderClusterLauncher",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "0604A37F",
+    "weapon_editor_id": "DLC04Bot_Weap_SentryBotLeftShoulderClusterLauncher",
+    "weapon_name": "DLC04Bot_Weap_SentryBotLeftShoulderClusterLauncher",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "0604A1C0",
+    "weapon_editor_id": "DLC04Bot_Weap_SentryBotRightAutoLaser_Blue",
+    "weapon_name": "DLC04Bot_Weap_SentryBotRightAutoLaser_Blue",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "0604A1BF",
+    "weapon_editor_id": "DLC04Bot_Weap_SentryBotLeftAutoLaser_Blue",
+    "weapon_name": "DLC04Bot_Weap_SentryBotLeftAutoLaser_Blue",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "0604A1BE",
+    "weapon_editor_id": "DLC04Bot_Weap_Protectron01RightArmLaserGun_Blue",
+    "weapon_name": "DLC04Bot_Weap_Protectron01RightArmLaserGun_Blue",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "0604A1BD",
+    "weapon_editor_id": "DLC04Bot_Weap_Protectron01LeftArmLaserGun_Blue",
+    "weapon_name": "DLC04Bot_Weap_Protectron01LeftArmLaserGun_Blue",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "060496EA",
+    "weapon_editor_id": "DLC04COMGageHandMadeGun",
+    "weapon_name": "DLC04COMGageHandMadeGun",
+    "ammo_plugin": "DLCNukaWorld.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC04_COM_Ammo_HandmadeRound",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06047E00",
+    "weapon_editor_id": "DLC04Bot_Melee_Nira_Right",
+    "weapon_name": "DLC04Bot_Melee_Nira_Right",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06047DFF",
+    "weapon_editor_id": "DLC04Bot_Melee_Nira_Left",
+    "weapon_name": "DLC04Bot_Melee_Nira_Left",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06046A29",
+    "weapon_editor_id": "DLC04_Sledgehammer_Pack",
+    "weapon_name": "DLC04_Sledgehammer_Pack",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06044F0E",
+    "weapon_editor_id": "DLC04Bot_Weap_SentryBotRightAutoLaser",
+    "weapon_name": "DLC04Bot_Weap_SentryBotRightAutoLaser",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06044F0D",
+    "weapon_editor_id": "DLC04Bot_Weap_SentryBotLeftAutoLaser",
+    "weapon_name": "DLC04Bot_Weap_SentryBotLeftAutoLaser",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06044C68",
+    "weapon_editor_id": "DLC04Bot_Weap_ThirstZapperQuantumRight",
+    "weapon_name": "DLC04Bot_Weap_ThirstZapperQuantumRight",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06044C67",
+    "weapon_editor_id": "DLC04Bot_Weap_ThirstZapperQuantumLeft",
+    "weapon_name": "DLC04Bot_Weap_ThirstZapperQuantumLeft",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06044C66",
+    "weapon_editor_id": "DLC04Bot_Weap_ThirstZapperCherryRight",
+    "weapon_name": "DLC04Bot_Weap_ThirstZapperCherryRight",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06044C65",
+    "weapon_editor_id": "DLC04Bot_Weap_ThirstZapperCherryLeft",
+    "weapon_name": "DLC04Bot_Weap_ThirstZapperCherryLeft",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06044C61",
+    "weapon_editor_id": "DLC04Bot_Weap_Protectron01RightArmLaserGun",
+    "weapon_name": "DLC04Bot_Weap_Protectron01RightArmLaserGun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06044C60",
+    "weapon_editor_id": "DLC04Bot_Weap_Protectron01LeftArmLaserGun",
+    "weapon_name": "DLC04Bot_Weap_Protectron01LeftArmLaserGun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "CompanionAmmo10mm",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "060415B3",
+    "weapon_editor_id": "DLC04_Revolver",
+    "weapon_name": "DLC04_Revolver",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo44",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06040CDE",
+    "weapon_editor_id": "DLC04_NukaQuantumGrenade",
+    "weapon_name": "DLC04_NukaQuantumGrenade",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06040CDD",
+    "weapon_editor_id": "DLC04_NukaCherryGrenade",
+    "weapon_name": "DLC04_NukaCherryGrenade",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06040676",
+    "weapon_editor_id": "DLC04_WeapSpaceEyebot",
+    "weapon_name": "DLC04_WeapSpaceEyebot",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCellEyebot",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "060396A7",
+    "weapon_editor_id": "DLC04_BaseballBat_Pack",
+    "weapon_name": "a??a??a??",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "060394E2",
+    "weapon_editor_id": "DLC04AnimatronicLaserGunMkVII",
+    "weapon_name": "DLC04AnimatronicLaserGunMkVII",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "060394E1",
+    "weapon_editor_id": "DLC04AnimatronicLaserGunMkV",
+    "weapon_name": "DLC04AnimatronicLaserGunMkV",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "060394E0",
+    "weapon_editor_id": "DLC04AnimatronicLaserGunMkIII",
+    "weapon_name": "DLC04AnimatronicLaserGunMkIII",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "060394DF",
+    "weapon_editor_id": "DLC04AnimatronicLaserGunMkI",
+    "weapon_name": "DLC04AnimatronicLaserGunMkI",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06035E75",
+    "weapon_editor_id": "DLC04_LuckyRabbitsFoot",
+    "weapon_name": "DLC04_LuckyRabbitsFoot",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "060346FC",
+    "weapon_editor_id": "DLC04_FragGrenadeSmart",
+    "weapon_name": "DLC04_FragGrenadeSmart",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06033B60",
+    "weapon_editor_id": "DLC04_HandMadeGun",
+    "weapon_name": "DLC04_HandMadeGun",
+    "ammo_plugin": "DLCNukaWorld.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC04_Ammo_HandmadeRound",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06033905",
+    "weapon_editor_id": "DLC04_FragGrenadeMIRV",
+    "weapon_name": "DLC04_FragGrenadeMIRV",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "0602618B",
+    "weapon_editor_id": "DLC04DisciplesFrenzyGrenade",
+    "weapon_name": "DLC04DisciplesFrenzyGrenade",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06025B0A",
+    "weapon_editor_id": "DLC04PackScentGrenade",
+    "weapon_name": "DLC04PackScentGrenade",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06023E60",
+    "weapon_editor_id": "DLC04IntimidateGrenade",
+    "weapon_name": "DLC04IntimidateGrenade",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06023434",
+    "weapon_editor_id": "DLC04_UnarmedBrahmiluff",
+    "weapon_name": "a??a?ca??a?ca?? - Unarmed",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "060213A6",
+    "weapon_editor_id": "DLC04SentryBotLeftShoulderClusterLauncher",
+    "weapon_name": "DLC04SentryBotLeftShoulderClusterLauncher",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoMissile",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "060213A5",
+    "weapon_editor_id": "DLC04SentryBotRightShoulderClusterLauncher",
+    "weapon_name": "DLC04SentryBotRightShoulderClusterLauncher",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoMissile",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "0602020A",
+    "weapon_editor_id": "DLC04BotThirstZapperQuantumLeft",
+    "weapon_name": "DLC04BotThirstZapperQuantumLeft",
+    "ammo_plugin": "DLCNukaWorld.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC04_Ammo_Nukatron_Quantum",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06020209",
+    "weapon_editor_id": "DLC04BotThirstZapperQuantumRight",
+    "weapon_name": "DLC04BotThirstZapperQuantumRight",
+    "ammo_plugin": "DLCNukaWorld.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC04_Ammo_Nukatron_Quantum",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06020208",
+    "weapon_editor_id": "DLC04BotThirstZapperCherryLeft",
+    "weapon_name": "DLC04BotThirstZapperCherryLeft",
+    "ammo_plugin": "DLCNukaWorld.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC04_Ammo_Nukatron_Cherry",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06020207",
+    "weapon_editor_id": "DLC04BotThirstZapperCherryRight",
+    "weapon_name": "DLC04BotThirstZapperCherryRight",
+    "ammo_plugin": "DLCNukaWorld.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC04_Ammo_Nukatron_Cherry",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "0601FAB0",
+    "weapon_editor_id": "DLC04AnimatronicAlienWeapon",
+    "weapon_name": "DLC04AnimatronicAlienWeapon",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo556",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "0601FAAF",
+    "weapon_editor_id": "DLC04Protectron01RightArmLaserGun",
+    "weapon_name": "DLC04Protectron01RightArmLaserGun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "0601FAAE",
+    "weapon_editor_id": "DLC04MrGutsy_LaserGun_Middle",
+    "weapon_name": "DLC04MrGutsy_LaserGun_Middle",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "0601FAAD",
+    "weapon_editor_id": "DLC04MrGutsy_LaserGun_Left",
+    "weapon_name": "DLC04MrGutsy_LaserGun_Left",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "0601FAAC",
+    "weapon_editor_id": "DLC04Protectron01LeftArmLaserGun",
+    "weapon_name": "DLC04Protectron01LeftArmLaserGun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "0601FAAB",
+    "weapon_editor_id": "DLC04FakeAlienBlasterTurret",
+    "weapon_name": "DLC04FakeAlienBlasterTurret",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "0601FAAA",
+    "weapon_editor_id": "DLC04AnimatronicAlienGun",
+    "weapon_name": "DLC04AnimatronicAlienGun",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "Ammo556",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "0601FAA9",
+    "weapon_editor_id": "DLC04MrGutsy_LaserGun_Right",
+    "weapon_name": "DLC04MrGutsy_LaserGun_Right",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "0601AABC",
+    "weapon_editor_id": "DLC04_DisciplesBlade",
+    "weapon_name": "DLC04_DisciplesBlade",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "0601A5BE",
+    "weapon_editor_id": "DLC04AnimatronicAlienBlaster",
+    "weapon_name": "DLC04AnimatronicAlienBlaster",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06019E6C",
+    "weapon_editor_id": "DLC04SentryBotRightAutoLaser",
+    "weapon_name": "DLC04SentryBotRightAutoLaser",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06019E6B",
+    "weapon_editor_id": "DLC04SentryBotLeftAutoLaser",
+    "weapon_name": "DLC04SentryBotLeftAutoLaser",
+    "ammo_plugin": "Fallout4.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "AmmoFusionCell",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "060138F9",
+    "weapon_editor_id": "DLC04_UnarmedRadRat",
+    "weapon_name": "DLC04_UnarmedRadRat",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "060138ED",
+    "weapon_editor_id": "DLC04_UnarmedRadAnt",
+    "weapon_name": "DLC04_UnarmedRadAnt",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "060138C8",
+    "weapon_editor_id": "DLC04_UnarmedSwarm",
+    "weapon_name": "a?1a?|a?ca??a?? - Unarmed",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "060138C7",
+    "weapon_editor_id": "DLC04_UnarmedCaveCricket",
+    "weapon_name": "DLC04_UnarmedCaveCricket",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "060138C6",
+    "weapon_editor_id": "DLC04_UnarmedBloodworm",
+    "weapon_name": "DLC04_UnarmedBloodworm",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06010F11",
+    "weapon_editor_id": "DLC04BotHandyMisterRight",
+    "weapon_name": "a??a?1a??a??",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06010F10",
+    "weapon_editor_id": "DLC04BotHandyMisterLeft",
+    "weapon_name": "a??a?1a??a??",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06010F0F",
+    "weapon_editor_id": "DLC04BotHandyMisterMiddle",
+    "weapon_name": "a??a?1a??a??",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "0600A6C0",
+    "weapon_editor_id": "DLC04_PaddleBall",
+    "weapon_name": "DLC04_PaddleBall",
+    "ammo_plugin": "DLCNukaWorld.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC04_Ammo_PaddleBall",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06007BC8",
+    "weapon_editor_id": "DLC04_ThirstZapper",
+    "weapon_name": "DLC04_ThirstZapper",
+    "ammo_plugin": "",
+    "ammo_form_id": "",
+    "ammo_editor_id": "",
+    "omods": []
+  },
+  {
+    "weapon_plugin": "DLCNukaWorld.esm",
+    "weapon_form_id": "06007BC6",
+    "weapon_editor_id": "DLC04_AcidSoaker",
+    "weapon_name": "DLC04_AcidSoaker",
+    "ammo_plugin": "DLCNukaWorld.esm",
+    "ammo_form_id": "",
+    "ammo_editor_id": "DLC04_Ammo_AcidSoaker",
+    "omods": []
+  }
+]

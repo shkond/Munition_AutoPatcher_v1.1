@@ -1,0 +1,31 @@
+{
+  "comment": "Munitionsの弾薬を分類するためのルール。キーワードはEditorIDに対して部分一致で検索されます（大文字小文字は区別しません）。",
+  "classification_rules": [
+    { "keywords": ["Shotgun", "Gauge", "Slug", "410gauge", "20g", "20gauge", "12g"], "Category": "Shotgun_Standard", "Power": 2 },
+    { "keywords": ["Shotgun_Heavy", "12G_Magnum", "magnum12g"], "Category": "Shotgun_Heavy", "Power": 4 },
+
+    { "keywords": ["5.56", "5_56", "223", "223cal", "223caliber", "5x56", "5-56", "5.45", "5_45", "545mm",
+                   "7.62x39", "7_62x39", "3030", "30-30", "30_30", "303", "280", "40cal", "40caliber",
+                   "65mm", "6.5mm", "57mm", "5.7mm", "30cal"],                     "Category": "StandardBallistic_Medium", "Power": 2 },
+
+    { "keywords": ["7.62x51", "7_62x51", "308", "3006", "30-06", "30_06", "762x54r", "7.62x54r",
+                   "7.92mm", "792mm", "47mm", "4.7mm", "caseless", "14mm"],       "Category": "AdvancedBallistic", "Power": 3 },
+
+    { "keywords": ["300blackout", "300blk", "300winmag", "338lapua", "50bmg", "50cal", "458socom",
+                   "127mm", "12.7mm", "500express", "300magnum"],                 "Category": "MilitaryGrade", "Power": 4 },
+
+    { "keywords": ["22lr", "22cal", "22caliber", "9x19", "9mm", "45acp", "10mm", "357", "44magnum",
+                   "32cal", "32caliber", "25cal", "25caliber", "762tokarev", "762mmtokarev", "7.62tokarev",
+                   "dart", "bbpellet", "nail", "455cal"],                          "Category": "StandardBallistic_Low", "Power": 1 },
+
+    { "keywords": ["Energy_Cell", "FusionCell", "smallenergycell"],               "Category": "Energy_Standard", "Power": 2 },
+    { "keywords": ["Plasma", "EC", "Gauss", "fissionbattery", "pyrocell"],        "Category": "Energy_Advanced", "Power": 4 },
+
+    { "keywords": ["Explosive", "Rocket", "Missile", "Grenade", "40mm", "20mm"],  "Category": "Explosive", "Power": 3 },
+
+    { "keywords": ["Musket", "Ball"],                                             "Category": "Primitive", "Power": 1 },
+
+    { "keywords": ["Exotic", "Syringer", "Cryo", "needler", "gyrojet", "arrow", "bolt"],
+                                                                                   "Category": "Exotic", "Power": 4 }
+  ]
+}

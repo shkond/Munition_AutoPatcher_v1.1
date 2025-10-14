@@ -72,16 +72,18 @@ class AmmoMapperApp:
         self.canvas.bind_all("<Button-5>", self.on_mouse_wheel)
 
         # ヘッダー行
-        headers = ["変換", "ESP名", "元弾薬EditorID", "変換先Munitions弾薬 (FormID | EditorID)"]
+        headers = ["変換", "ESP名", "元弾薬EditorID", "OMOD (存在する場合優先)", "変換先Munitions弾薬 (FormID | EditorID)"]
         for i, header in enumerate(headers):
             style = 'bold.TLabel'
             ttk.Style().configure(style, font=('Helvetica', 10, 'bold'))
             label = ttk.Label(self.content_frame, text=header, style=style)
             label.grid(row=0, column=i, padx=5, pady=(5, 10), sticky="w")
-        
+
+        # カラム幅の調整（0=チェック, 1=ESP名, 2=EditorID, 3=OMOD, 4=選択コンボ）
         self.content_frame.grid_columnconfigure(1, weight=1, minsize=200)
         self.content_frame.grid_columnconfigure(2, weight=1, minsize=200)
-        self.content_frame.grid_columnconfigure(3, weight=2, minsize=350)
+        self.content_frame.grid_columnconfigure(3, weight=1, minsize=220)
+        self.content_frame.grid_columnconfigure(4, weight=2, minsize=350)
 
         # 保存ボタン
         button_frame = ttk.Frame(self.root)
@@ -159,6 +161,11 @@ class AmmoMapperApp:
                 raise configparser.NoSectionError('MunitionsAmmo')
 
             self.munitions_ammo_list.sort()
+            # Debug: report munitions list load
+            try:
+                print(f"[mapper-debug] Loaded Munitions ammo entries: {len(self.munitions_ammo_list)} from {self.munitions_file_path}")
+            except Exception:
+                pass
         except Exception as e:
             messagebox.showerror("エラー", f"'{self.munitions_file_path}' の読み込みに失敗しました:\n{e}")
             return False
@@ -188,20 +195,96 @@ class AmmoMapperApp:
                     "original_form_id": original_form_id.upper(),
                     "esp_name": esp_name,
                     "editor_id": editor_id,
-                    "widgets": {}
+                    "widgets": {},
+                    # will be filled from weapon_omod_map JSON (if found)
+                    "omods_info": []
                 })
+
+            # Debug: report unmapped ammo load
+            try:
+                print(f"[mapper-debug] Loaded UnmappedAmmo entries: {len(self.ammo_to_map)} from {self.ammo_file_path}")
+            except Exception:
+                pass
 
         except Exception as e:
             messagebox.showerror("エラー", f"'{self.ammo_file_path}' の読み込みに失敗しました:\n{e}")
             return False
             
+        # --- Try to enrich with weapon_omod_map.json if present ---
+        try:
+            # search common locations: same dir as ammo file, Output/, workspace Output/
+            candidate_dirs = [self.ammo_file_path.parent, Path('Output'), Path.cwd() / 'Output']
+            omod_records = {}
+            for d in candidate_dirs:
+                p = d / 'weapon_omod_map.ammofilled.details.json'
+                if not p.exists():
+                    p = d / 'weapon_omod_map.json'
+                if p.exists():
+                    try:
+                        import json
+                        txt = p.read_text(encoding='utf-8')
+                        data = json.loads(txt)
+                        for entry in data:
+                            # attach by ammo_form_id or ammo_editor_id
+                            key_a = (entry.get('ammo_form_id') or '').strip().upper()
+                            key_b = (entry.get('ammo_editor_id') or '').strip()
+                            omods = entry.get('omods') or []
+                            if key_a:
+                                omod_records.setdefault(key_a, []).extend(omods)
+                            if key_b:
+                                omod_records.setdefault(key_b, []).extend(omods)
+                    except Exception:
+                        continue
+
+            # attach to ammo_to_map rows
+            for row in self.ammo_to_map:
+                # match by original_form_id and editor_id
+                ofid = row['original_form_id'].upper()
+                ed = row['editor_id']
+                attached = []
+                if ofid in omod_records:
+                    attached.extend(omod_records[ofid])
+                if ed in omod_records:
+                    attached.extend(omod_records[ed])
+                # remove duplicates (by plugin+form)
+                seen = set()
+                uniq = []
+                for o in attached:
+                    if not isinstance(o, dict):
+                        continue
+                    key = (o.get('omod_plugin') or '') + '|' + (o.get('omod_form_id') or '')
+                    if key and key not in seen:
+                        seen.add(key)
+                        uniq.append(o)
+                row['omods_info'] = uniq
+        except Exception:
+            # swallow enrichment errors (retain previous behavior)
+            pass
+
+        # Debug: report enrichment results
+        try:
+            total_with_omods = sum(1 for r in self.ammo_to_map if r.get('omods_info'))
+            print(f"[mapper-debug] Rows with attached OMODs: {total_with_omods} / {len(self.ammo_to_map)}")
+        except Exception:
+            pass
+        # indicate success
         return True
 
     def build_ui_rows(self):
         """UIの行を構築"""
         munitions_list_with_blank = [""] + self.munitions_ammo_list
+
+        # Debug: report expected number of rows to build
+        try:
+            print(f"[mapper-debug] build_ui_rows expected rows: {len(self.ammo_to_map)}")
+        except Exception:
+            pass
         
         for index, ammo_data in enumerate(self.ammo_to_map):
+            try:
+                print(f"[mapper-debug] build_ui_rows processing index={index} esp={ammo_data.get('esp_name')} editor={ammo_data.get('editor_id')}")
+            except Exception:
+                pass
             row_num = index + 1
             
             chk_var = tk.BooleanVar()
@@ -210,14 +293,36 @@ class AmmoMapperApp:
             
             ttk.Label(self.content_frame, text=ammo_data["esp_name"], wraplength=180).grid(row=row_num, column=1, sticky="w", padx=5)
             ttk.Label(self.content_frame, text=ammo_data["editor_id"], wraplength=180).grid(row=row_num, column=2, sticky="w", padx=5)
-            
+
+            # OMOD info column
+            omod_label_text = ""
+            if ammo_data.get('omods_info'):
+                try:
+                    # show plugin|form pairs
+                    parts = []
+                    for o in ammo_data['omods_info']:
+                        p = (o.get('omod_plugin') or '').strip()
+                        f = (o.get('omod_form_id') or '').strip().upper()
+                        parts.append(f"{p}|{f}")
+                    omod_label_text = ", ".join(parts)
+                except Exception:
+                    omod_label_text = "(OMODあり)"
+            ttk.Label(self.content_frame, text=omod_label_text, wraplength=220, foreground='darkgreen').grid(row=row_num, column=3, sticky="w", padx=5)
+
             combo = ttk.Combobox(self.content_frame, values=munitions_list_with_blank, state="readonly", width=50)
-            combo.grid(row=row_num, column=3, sticky="ew", padx=5, pady=2)
+            combo.grid(row=row_num, column=4, sticky="ew", padx=5, pady=2)
 
             combo.bind("<FocusIn>", lambda e: self.disable_canvas_scroll())
             combo.bind("<FocusOut>", lambda e: self.enable_canvas_scroll())
 
             ammo_data['widgets'] = {'chk_var': chk_var, 'combo': combo}
+
+        # Debug: report actual widget count under content_frame
+        try:
+            created = len([c for c in self.content_frame.winfo_children() if int(c.grid_info().get('row', 0)) > 0])
+            print(f"[mapper-debug] build_ui_rows created widget rows: {created}")
+        except Exception:
+            pass
 
     def disable_canvas_scroll(self):
         self.canvas.unbind_all("<MouseWheel>")
@@ -231,50 +336,138 @@ class AmmoMapperApp:
 
     def save_ini_file(self):
         """INIファイルを保存 - 修正版"""
-        file_path = self.output_file_path
-        
-        lines_to_write = []
+        # We'll write RobCo-specific INI here. User requested that traditional [UnmappedAmmo] may be removed.
+        output_dir = self.output_file_path.parent
+        robco_path = output_dir / 'robco_ammo_patch.ini'
+
+        weapon_lines = []
+        omod_lines = []
         has_error = False
         error_messages = []
-        
-        # セクションヘッダーを追加
-        lines_to_write.append("[UnmappedAmmo]")
-        
+
+        # Try to load NPC list map (munitions_npc_lists.ini) to produce setNewAmmoList when available
+        npc_map = {}
+        try:
+            cand = output_dir / 'munitions_npc_lists.ini'
+            if not cand.exists():
+                cand = Path('Output') / 'munitions_npc_lists.ini'
+            if cand.exists():
+                cfg = configparser.ConfigParser()
+                cfg.read(cand, encoding='utf-8')
+                if cfg.has_section('AmmoNPCList'):
+                    for k, v in cfg.items('AmmoNPCList'):
+                        k_norm = (k or '').strip().upper()
+                        v_norm = (v or '').strip().upper()
+                        if k_norm and v_norm:
+                            npc_map[k_norm] = v_norm
+        except Exception:
+            npc_map = {}
+
         for index, ammo_data in enumerate(self.ammo_to_map):
-            if ammo_data['widgets']['chk_var'].get():
-                selected_ammo = ammo_data['widgets']['combo'].get()
-                
-                if not selected_ammo:
-                    has_error = True
-                    error_messages.append(f"行 {index + 1}: {ammo_data['esp_name']} - {ammo_data['editor_id']} で変換先が選択されていません")
-                    continue
-                
-                new_form_id = selected_ammo.split('|')[0].strip()
-                original_form_id = ammo_data['original_form_id']
-                
-                # コメントを追加
-                comment = f"; {ammo_data['esp_name']} の {ammo_data['editor_id']} を変換"
-                lines_to_write.append(comment)
-                lines_to_write.append(f"{original_form_id}={new_form_id}")
+            widgets = ammo_data.get('widgets') or {}
+            # support headless/test mode: allow a prefilled 'selected_target' value on the row
+            selected_ammo = None
+            try:
+                if widgets and widgets.get('chk_var') is not None:
+                    if not widgets['chk_var'].get():
+                        continue
+                    selected_ammo = widgets['combo'].get()
+                else:
+                    # headless mode: check for a prefilled value
+                    selected_ammo = ammo_data.get('selected_target')
+                    if not selected_ammo:
+                        # nothing selected for this row
+                        continue
+            except Exception:
+                # In case widgets are malformed, skip row
+                continue
+            if not selected_ammo:
+                has_error = True
+                error_messages.append(f"行 {index + 1}: {ammo_data['esp_name']} - {ammo_data['editor_id']} で変換先が選択されていません")
+                continue
+
+            new_form_id = selected_ammo.split('|')[0].strip().upper()
+            # new_form_id is Munitions formid to set on weapon
+
+            # If OMOD info exists, prefer to create OMOD line(s)
+            omods = ammo_data.get('omods_info') or []
+            if omods:
+                # create one OMOD line per omod entry
+                for o in omods:
+                    omod_plugin = (o.get('omod_plugin') or '').strip()
+                    omod_form = (o.get('omod_form_id') or '').strip().upper()
+                    if not (omod_plugin and omod_form):
+                        continue
+                    # RobCo expects: filterByOMod=<Plugin>|<FormID>:changeOModPropertiesForm=Ammo=<Plugin>|<FormID>
+                    # We will set the Ammo target to the Munitions plugin + new_form_id so OMOD ammo becomes the Munitions ammo.
+                    MUNITIONS_PLUGIN = 'Munitions - An Ammo Expansion.esl'
+                    omod_lines.append(f"filterByOMod={omod_plugin}|{omod_form}:changeOModPropertiesForm=Ammo={MUNITIONS_PLUGIN}|{new_form_id}")
+
+            # Weapon line (always emit when mapping selected)
+            # RobCo expects: filterByWeapons=<Plugin>|<FormID>:setNewAmmo=<MunitionsFormID>[:setNewAmmoList=<FormList>]
+            # We need weapon plugin/form — try to find from weapon_omod_map by matching ammo_form or editor id.
+            weap_plugin = ''
+            weap_form = ''
+            # If ammo_data includes weapon_plugin/weap_form in its fields (not typical), use them; else skip plugin info
+            if 'weapon_plugin' in ammo_data:
+                weap_plugin = (ammo_data.get('weapon_plugin') or '').strip()
+                weap_form = (ammo_data.get('weapon_form_id') or '').strip().upper()
+
+            # Fallback: try to find weapon record in weapon_omod_map files
+            if not (weap_plugin and weap_form):
+                try:
+                    import json
+                    # search common files
+                    p = output_dir / 'weapon_omod_map.ammofilled.details.json'
+                    if not p.exists():
+                        p = output_dir / 'weapon_omod_map.json'
+                    if p.exists():
+                        data = json.loads(p.read_text(encoding='utf-8'))
+                        # match by ammo editor or original_form_id
+                        for entry in data:
+                            if (entry.get('ammo_form_id') or '').strip().upper() == ammo_data['original_form_id']:
+                                weap_plugin = (entry.get('weapon_plugin') or '').strip()
+                                weap_form = (entry.get('weapon_form_id') or '').strip().upper()
+                                break
+                            if (entry.get('ammo_editor_id') or '').strip() == ammo_data['editor_id']:
+                                weap_plugin = (entry.get('weapon_plugin') or '').strip()
+                                weap_form = (entry.get('weapon_form_id') or '').strip().upper()
+                                break
+                except Exception:
+                    pass
+
+            if weap_plugin and weap_form:
+                line = f"filterByWeapons={weap_plugin}|{weap_form}:setNewAmmo={new_form_id}"
+                # attach setNewAmmoList when available
+                list_form = npc_map.get(new_form_id.upper())
+                if list_form:
+                    line = line + f":setNewAmmoList={list_form}"
+                weapon_lines.append(line)
+            else:
+                # Without weapon plugin/form we still add a comment mapping for manual application
+                weapon_lines.append(f"; WARNING: weapon plugin/form not found for {ammo_data['esp_name']} {ammo_data['editor_id']}. Intended setNewAmmo={new_form_id}")
 
         if has_error:
             messagebox.showerror("エラー", "以下の問題があります:\n\n" + "\n".join(error_messages))
             return
 
-        if len(lines_to_write) <= 1:  # セクションヘッダーのみ
+        # If nothing selected
+        if not weapon_lines and not omod_lines:
             messagebox.showinfo("情報", "保存する項目が選択されていません。")
             return
 
         try:
-            # 出力ディレクトリを作成
-            file_path.parent.mkdir(parents=True, exist_ok=True)
-            
-            with open(file_path, 'w', encoding='utf-8') as f:
-                f.write("; Generated by Munitions Ammo Mapper\n")
-                f.write("; 正しいINI形式で保存されます\n\n")
-                for line in lines_to_write:
+            output_dir.mkdir(parents=True, exist_ok=True)
+            with open(robco_path, 'w', encoding='utf-8') as f:
+                f.write("; Generated by Munitions Ammo Mapper for RobCo Patcher\n")
+                f.write("; Weapon lines (setNewAmmo) follow\n\n")
+                for line in weapon_lines:
                     f.write(line + "\n")
-            messagebox.showinfo("成功", f"'{file_path}' に保存しました。")
+                f.write("\n; OMOD lines (change OMOD Ammo) follow\n\n")
+                for line in omod_lines:
+                    f.write(line + "\n")
+
+            messagebox.showinfo("成功", f"'{robco_path}' に RobCo 用パッチを保存しました。")
         except Exception as e:
             messagebox.showerror("エラー", f"ファイルの保存中にエラーが発生しました:\n{e}")
 

@@ -365,6 +365,8 @@ class Orchestrator:
 
         temp_script_filename = f"TEMP_{int(time.time())}_{uuid.uuid4().hex}.pas"
         temp_script_path = edit_scripts_dir / temp_script_filename
+        # Print temp filename to stdout for easy correlation with runtime files
+        print(f"TEMP_SCRIPT:{temp_script_filename}")
 
         env_settings = self.config.get_env_settings()
         game_data_path = self.config.get_path('Paths', 'game_data_path')
@@ -391,20 +393,75 @@ class Orchestrator:
         output_dir.mkdir(parents=True, exist_ok=True)
         session_log_path = output_dir / f"xEdit_session_{int(time.time())}.log"
 
+        # --- SENTINEL: always-create a small marker so we know this function was entered ---
+        try:
+            try:
+                marker = output_dir / 'orch_entry_marker.txt'
+                with marker.open('a', encoding='utf-8') as mf:
+                    mf.write(f"EntryTime={time.time()} script_key={script_key}\n")
+                logging.info(f"[xEdit] Debug: wrote orchestrator entry marker: {marker}")
+            except Exception as _e:
+                logging.warning(f"[xEdit] Debug: failed to write orch_entry_marker: {_e}")
+        except Exception:
+            pass
+
         mo2_process = None
         xedit_process_ps = None
         exit_code: Optional[int] = None
 
         try:
             shutil.copy2(source_script_path, temp_script_path)
+            # --- DEBUG: also write a copy of the created temp script into the application's Output
+            # Read the actual temp script (the one placed under Edit Scripts) and write its
+            # contents into our workspace Output so we can inspect exactly what xEdit will run.
+            try:
+                debug_copy_name = f"copied_temp_{temp_script_filename}"
+                debug_copy_path = output_dir / debug_copy_name
+                try:
+                    txt = temp_script_path.read_text(encoding='utf-8', errors='replace')
+                except Exception:
+                    # Fall back to reading source if temp is not readable for some reason
+                    txt = source_script_path.read_text(encoding='utf-8', errors='replace')
+                debug_copy_path.write_text(txt, encoding='utf-8')
+                logging.info(f"[xEdit] Debug: wrote actual temp script content into workspace Output: {debug_copy_path}")
+            except Exception as e:
+                logging.exception(f"[xEdit] Debug: failed to write actual temp script into Output for inspection: {e}")
+
+            # Minimal inspection file (always attempt to write) to aid debugging when logging
+            try:
+                insp = output_dir / f"temp_inspect_{temp_script_filename}.txt"
+                exists = source_script_path.exists()
+                size = source_script_path.stat().st_size if exists else -1
+                with insp.open('w', encoding='utf-8') as fh:
+                    fh.write(f"source={source_script_path}\n")
+                    fh.write(f"exists={exists}\n")
+                    fh.write(f"size={size}\n")
+                logging.info(f"[xEdit] Debug: wrote inspection file: {insp}")
+            except Exception as e:
+                logging.warning(f"[xEdit] Debug: failed to write inspection file: {e}")
 
             # lib ディレクトリ差し替え
             if source_lib_dir.is_dir():
+                # Prepare a timestamp for any backups
+                timestamp = time.strftime('%Y%m%d_%H%M%S')
+
+                # 1) Copy into Edit Scripts/lib (existing behavior, with backup)
                 if dest_lib_dir.exists():
-                    timestamp = time.strftime('%Y%m%d_%H%M%S')
                     lib_backup_dir = edit_scripts_dir / f"_lib_backup_{timestamp}_{uuid.uuid4().hex}"
                     shutil.move(str(dest_lib_dir), str(lib_backup_dir))
                 shutil.copytree(source_lib_dir, dest_lib_dir, dirs_exist_ok=True)
+
+                # 2) ALSO ensure xEdit installation root has the same lib folder
+                # Some xEdit setups reference E:\fo4mod\xedit\lib\*.pas directly
+                xedit_lib_dir = xedit_dir / 'lib'
+                try:
+                    if xedit_lib_dir.exists():
+                        xedit_lib_backup = edit_scripts_dir / f"_xedit_lib_backup_{timestamp}_{uuid.uuid4().hex}"
+                        shutil.move(str(xedit_lib_dir), str(xedit_lib_backup))
+                    shutil.copytree(source_lib_dir, xedit_lib_dir, dirs_exist_ok=True)
+                    logging.info(f"[xEdit] Copied lib files to xEdit root: {xedit_lib_dir}")
+                except Exception as e:
+                    logging.warning(f"[xEdit] xedit root lib copy failed: {e}")
 
             # ★★★ 修正: コマンドライン構築を変更 ★★★
             command_list = []

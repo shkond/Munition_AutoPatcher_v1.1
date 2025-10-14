@@ -441,7 +441,16 @@ def run(config) -> bool:
 
             npc_list_fid = npc_list_map.get(mapped_ammo_fid)
             if npc_list_fid:
-                line += f":setNewAmmoList={npc_list_fid}"
+                # Per user request: do not attach setNewAmmoList to the weapon INI.
+                # Instead, record a setNewAmmoList entry in the formlist output (AddWeaponsToLL)
+                # so that modifications to form lists live in the formlist file.
+                if not formlist_add_lines:
+                    formlist_add_lines.append("; Munitions Auto-Patcher: Set New AmmoList for Weapons")
+                    formlist_add_lines.append(f"; GeneratedAt={time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+                fl_line = f"filterByWeapons={weap_plugin}|{weap_fid}:setNewAmmoList={npc_list_fid}"
+                # avoid duplicate entries
+                if fl_line not in formlist_add_lines:
+                    formlist_add_lines.append(fl_line)
 
             if comment not in seen_comments:
                 weapon_patch_lines.append(comment)
