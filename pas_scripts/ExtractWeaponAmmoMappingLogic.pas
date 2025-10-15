@@ -14,8 +14,6 @@ implementation
 function AP_Run_ExtractWeaponAmmoMapping: Integer;
 var
   // Local state variables
-// Minimal robust logger: write to a per-script log file if possible and always AddMessage
-procedure LogMsg(const s: string);
   jsonOutput: TStringList;
   uniqueAmmoOutput: TStringList;
   processedWeapons: TStringList;
@@ -33,12 +31,6 @@ procedure LogMsg(const s: string);
   jsonFile: TStringList;
 begin
   Result := 0;
-  // Log start for debugging
-  try
-    LogMsg('AP_Run_ExtractWeaponAmmoMapping start');
-  except
-    // ignore logging failures
-  end;
   // Initialize local state
   jsonOutput := TStringList.Create;
   uniqueAmmoOutput := TStringList.Create;
@@ -77,7 +69,7 @@ begin
         ammoRec := nil;
         if Assigned(ammoLinkElement) then ammoRec := LinksTo(ammoLinkElement);
 
-        if Assigned(ammoRec) then begin
+  if Assigned(ammoRec) then begin
           ammoPlugin := GetFileName(GetFile(ammoRec));
           ammoEditorID := EditorID(ammoRec);
 
@@ -122,11 +114,7 @@ begin
     LogComplete('Weapon and ammo mapping extraction');
   except
     on E: Exception do begin
-      try
-        LogMsg('ERROR: ' + E.ClassName + ': ' + E.Message);
-      except
-        // ignore logging failures
-      end;
+      LogError(E.Message);
       Result := 1;
     end;
   finally

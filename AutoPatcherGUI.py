@@ -2,10 +2,6 @@
 # Munitions 自動統合フレームワーク v2.5
 #
 # AutoPatcherGUI.py
-#
-# 変更履歴:
-# v2.5 (2025-09-29):
-#   - プロセス完了時に、成功したか失敗したかを明確に伝えるメッセージボックスを表示する機能を追加。
 # =============================================================================
 
 import tkinter as tk
@@ -16,7 +12,6 @@ import queue
 import logging.handlers
 from pathlib import Path
 
-# ★★★ 追加: 管理者権限確認 ★★★
 from admin_check import is_admin, request_admin_elevation
 
 class QueueHandler(logging.Handler):
@@ -28,7 +23,6 @@ class QueueHandler(logging.Handler):
         self.log_queue.put(record)
 
 class Application(tk.Frame):
-    # ★★★ 修正点: インスタンスをコンストラクタで受け取るように変更
     def __init__(self, master, config_manager, orchestrator, log_queue):
         super().__init__(master)
         self.master = master
@@ -73,7 +67,6 @@ class Application(tk.Frame):
         self.mo2_entry_name_entry = ttk.Entry(self.mo2_settings_frame, textvariable=self.mo2_entry_name_var, width=60)
         self.mo2_entry_name_entry.grid(row=2, column=1, sticky="ew", padx=5, pady=2)
 
-        # ★★★ 修正点: Overwriteフォルダ設定UIを追加 ★★★
         ttk.Label(self.mo2_settings_frame, text="Overwriteフォルダ:").grid(row=3, column=0, sticky="w", padx=5, pady=2)
         self.mo2_overwrite_dir_var = tk.StringVar()
         self.mo2_overwrite_dir_entry = ttk.Entry(self.mo2_settings_frame, textvariable=self.mo2_overwrite_dir_var, width=60)
@@ -81,16 +74,12 @@ class Application(tk.Frame):
         self.mo2_overwrite_browse_button = ttk.Button(self.mo2_settings_frame, text="参照...", command=lambda: self.browse_directory(self.mo2_overwrite_dir_var, "MO2のOverwriteフォルダを選択"))
         self.mo2_overwrite_browse_button.grid(row=3, column=2, sticky="e", padx=5, pady=2)
         
-        # ★★★ 新規追加: moshortcut形式選択 ★★★
         ttk.Label(self.mo2_settings_frame, text="ショートカット形式:").grid(row=4, column=0, sticky="w", padx=5, pady=2)
         self.mo2_shortcut_format_var = tk.StringVar()
-        format_combo = ttk.Combobox(self.mo2_settings_frame, textvariable=self.mo2_shortcut_format_var, 
-                                     values=["auto", "no_colon", "with_colon", "instance"], 
-                                     state="readonly", width=57)
+        format_combo = ttk.Combobox(self.mo2_settings_frame, textvariable=self.mo2_shortcut_format_var, values=["auto", "no_colon", "with_colon", "instance"], state="readonly", width=57)
         format_combo.grid(row=4, column=1, sticky="ew", padx=5, pady=2)
         format_combo.set("auto")
         
-        # ★★★ 新規追加: インスタンス名 ★★★
         ttk.Label(self.mo2_settings_frame, text="インスタンス名:").grid(row=5, column=0, sticky="w", padx=5, pady=2)
         self.mo2_instance_name_var = tk.StringVar()
         self.mo2_instance_name_entry = ttk.Entry(self.mo2_settings_frame, textvariable=self.mo2_instance_name_var, width=60)
@@ -131,8 +120,8 @@ class Application(tk.Frame):
 
         self.log_text.tag_config("INFO", foreground="black")
         self.log_text.tag_config("WARNING", foreground="orange")
-        self.log_text.tag_config("ERROR", foreground="red", font=('TkDefaultFont', 9, 'bold'))
-        self.log_text.tag_config("CRITICAL", foreground="red", background="yellow", font=('TkDefaultFont', 9, 'bold'))
+        self.log_text.tag_config("ERROR", foreground="red", font=("TkDefaultFont", 9, "bold"))
+        self.log_text.tag_config("CRITICAL", foreground="red", background="yellow", font=("TkDefaultFont", 9, "bold"))
         self.log_text.tag_config("DEBUG", foreground="gray")
 
         self.log_text.pack(side="left", fill="both", expand=True, padx=5, pady=5)
@@ -141,43 +130,42 @@ class Application(tk.Frame):
     def browse_file(self, var, title, filetypes):
         filepath = filedialog.askopenfilename(title=title, filetypes=filetypes)
         if filepath:
-            # パスを正規化して設定
             normalized_path = Path(filepath).as_posix()
             var.set(normalized_path)
 
-            # ★★★ MO2のOverwriteフォルダを自動検出するロジックを追加 ★★★
             if var is self.mo2_executable_var:
-                # ★★★ 修正点: インスタンス版とポータブル版の両方に対応した、より堅牢な自動検出ロジックに変更 ★★★
-                try:
-                    mo2_exe_path = Path(normalized_path)
-                    mo2_base_dir = mo2_exe_path.parent
-                    found_path = None
+                self._auto_detect_mo2_overwrite(normalized_path)
 
-                    # パターン1: インスタンス版のプロファイル内を検索
-                    # MO2/profiles/<profile_name>/overwrite
-                    profiles_dir = mo2_base_dir / 'profiles'
-                    if profiles_dir.is_dir():
-                        # 現在のプロファイル名を取得
-                        current_profile = self.xedit_profile_var.get()
-                        if current_profile:
-                            profile_overwrite_path = profiles_dir / current_profile / 'overwrite'
-                            if profile_overwrite_path.is_dir():
-                                found_path = profile_overwrite_path
+    def _auto_detect_mo2_overwrite(self, mo2_exe_path_str: str):
+        """MO2の実行可能ファイルパスからOverwriteフォルダを自動検出する。"""
+        try:
+            mo2_exe_path = Path(mo2_exe_path_str)
+            mo2_base_dir = mo2_exe_path.parent
+            found_path = None
 
-                    # パターン2: ポータブル版の構成を検索 (パターン1で見つからない場合)
-                    # MO2/overwrite
-                    if not found_path:
-                        portable_overwrite_path = mo2_base_dir / 'overwrite'
-                        if portable_overwrite_path.is_dir():
-                            found_path = portable_overwrite_path
-                    
-                    if found_path:
-                        self.mo2_overwrite_dir_var.set(found_path.as_posix())
-                        logging.info(f"MO2のOverwriteフォルダを自動検出しました: {found_path}")
-                    else:
-                        logging.warning("MO2のOverwriteフォルダの自動検出に失敗しました。手動で設定してください。")
-                except Exception as e:
-                    logging.warning(f"Overwriteフォルダの自動検出中にエラーが発生しました: {e}")
+            # パターン1: インスタンス版 (profiles/<profile_name>/overwrite)
+            profiles_dir = mo2_base_dir / 'profiles'
+            if profiles_dir.is_dir():
+                current_profile = self.xedit_profile_var.get()
+                if current_profile:
+                    profile_overwrite_path = profiles_dir / current_profile / 'overwrite'
+                    if profile_overwrite_path.is_dir():
+                        found_path = profile_overwrite_path
+
+            # パターン2: ポータブル版 (overwrite)
+            if not found_path:
+                portable_overwrite_path = mo2_base_dir / 'overwrite'
+                if portable_overwrite_path.is_dir():
+                    found_path = portable_overwrite_path
+            
+            if found_path:
+                self.mo2_overwrite_dir_var.set(found_path.as_posix())
+                logging.info(f"MO2のOverwriteフォルダを自動検出しました: {found_path}")
+            else:
+                logging.warning("MO2のOverwriteフォルダの自動検出に失敗しました。手動で設定してください。")
+        except Exception as e:
+            logging.warning(f"Overwriteフォルダの自動検出中にエラーが発生しました: {e}")
+
     def browse_directory(self, var, title):
         """ディレクトリ選択ダイアログを開き、選択されたパスを変数に設定する"""
         dirpath = filedialog.askdirectory(title=title)
@@ -196,18 +184,10 @@ class Application(tk.Frame):
             self.xedit_profile_var.set(self.config_manager.get_string('Environment', 'xedit_profile_name'))
             self.mo2_entry_name_var.set(self.config_manager.get_string('Environment', 'mo2_xedit_entry_name'))
             self.mo2_overwrite_dir_var.set(self.config_manager.get_string('Environment', 'mo2_overwrite_dir'))
-            
-            # ★★★ 新規追加: moshortcut関連設定の読み込み ★★★
-            shortcut_format = self.config_manager.get_string('Environment', 'mo2_shortcut_format') or 'auto'
-            self.mo2_shortcut_format_var.set(shortcut_format)
-            
-            instance_name = self.config_manager.get_string('Environment', 'mo2_instance_name') or ''
-            self.mo2_instance_name_var.set(instance_name)
-            
+            self.mo2_shortcut_format_var.set(self.config_manager.get_string('Environment', 'mo2_shortcut_format', 'auto'))
+            self.mo2_instance_name_var.set(self.config_manager.get_string('Environment', 'mo2_instance_name', ''))
             self.simplify_ini_var.set(self.config_manager.get_boolean('Parameters', 'simplify_robco_ammo_ini', fallback=True))
-
             self.xedit_executable_var.set(str(self.config_manager.get_path('Paths', 'xedit_executable')))
-            
         except Exception as e:
             messagebox.showwarning("設定読み込みエラー", f"config.ini の一部設定が読み込めませんでした。\n{e}")
             logging.warning(f"設定の読み込み中にエラー: {e}")
@@ -220,15 +200,10 @@ class Application(tk.Frame):
             self.config_manager.save_setting('Environment', 'xedit_profile_name', self.xedit_profile_var.get())
             self.config_manager.save_setting('Environment', 'mo2_xedit_entry_name', self.mo2_entry_name_var.get())
             self.config_manager.save_setting('Environment', 'mo2_overwrite_dir', self.mo2_overwrite_dir_var.get())
-            
-            # ★★★ 新規追加: moshortcut関連設定の保存 ★★★
             self.config_manager.save_setting('Environment', 'mo2_shortcut_format', self.mo2_shortcut_format_var.get())
             self.config_manager.save_setting('Environment', 'mo2_instance_name', self.mo2_instance_name_var.get())
-            
             self.config_manager.save_setting('Parameters', 'simplify_robco_ammo_ini', str(self.simplify_ini_var.get()))
-
             self.config_manager.save_setting('Paths', 'xedit_executable', self.xedit_executable_var.get())
-            
             logging.info("設定が config.ini に正常に保存されました。")
             return True
         except Exception as e:
@@ -255,7 +230,7 @@ class Application(tk.Frame):
             messagebox.showwarning("実行中", "プロセスは既に実行中です。")
             return
         if not self.save_settings():
-            return # 設定保存に失敗したら中断
+            return
         
         thread = threading.Thread(target=process_func)
         thread.daemon = True
@@ -276,11 +251,9 @@ class Application(tk.Frame):
         self.log_text.delete('1.0', tk.END)
         self.log_text.config(state="disabled")
         
-        # 処理結果を格納する変数
         was_successful = True
         try:
             target_func()
-            # ログからCRITICALメッセージを探して最終的な成否を判断
             final_log = self.log_text.get("1.0", tk.END)
             if "プロセス失敗" in final_log or "CRITICAL" in final_log:
                  was_successful = False
@@ -292,26 +265,18 @@ class Application(tk.Frame):
             self.run_button.config(state="normal")
             self.strategy_button.config(state="normal")
             
-            finish_message_log = f"{'='*20} {process_name}が終了しました {'='*20}"
-            logging.info(finish_message_log)
+            logging.info(f"{ '='*20} {process_name}が終了しました {'='*20}")
 
-            # 処理結果に応じてメッセージボックスを表示
             if was_successful:
                 messagebox.showinfo("完了", f"{process_name}が正常に完了しました！")
             else:
                 messagebox.showerror("エラー", f"{process_name}中にエラーが発生しました。\n詳細はログを確認してください。")
 
     def run_strategy_generation_in_thread(self):
-        self.run_process_wrapper(
-            self.orchestrator.run_strategy_generation,
-            "戦略ファイル生成処理"
-        )
+        self.run_process_wrapper(self.orchestrator.run_strategy_generation, "戦略ファイル生成処理")
 
     def run_full_process_in_thread(self):
-        self.run_process_wrapper(
-            self.orchestrator.run_full_process,
-            "全自動処理"
-        )
+        self.run_process_wrapper(self.orchestrator.run_full_process, "全自動処理")
 
 def setup_logging(log_queue):
     log_format = '%(asctime)s - %(levelname)s - %(message)s'
@@ -329,29 +294,11 @@ def setup_logging(log_queue):
     logging.basicConfig(level=logging.INFO, handlers=[file_handler, stream_handler, queue_handler])
 
 if __name__ == '__main__':
-    
     if not is_admin():
-        response = messagebox.askyesno(
-            "管理者権限の確認",
-            "このアプリケーションは管理者権限で実行されていません。\n"
-            "ファイルの移動やコピーが失敗する可能性があります。\n\n"
-            "管理者権限で再起動しますか？\n\n"
-            "※「いいえ」を選択すると、通常権限で続行します。"
-        )
-        
-        if response:
-            # 管理者権限で再起動を試みる
-            if request_admin_elevation():
-                # 成功した場合、この行には到達しない (プロセスが終了する)
-                pass
-            else:
-                messagebox.showerror(
-                    "エラー",
-                    "管理者権限での再起動に失敗しました。\n"
-                    "手動で「管理者として実行」を選択して起動してください。"
-                )
+        if messagebox.askyesno("管理者権限の確認", "このアプリケーションは管理者権限で実行されていません。\nファイルの移動やコピーが失敗する可能性があります。\n\n管理者権限で再起動しますか？"): # Changed from to \n
+            if not request_admin_elevation():
+                messagebox.showerror("エラー", "管理者権限での再起動に失敗しました。\n手動で「管理者として実行」を選択して起動してください。")
         else:
-            # 通常権限で続行
             logging.warning("[警告] 管理者権限なしで続行します")
     
     gui_log_queue = queue.Queue()
@@ -359,7 +306,6 @@ if __name__ == '__main__':
     
     root = tk.Tk()
     app = None
-    
     try:
         from config_manager import ConfigManager
         from Orchestrator import Orchestrator
@@ -367,15 +313,10 @@ if __name__ == '__main__':
         config_mgr = ConfigManager('config.ini')
         orchestrator_instance = Orchestrator(config_mgr)
         app = Application(master=root, config_manager=config_mgr, orchestrator=orchestrator_instance, log_queue=gui_log_queue)
-    
-    except FileNotFoundError as e:
-        messagebox.showerror("致命的なエラー", f"{e}\nアプリケーションを終了します。")
-        root.destroy()
-        # exit()はデバッグ中にIDEを終了させることがあるため、より安全な方法に
     except Exception as e:
         logging.critical("アプリケーションの初期化中に致命的なエラーが発生しました。", exc_info=True)
         messagebox.showerror("致命的なエラー", f"アプリケーションの起動に失敗しました:\n{e}")
         root.destroy()
     
-    if app:  # appが正常に初期化された場合のみmainloopを呼び出す
+    if app:
         app.mainloop()

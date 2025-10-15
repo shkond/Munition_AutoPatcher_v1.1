@@ -1,0 +1,54 @@
+2025-10-14 20:26:45,845 - INFO - 設定が config.ini に正常に保存されました。
+2025-10-14 20:26:45,849 - INFO - ==================== 全自動処理開始 ====================
+2025-10-14 20:26:45,849 - INFO - ---------- ステップ1: xEdit 抽出 ----------
+2025-10-14 20:26:45,851 - INFO - [xEdit] 設定上の game_data_path=E:\SteamLibrary\steamapps\common\Fallout 4\Data
+2025-10-14 20:26:45,853 - INFO - [xEdit] Debug: wrote orchestrator entry marker: E:\Munition_AutoPatcher_v1.1\Output\orch_entry_marker.txt
+2025-10-14 20:26:45,855 - INFO - [xEdit] Debug: wrote actual temp script content into workspace Output: E:\Munition_AutoPatcher_v1.1\Output\copied_temp_TEMP_1760441205_5dd66c7ccfdb4b9e9bb1fb30497b1c5a.pas
+2025-10-14 20:26:45,855 - INFO - [xEdit] Debug: wrote inspection file: E:\Munition_AutoPatcher_v1.1\Output\temp_inspect_TEMP_1760441205_5dd66c7ccfdb4b9e9bb1fb30497b1c5a.pas.txt
+2025-10-14 20:26:45,872 - INFO - [xEdit] Copied lib files to xEdit root: E:\fo4mod\xedit\lib
+2025-10-14 20:26:45,880 - INFO - [xEdit] moshortcut URI 自動検出モード - 試行: moshortcut://xEdit
+2025-10-14 20:26:45,880 - INFO - [xEdit] MO2 ショートカット経由でツールを起動します (プロファイル=new2, エントリ名=xEdit)
+2025-10-14 20:26:45,880 - INFO - [xEdit] 実行コマンド(list表示): ['E:\\MO2\\ModOrganizer.exe', '-p', 'new2', 'moshortcut://xEdit', '-script:TEMP_1760441205_5dd66c7ccfdb4b9e9bb1fb30497b1c5a.pas', '-S:E:\\fo4mod\\xedit\\Edit Scripts', '-IKnowWhatImDoing', '-AllowMasterFilesEdit', '-Log:E:\\Munition_AutoPatcher_v1.1\\Output\\xEdit_session_1760441205.log', '-cache']
+2025-10-14 20:26:45,887 - INFO - [xEdit] MO2 起動 PID=20764 / xEdit プロセス検出待機
+2025-10-14 20:26:50,415 - INFO - [xEdit] xEdit 検出 PID=23504 / 完了待ち (timeout=3600s)
+2025-10-14 20:27:28,727 - INFO - [xEdit] xEdit 終了 (PID=23504)
+2025-10-14 20:27:38,739 - WARNING - [xEdit] success_message 未検出 (fallback: 成果物検証に委ね)
+2025-10-14 20:27:38,741 - INFO - [xEdit] 成果物検証: 2 箇所を探索
+2025-10-14 20:27:38,742 - INFO - [xEdit] 出力確認 OK: weapon_omod_map.json -> E:\Munition_AutoPatcher_v1.1\Output\weapon_omod_map.json
+2025-10-14 20:27:38,742 - INFO - [xEdit] 出力確認 OK: weapon_ammo_map.json -> E:\fo4mod\xedit\Edit Scripts\Output\weapon_ammo_map.json
+2025-10-14 20:27:38,742 - INFO - [xEdit] 出力確認 OK: unique_ammo_for_mapping.ini -> E:\fo4mod\xedit\Edit Scripts\Output\unique_ammo_for_mapping.ini
+2025-10-14 20:27:38,743 - INFO - [xEdit] 出力確認 OK: WeaponLeveledLists_Export.csv -> E:\fo4mod\xedit\Edit Scripts\Output\WeaponLeveledLists_Export.csv
+2025-10-14 20:27:38,743 - INFO - [xEdit] 出力確認 OK: munitions_ammo_ids.ini -> E:\fo4mod\xedit\Edit Scripts\Output\munitions_ammo_ids.ini
+2025-10-14 20:27:38,743 - INFO - [xEdit] 成果物 5/5 件検出 → 収集処理開始
+2025-10-14 20:27:38,743 - INFO - [成果物収集] 期待ファイル: ['weapon_omod_map.json', 'weapon_ammo_map.json', 'unique_ammo_for_mapping.ini', 'WeaponLeveledLists_Export.csv', 'munitions_ammo_ids.ini']
+2025-10-14 20:27:38,747 - INFO - [成果物収集] 探索候補:
+2025-10-14 20:27:38,747 - INFO -   - E:\fo4mod\xedit\Edit Scripts\Output
+2025-10-14 20:27:38,747 - INFO -   - E:\Munition_AutoPatcher_v1.1\Output
+2025-10-14 20:27:38,748 - INFO - [成果物収集] 最新ファイル選択: E:\Munition_AutoPatcher_v1.1\Output\weapon_omod_map.json
+2025-10-14 20:27:38,748 - INFO - [成果物収集] 取得: E:\Munition_AutoPatcher_v1.1\Output\weapon_omod_map.json -> E:\Munition_AutoPatcher_v1.1\Output\weapon_omod_map.json
+2025-10-14 20:27:38,749 - INFO - [成果物収集] 確定: weapon_omod_map.json
+2025-10-14 20:27:38,750 - INFO - [成果物収集] 最新ファイル選択: E:\Munition_AutoPatcher_v1.1\Output\weapon_ammo_map.json
+2025-10-14 20:27:38,750 - INFO - [成果物収集] 取得: E:\Munition_AutoPatcher_v1.1\Output\weapon_ammo_map.json -> E:\Munition_AutoPatcher_v1.1\Output\weapon_ammo_map.json
+2025-10-14 20:27:38,751 - INFO - [成果物収集] 確定: weapon_ammo_map.json
+2025-10-14 20:27:38,752 - INFO - [成果物収集] 最新ファイル選択: E:\Munition_AutoPatcher_v1.1\Output\unique_ammo_for_mapping.ini
+2025-10-14 20:27:38,752 - INFO - [成果物収集] 取得: E:\Munition_AutoPatcher_v1.1\Output\unique_ammo_for_mapping.ini -> E:\Munition_AutoPatcher_v1.1\Output\unique_ammo_for_mapping.ini
+2025-10-14 20:27:38,753 - INFO - [成果物収集] 確定: unique_ammo_for_mapping.ini
+2025-10-14 20:27:38,754 - INFO - [成果物収集] 最新ファイル選択: E:\Munition_AutoPatcher_v1.1\Output\WeaponLeveledLists_Export.csv
+2025-10-14 20:27:38,754 - INFO - [成果物収集] 取得: E:\Munition_AutoPatcher_v1.1\Output\WeaponLeveledLists_Export.csv -> E:\Munition_AutoPatcher_v1.1\Output\WeaponLeveledLists_Export.csv
+2025-10-14 20:27:38,755 - INFO - [成果物収集] 確定: WeaponLeveledLists_Export.csv
+2025-10-14 20:27:38,756 - INFO - [成果物収集] 最新ファイル選択: E:\Munition_AutoPatcher_v1.1\Output\munitions_ammo_ids.ini
+2025-10-14 20:27:38,756 - INFO - [成果物収集] 取得: E:\Munition_AutoPatcher_v1.1\Output\munitions_ammo_ids.ini -> E:\Munition_AutoPatcher_v1.1\Output\munitions_ammo_ids.ini
+2025-10-14 20:27:38,757 - INFO - [成果物収集] 確定: munitions_ammo_ids.ini
+2025-10-14 20:27:38,758 - INFO - [成果物収集] 結果サマリー: 成功=5, 失敗=0
+2025-10-14 20:27:38,758 - INFO - [成果物収集]   成功: ['weapon_omod_map.json', 'weapon_ammo_map.json', 'unique_ammo_for_mapping.ini', 'WeaponLeveledLists_Export.csv', 'munitions_ammo_ids.ini']
+2025-10-14 20:27:38,758 - INFO - [成果物収集] 全ファイルを output_dir へ集約完了
+2025-10-14 20:27:38,758 - INFO - [xEdit] 成果物収集完了
+2025-10-14 20:27:38,758 - INFO - [xEdit] 成功: 00_RunAllExtractors.pas
+2025-10-14 20:27:38,758 - INFO - [xEdit] デバッグモード: 一時スクリプトを保持します: E:\fo4mod\xedit\Edit Scripts\TEMP_1760441205_5dd66c7ccfdb4b9e9bb1fb30497b1c5a.pas
+2025-10-14 20:27:38,762 - INFO - [Main] ステップ1 完了
+2025-10-14 20:27:38,762 - INFO - ---------- ステップ2: 戦略ファイル更新 ----------
+2025-10-14 20:27:38,762 - INFO - ================ 戦略ファイル生成処理開始 ================
+2025-10-14 20:27:38,765 - WARNING - [Strategy] 未分類: Mun_Ammo_Example (00112233)
+2025-10-14 20:27:38,765 - INFO - [Strategy] 更新完了: strategy.json (分類数=0)
+2025-10-14 20:27:38,766 - INFO - ---------- ステップ3: マッピングツール起動 ----------
+2025-10-14 20:27:38,766 - INFO - [Main] マッピング確認後にツールを終了してください。

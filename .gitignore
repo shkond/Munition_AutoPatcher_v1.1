@@ -22,8 +22,6 @@ ENV/
 Thumbs.db
 
 # Project specific
-*.log
-Output/*.json
-Output/*.ini
-Output/*.txt
-Output/xEdit_session_*.log
+/patcher.log
+/Output/
+/pas_scripts/Output/
