@@ -305,3 +305,42 @@
 - **処理と問題点**:
     -   **現在の挙動**: この関数は、チェックボックスがオンにされ、かつドロップダウンで変換先が選択されている行の情報を収集します。そして、`Orchestrator`から指定された`output_file_path`（例: `ammo_map.ini`）を**無視**し、その親ディレクトリに`robco_ammo_patch.ini`という固定名のファイルを生成します。このファイルには、RobCo Patcherが直接解釈できる`filterByWeapons`や`filterByOMod`形式のルールが書き込まれます。
     -   **処理フロー上の矛盾**: `Orchestrator`のメインフローは、この`mapper.py`が`ammo_map.ini`（または`.json`）を生成・更新することを期待しています。しかし、現在の`save_ini_file`の実装はそうなっておらず、後続の`robco_ini_generate.py`が必要とする形式の入力ファイルが生成されません。結果として、**`mapper.py`でのユーザーの選択が最終的なパッチに反映されない**という問題が発生しています。これは、開発の過程で`mapper.py`の役割が変更されたものの、`Orchestrator`側の連携が更新されなかったために生じたレガシーな挙動と考えられます。
+
+---
+
+## Pascalスクリプト詳細
+
+このセクションでは、`pas_scripts/`ディレクトリにあるPascalスクリプトの詳細を説明します。
+
+### コアスクリプト
+
+*   **`00_RunAllExtractors.pas`**: データ抽出フェーズのメインエントリーポイントとなるスクリプトです。`AutoPatcherCore.pas`から他の関数を特定の順序で呼び出し、ユーザーのロードオーダーから必要なすべてのデータを抽出します。
+*   **`AutoPatcherCore.pas`**: パッチロジックの中心となるライブラリです。武器の詳細、弾薬情報、レベルドリスト、Munitionsの弾薬IDを抽出するためのコア機能が含まれています。また、JSON操作やロギングのためのヘルパー関数も含まれています。
+*   **`ExtractWeaponAmmoMappingLogic.pas`**: `AP_Run_ExtractWeaponAmmoMapping`のロジックを含むスクリプトです。すべての武器レコードを反復処理し、弾薬情報を抽出して、`weapon_ammo_map.json`と`unique_ammo_for_mapping.ini`の2つのファイルを生成します。
+*   **`ExportLeveledListsLogic.pas`**: `AP_Run_ExportWeaponLeveledLists`のロジックを含むスクリプトです。武器に関連するレベルドリストをスキャンし、それらのEditorID、FormID、およびソースファイルを`WeaponLeveledLists_Export.csv`にエクスポートします。
+
+### ライブラリスクリプト (`lib/`)
+
+*   **`AutoPatcherLib.pas`**: 他のPascalスクリプトに不可欠なヘルパー関数を提供する軽量のスタブライブラリです。出力ディレクトリの取得、安全なEditorIDとFormIDの取得、JSONおよびINIファイルの保存、ロギングなどの機能が含まれています。
+*   **`dk_json.pas`**: シンプルなJSONパーサーとオブジェクトモデルです。JSONデータを表現するための`TJSON`クラスと、JSON文字列を解析するための`TJSONParser`クラスを提供します。
+*   **`mteBase.pas`**: `mteFunctions`ライブラリの一部です。主にバージョン比較（`VersionCompare`、`VersionCheck`）のためのベースレベルのヘルパー関数を提供します。
+*   **`mteElements.pas`**: `mteFunctions`ライブラリの一部です。比較、トラバーサル（`ElementByIP`）、値の取得/設定、フラグ操作など、xEdit要素（`IInterface`）を操作するための包括的な関数セットを提供します。
+*   **`mteFiles.pas`**: `mteFunctions`ライブラリの一部です。ファイルヘッダーの取得、マスターファイルの管理、オーバーライドレコードの取得など、プラグインファイル（`.esp`/`.esm`）を操作するための関数を提供します。
+*   **`mteGUI.pas`**: `mteFunctions`ライブラリの一部です。このユニットはGUI関連機能のプレースホルダーのようですが、現在は空です。
+*   **`mteRecords.pas`**: `mteFunctions`ライブラリの一部です。プラグインファイル内でレコードを作成および操作するためのヘルパー関数を提供します。
+*   **`mteSystem.pas`**: `mteFunctions`ライブラリの一部です。ファイルパス操作などのシステムレベルのヘルパー関数を提供します。
+*   **`mteTypes.pas`**: `mteFunctions`ライブラリの一部です。ブール値、整数、文字列、日時、色などの基本型を処理するための幅広い汎用ヘルパー関数を提供します。また、`TStringList`などの一般的なクラスのヘルパーも含まれています。
+
+### テストスクリプト (`testmtelib/`)
+
+*   **`mteBaseTests.pas`**: `mteBase`ユニットのテストです。
+*   **`mteElementsTests.pas`**: `mteElements`ユニットのテストです。
+*   **`mteFilesTests.pas`**: `mteFiles`ユニットのテストです。
+*   **`mteRecordsTests.pas`**: `mteRecords`ユニットのテストです。
+*   **`mteTypesTests.pas`**: `mteTypes`ユニットのテストです。
+
+### その他のスクリプト
+
+*   **`compile_check.pas`**: すべての`mteFunctions`ライブラリユニットをインクルードして、それらが正しく一緒にコンパイルされることを確認するシンプルなスクリプトです。
+*   **`minimal_probe.pas`**: デバッグに使用される診断用スクリプトです。xEditスクリプトの実行が正常に開始されたことを示す小さなログファイルを書き込みます。
+*   **`test_export_weapon_omod_only.pas`**: `AutoPatcherCore.pas`から`AP_Run_ExportWeaponAmmoDetails`関数を具体的に実行して、武器とOMODの抽出ロジックを単独でテストするテストスクリプトです。

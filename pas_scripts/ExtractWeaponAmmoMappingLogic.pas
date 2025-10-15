@@ -4,7 +4,7 @@ interface
 
 uses
   xEditAPI, Classes, SysUtils, StrUtils, Windows,
-  'lib/AutoPatcherLib';
+  AutoPatcherLib;
 
 function AP_Run_ExtractWeaponAmmoMapping: Integer;
 
@@ -14,6 +14,8 @@ implementation
 function AP_Run_ExtractWeaponAmmoMapping: Integer;
 var
   // Local state variables
+// Minimal robust logger: write to a per-script log file if possible and always AddMessage
+procedure LogMsg(const s: string);
   jsonOutput: TStringList;
   uniqueAmmoOutput: TStringList;
   processedWeapons: TStringList;
@@ -31,6 +33,12 @@ var
   jsonFile: TStringList;
 begin
   Result := 0;
+  // Log start for debugging
+  try
+    LogMsg('AP_Run_ExtractWeaponAmmoMapping start');
+  except
+    // ignore logging failures
+  end;
   // Initialize local state
   jsonOutput := TStringList.Create;
   uniqueAmmoOutput := TStringList.Create;
@@ -50,6 +58,7 @@ begin
 
       weapGroup := GroupBySignature(aFile, 'WEAP');
       for j := 0 to Pred(ElementCount(weapGroup)) do begin
+
         rec := ElementByIndex(weapGroup, j);
         winningRec := WinningOverride(rec);
         weapEditorID := EditorID(rec);
@@ -113,7 +122,11 @@ begin
     LogComplete('Weapon and ammo mapping extraction');
   except
     on E: Exception do begin
-      LogError(E.Message);
+      try
+        LogMsg('ERROR: ' + E.ClassName + ': ' + E.Message);
+      except
+        // ignore logging failures
+      end;
       Result := 1;
     end;
   finally

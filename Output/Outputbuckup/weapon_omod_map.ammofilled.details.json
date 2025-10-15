@@ -1,0 +1,1 @@
+[{"weapon_plugin":"MyMod.esp","weapon_form_id":"01000ABC","weapon_editor_id":"MyWeap","weapon_name":"MyWeap","ammo_plugin":"MyMod.esp","ammo_form_id":"0001AAAA","ammo_editor_id":"CustomAmmoID","omods":[{"omod_plugin":"MyMod.esp","omod_form_id":"02000BBB","omod_editor_id":"MyOmod"}]}]

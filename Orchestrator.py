@@ -507,6 +507,7 @@ class Orchestrator:
                     "-IKnowWhatImDoing",
                     "-AllowMasterFilesEdit",
                     f"-Log:{session_log_path}",
+                    f"-R:{session_log_path}",
                     "-cache",
                 ]
 
@@ -550,10 +551,21 @@ class Orchestrator:
             logging.debug(f"[xEdit] PowerShell で再現可能な形:\n{pwsh_line}")
 
             # --- プロセス実行 ---
+            # Open session log file for appending and redirect child stdout/stderr into it
+            lf = None
+            try:
+                lf = open(session_log_path, 'a', encoding='utf-8', errors='replace')
+            except Exception:
+                lf = None
+
             if use_mo2:
                 launch_ts = time.time()
                 time_tolerance = 0.8
-                mo2_process = subprocess.Popen(command_list)
+                # Launch MO2 and let its stdout/stderr be appended to the session log when possible
+                if lf:
+                    mo2_process = subprocess.Popen(command_list, stdout=lf, stderr=lf)
+                else:
+                    mo2_process = subprocess.Popen(command_list)
                 logging.info(f"[xEdit] MO2 起動 PID={mo2_process.pid} / xEdit プロセス検出待機")
 
                 xedit_executable_name = xedit_executable_path.name.lower()
@@ -584,24 +596,44 @@ class Orchestrator:
                 logging.info(f"[xEdit] xEdit 終了 (PID={xedit_process_ps.pid})")
             else:
                 # 直接起動
-                proc = subprocess.run(
-                    command_list,
-                    capture_output=True,
-                    text=True,
-                    encoding="utf-8",
-                    errors='replace',
-                    timeout=timeout_seconds
-                )
-                exit_code = proc.returncode
-                logging.info("[xEdit] ---- STDOUT 開始 ----")
-                if proc.stdout:
-                    for line in proc.stdout.strip().splitlines():
-                        logging.info(line)
-                logging.info("[xEdit] ---- STDOUT 終了 ----")
-                if proc.stderr:
-                    logging.debug("[xEdit] ---- STDERR ----")
-                    for line in proc.stderr.strip().splitlines():
-                        logging.debug(line)
+                if lf:
+                    proc = subprocess.run(
+                        command_list,
+                        stdout=lf,
+                        stderr=lf,
+                        text=True,
+                        encoding="utf-8",
+                        errors='replace',
+                        timeout=timeout_seconds
+                    )
+                    exit_code = proc.returncode
+                    logging.info("[xEdit] STDOUT/STDERR はセッションログにリダイレクトされました")
+                else:
+                    proc = subprocess.run(
+                        command_list,
+                        capture_output=True,
+                        text=True,
+                        encoding="utf-8",
+                        errors='replace',
+                        timeout=timeout_seconds
+                    )
+                    exit_code = proc.returncode
+                    logging.info("[xEdit] ---- STDOUT 開始 ----")
+                    if proc.stdout:
+                        for line in proc.stdout.strip().splitlines():
+                            logging.info(line)
+                    logging.info("[xEdit] ---- STDOUT 終了 ----")
+                    if proc.stderr:
+                        logging.debug("[xEdit] ---- STDERR ----")
+                        for line in proc.stderr.strip().splitlines():
+                            logging.debug(line)
+
+            # Ensure file handle is closed before we start polling the log
+            try:
+                if lf:
+                    lf.close()
+            except Exception:
+                pass
         
             # ログファイルポーリング（MO2/直接共通）
             success_found = False
