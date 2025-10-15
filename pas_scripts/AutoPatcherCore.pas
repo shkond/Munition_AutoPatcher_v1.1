@@ -1,10 +1,10 @@
 unit AutoPatcherCore;
 
 interface
-uses ExtractWeaponAmmoMappingLogic, // AP_Run_ExtractWeaponAmmoMapping の実装を外部化
-     ExportLeveledListsLogic;     // AP_Run_ExportWeaponLeveledLists の実装を外部化
 uses
   xEditAPI, Classes, SysUtils, StrUtils, Windows,
+  ExtractWeaponAmmoMappingLogic, // AP_Run_ExtractWeaponAmmoMapping
+  ExportLeveledListsLogic,       // AP_Run_ExportWeaponLeveledLists
   // 'lib/AutoPatcherLib',
   'lib/mteBase',
   'lib/mteElements',
