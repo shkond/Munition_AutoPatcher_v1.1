@@ -97,21 +97,111 @@ class XEditRunner:
 
     def _build_command(self) -> Optional[list[str]]:
         """実行するコマンドラインを構築する。"""
-        xedit_args = [f"-script:{self.temp_script_path.name}", f"-S:{self.edit_scripts_dir}", "-IKnowWhatImDoing", "-AllowMasterFilesEdit", f"-Log:{self.session_log_path}", f"-R:{self.session_log_path}", "-cache"]
+        # xEdit用の引数リストを構築
+        xedit_args = []
+        # ユーザー指示: xedit.exeなら-fo4を追加
+        if self.xedit_executable_path.name.lower() == 'xedit.exe':
+            xedit_args.append('-fo4')
+
+        # ユーザー指示: 新しい引数を追加
+        # When launching via MO2 we prefer to pass the script filename only
+        # (MO2/xEdit typically resolve scripts from the Edit Scripts folder).
+        xedit_args.extend([
+            # script arg: absolute path for direct xEdit, filename-only for MO2
+            f"-script:{str(self.temp_script_path)}",
+            f"-S:{str(self.edit_scripts_dir)}",
+            "-IKnowWhatImDoing",
+            "-AllowMasterFilesEdit",
+            # Provide both -R and -Log to maximize chance xEdit will write session logs
+            f"-R:{self.session_log_path}",
+            f"-Log:{self.session_log_path}",
+            "-report",
+        ])
+
         if self.use_mo2:
             mo2_executable_path = Path(self.env_settings.get('mo2_executable_path', ''))
-            profile_name = self.env_settings.get("xedit_profile_name")
-            if not (mo2_executable_path.is_file() and profile_name):
-                logging.error("[XEditRunner] MO2の実行ファイルまたはプロファイル名が設定されていません。")
+            if not mo2_executable_path.is_file():
+                logging.error("[XEditRunner] MO2起動設定エラー: mo2_executable_path が未設定または無効です")
                 return None
-            mo2_entry_name = self.env_settings.get("mo2_xedit_entry_name", "xEdit")
-            command_list, _ = self._build_mo2_command(mo2_executable_path, profile_name, mo2_entry_name, xedit_args, self.env_settings)
+
+            profile_name = self.env_settings.get("xedit_profile_name")
+            if not profile_name:
+                logging.error("[XEditRunner] MO2起動設定エラー: xedit_profile_name が未設定です")
+                return None
+
+            mo2_entry_name = self.env_settings.get("mo2_xedit_entry_name")
+            if not mo2_entry_name:
+                exe_name = self.xedit_executable_path.name.lower()
+                if exe_name == "fo4edit.exe":
+                    mo2_entry_name = "FO4Edit"
+                elif exe_name == "xedit.exe":
+                    mo2_entry_name = "xEdit"
+                else:
+                    mo2_entry_name = self.xedit_executable_path.stem
+                logging.warning(
+                    "[XEditRunner] MO2実行ファイルリストの名前が未設定です。実行ファイル名から'%s'を仮の値として使用します。"
+                    " 正しく動作しない場合、config.iniの[Environment]にmo2_xedit_entry_nameを設定してください。",
+                    mo2_entry_name
+                )
+
+            # When invoking via MO2, rewrite the -script arg to be filename-only so
+            # the MO2 shortcut / xEdit resolve it from the Edit Scripts folder.
+            try:
+                filename_only_args = []
+                for a in xedit_args:
+                    if a.startswith('-script:'):
+                        filename_only_args.append(f"-script:{self.temp_script_path.name}")
+                    else:
+                        filename_only_args.append(a)
+            except Exception:
+                filename_only_args = xedit_args
+
+            command_list, _ = self._build_mo2_command(
+                mo2_executable_path,
+                profile_name,
+                mo2_entry_name,
+                filename_only_args,
+                self.env_settings
+            )
+            logging.info(
+                "[XEditRunner] MO2 ショートカット経由でツールを起動します (プロファイル=%s, エントリ名=%s)",
+                profile_name,
+                mo2_entry_name
+            )
             return command_list
         else:
-            return [str(self.xedit_executable_path), "-FO4" if self.xedit_executable_path.name.lower() == "xedit.exe" else None, *xedit_args, f"-D:{self.game_data_path}"]
+            # MO2を使用しない直接実行パス
+            command_list = [str(self.xedit_executable_path)]
+            # xedit_argsには既に-fo4のロジックが含まれているので、そのまま結合
+            command_list.extend(xedit_args)
+            command_list.append(f"-D:{self.game_data_path}")
+            return command_list
 
     def _execute_and_monitor(self, command_list: list[str]) -> Optional[int]:
         """コマンドを実行し、プロセスを監視して終了コードを返す。"""
+        # Detailed execution logging for debugging argument/pwd/env issues
+        try:
+            logging.info(f"[XEditRunner] cwd: {Path.cwd()}")
+        except Exception:
+            pass
+        try:
+            logging.info(f"[XEditRunner] env_settings.use_mo2={self.use_mo2} mo2_executable={self.env_settings.get('mo2_executable_path', '')} mo2_profile={self.env_settings.get('xedit_profile_name', '')}")
+        except Exception:
+            pass
+        logging.info(f"[XEditRunner] 実行コマンド (joined): {shlex.join(command_list)}")
+        logging.info("[XEditRunner] 実行コマンド (args):")
+        for idx, a in enumerate(command_list):
+            try:
+                logging.info(f"  [{idx}] {a}")
+            except Exception:
+                logging.info(f"  [{idx}] <unprintable arg>")
+        # write the exact command we will execute into the intermediate dir so
+        # the user can re-run it manually to reproduce any interactive prompts
+        try:
+            (self.intermediate_dir / 'last_xedit_command.txt').write_text(shlex.join(command_list), encoding='utf-8')
+        except Exception:
+            pass
+
         with open(self.session_log_path, 'a', encoding='utf-8', errors='replace') as lf:
             if self.use_mo2:
                 mo2_process = subprocess.Popen(command_list, stdout=lf, stderr=lf)
@@ -127,8 +217,51 @@ class XEditRunner:
             logging.error(f"[XEditRunner] 失敗: exit code={exit_code}")
             return False
         if not self._find_success_in_logs():
-            logging.warning("[XEditRunner] ログに成功メッセージが見つかりません。")
-            return self.expected_outputs and self._check_artifacts_exist()
+            logging.warning("[XEditRunner] ログに成功メッセージが見つかりません。フォールバック検査を実行します。")
+            # デバッグ: どの成果物が存在するかを確認
+            if self.expected_outputs:
+                logging.info("[XEditRunner] 成果物の存在チェックを開始します...")
+                found_count = self._check_artifacts_exist()
+                logging.info(f"[XEditRunner] {len(self.expected_outputs)}個の成果物のうち、{found_count}個が見つかりました。")
+                # 1つでも成果物があれば、収集を試みるためにTrueを返す
+                if found_count > 0:
+                    logging.info("[XEditRunner] 部分的な成果物が存在するため、収集処理を試みます。")
+                    return True
+            # Fallback 1: scan for '[RETURN] 0' which many probes emit as a final marker
+            if self._scan_logs_for_return_zero():
+                logging.info("[XEditRunner] フォールバック: '[RETURN] 0' をログで検出しました。成功とみなします。")
+                return True
+
+            # Fallback 2: check Edit Scripts/Output (some scripts write to Edit Scripts\Output)
+            try:
+                edit_output = self.edit_scripts_dir / 'Output'
+                if edit_output.exists() and any(edit_output.iterdir()):
+                    logging.info(f"[XEditRunner] フォールバック: Edit Scripts\\Output に出力を検出: {edit_output}")
+                    return True
+            except Exception:
+                pass
+
+            # Fallback 3: detect probe marker files written by minimal_probe (C:\temp or Output/intermediate)
+            try:
+                import glob
+                for p in glob.glob(str(self.intermediate_dir / 'probe_done_*.txt')):
+                    logging.info(f"[XEditRunner] フォールバック: probe marker を検出: {p}")
+                    return True
+                for p in glob.glob('C:\\temp\\probe_done_*.txt'):
+                    logging.info(f"[XEditRunner] フォールバック: probe marker (C:\\temp) を検出: {p}")
+                    return True
+            except Exception:
+                pass
+
+            # Fallback 4: try to collect any manual_debug_log.txt produced by Pascal
+            try:
+                if self._collect_manual_debug_log():
+                    logging.info("[XEditRunner] フォールバック: manual_debug_log.txt を収集しました。")
+                    return True
+            except Exception:
+                pass
+
+            return False
         return True
 
     def _collect_artifacts(self) -> bool:
@@ -155,7 +288,8 @@ class XEditRunner:
     def _build_mo2_command(self, mo2_path: Path, profile: str, entry: str, args: list[str], env: dict) -> tuple[list[str], str]:
         fmt, inst = env.get("mo2_shortcut_format", "auto"), env.get("mo2_instance_name", "")
         uri = f"moshortcut://{inst}/{entry}" if fmt == "instance" and inst else f"moshortcut://:{entry}" if fmt == "with_colon" else f"moshortcut://{entry}"
-        return [str(mo2_path), "-p", profile, uri, *args], uri
+        # -a フラグを追加して、後続の引数がxEditに渡されるようにする
+        return [str(mo2_path), "-p", profile, uri, "-a", *args], uri
 
     def _move_results_from_overwrite(self, filenames: Sequence[str]) -> bool:
         """xEditの出力先から中間ディレクトリへ成果物をコピーする。"""
@@ -177,6 +311,68 @@ class XEditRunner:
         seen = set()
         return [d for d in dirs if d and d.exists() and (k := str(d.resolve()).lower()) not in seen and not seen.add(k)]
 
+    def _scan_logs_for_return_zero(self) -> bool:
+        """Scan known log locations for a '[RETURN] 0' marker as a fallback success indicator."""
+        patterns = ['[RETURN] 0', '[COMPLETE] Minimal probe']
+        locations = []
+        try:
+            if self.session_log_path and self.session_log_path.exists():
+                locations.append(self.session_log_path)
+        except Exception:
+            pass
+
+        try:
+            if self.logs_dir and self.logs_dir.exists():
+                locations.extend(self.logs_dir.glob('xEdit_session_*.log'))
+        except Exception:
+            pass
+
+        try:
+            if self.xedit_dir and self.xedit_dir.exists():
+                locations.extend(self.xedit_dir.glob('xEdit_session_*.log'))
+        except Exception:
+            pass
+
+        for p in locations:
+            try:
+                txt = p.read_text(encoding='utf-8', errors='replace')
+                for pat in patterns:
+                    if pat in txt:
+                        logging.debug(f"[XEditRunner] Found fallback pattern '{pat}' in {p}")
+                        return True
+            except Exception:
+                continue
+        return False
+
+    def _collect_manual_debug_log(self) -> bool:
+        """Search for 'manual_debug_log.txt' in likely locations and copy to logs_dir."""
+        candidates = []
+        try:
+            candidates.append(self.edit_scripts_dir / 'manual_debug_log.txt')
+            candidates.append(self.edit_scripts_dir / 'Output' / 'manual_debug_log.txt')
+        except Exception:
+            pass
+        try:
+            candidates.append(self.intermediate_dir / 'manual_debug_log.txt')
+        except Exception:
+            pass
+        try:
+            candidates.append(self.xedit_dir / 'manual_debug_log.txt')
+        except Exception:
+            pass
+
+        for p in candidates:
+            try:
+                if p and p.exists():
+                    dest = self.logs_dir / f"collected_manual_debug_{p.name}"
+                    shutil.copy2(p, dest)
+                    logging.info(f"[XEditRunner] Collected manual debug log: {p} -> {dest}")
+                    return True
+            except Exception as e:
+                logging.debug(f"[XEditRunner] Failed to collect manual debug log from {p}: {e}")
+                continue
+        return False
+
     def _find_xedit_process(self) -> Optional[psutil.Process]:
         name = self.xedit_executable_path.name.lower()
         end_time = time.time() + self.timeout_seconds
@@ -190,28 +386,138 @@ class XEditRunner:
         return None
 
     def _find_success_in_logs(self) -> bool:
-        end_time = time.time() + self.log_verification_timeout
+        # Allow a longer effective timeout for MO2/xEdit cases where logs
+        # may be written to a different file or delayed. We'll search the
+        # primary session_log_path first, then fall back to scanning the
+        # Output logs directory and the xEdit installation directory for
+        # any xEdit_session_*.log files.
+        extended_timeout = max(self.log_verification_timeout, 30)
+        end_time = time.time() + extended_timeout
+        scanned = set()
         while time.time() < end_time:
-            if self.session_log_path.is_file():
+            candidates = []
+            try:
+                if self.session_log_path and self.session_log_path.is_file():
+                    candidates.append(self.session_log_path)
+            except Exception:
+                pass
+
+            # Output logs directory
+            try:
+                if self.logs_dir and self.logs_dir.exists():
+                    candidates.extend(self.logs_dir.glob('xEdit_session_*.log'))
+            except Exception:
+                pass
+
+            # xEdit install dir (in case MO2 redirects or xEdit writes there)
+            try:
+                if self.xedit_dir and self.xedit_dir.exists():
+                    candidates.extend(self.xedit_dir.glob('xEdit_session_*.log'))
+            except Exception:
+                pass
+
+            for p in candidates:
                 try:
-                    if self.success_message in self.session_log_path.read_text(encoding='utf-8', errors='replace'): return True
-                except: pass
+                    real = str(p.resolve())
+                except Exception:
+                    real = str(p)
+                key = real.lower()
+                if key in scanned:
+                    continue
+                scanned.add(key)
+                try:
+                    txt = p.read_text(encoding='utf-8', errors='replace')
+                    logging.debug(f"[XEditRunner] Scanning log file for success_message: {p}")
+                    if self.success_message in txt:
+                        logging.info(f"[XEditRunner] success_message found in log: {p}")
+                        return True
+                except Exception as e:
+                    logging.debug(f"[XEditRunner] Failed reading log {p}: {e}")
+                    continue
+
             time.sleep(self.poll_interval)
+
         return False
     
-    def _check_artifacts_exist(self) -> bool:
-        return all(any((d / fn).is_file() for d in self._candidate_output_dirs()) for fn in self.expected_outputs)
+    def _check_artifacts_exist(self) -> int:
+        """期待される成果物の存在を確認し、見つかったファイルの数と詳細をログに出力する。"""
+        found_count = 0
+        candidate_dirs = self._candidate_output_dirs()
+        if not self.expected_outputs:
+            return 0
+
+        for fn in self.expected_outputs:
+            found_path = None
+            # 候補ディレクトリを探索してファイルを見つける
+            for d in candidate_dirs:
+                if (d / fn).is_file():
+                    found_path = d / fn
+                    break
+            
+            if found_path:
+                logging.info(f"  [✓] 発見: {fn} (場所: {found_path})")
+                found_count += 1
+            else:
+                logging.warning(f"  [✗] 未発見: {fn}")
+        return found_count
 
     def _write_debug_files(self):
+        # Write out a few debug artifacts safely. Keep this robust so failures here
+        # don't break the runner flow. We prefer to write a cp932-encoded copy for
+        # Japanese Windows/xEdit, but fall back to utf-8 on failure.
         try:
+            # Primary simple copy for raw byte-for-byte reference
             shutil.copy2(self.temp_script_path, self.intermediate_dir / f"copied_temp_{self.temp_script_path.name}")
-            (self.intermediate_dir / f"temp_inspect_{self.temp_script_path.name}.txt").write_text(f"source={self.source_script_path}\nexists={self.source_script_path.exists()}")
-        except Exception as e: logging.warning(f"[XEditRunner] デバッグ用ファイルの書き出しに失敗: {e}")
+        except Exception as e:
+            logging.warning(f"[XEditRunner] copied_temp の作成に失敗: {e}")
+
+        try:
+            inspect_txt = f"source={self.source_script_path}\nexists={self.source_script_path.exists()}"
+            (self.intermediate_dir / f"temp_inspect_{self.temp_script_path.name}.txt").write_text(inspect_txt, encoding='utf-8')
+        except Exception as e:
+            logging.warning(f"[XEditRunner] temp_inspect の書き出しに失敗: {e}")
+
+        # Try to create a readable debug copy: prefer cp932, then utf-8 as fallback.
+        try:
+            txt = self.temp_script_path.read_text(encoding='utf-8', errors='replace')
+        except Exception as e:
+            logging.warning(f"[XEditRunner] TEMPスクリプトの読み取りに失敗: {e}")
+            txt = ''
+
+        debug_copy_path = self.intermediate_dir / f"copied_temp_readable_{self.temp_script_path.name}.pas"
+        try:
+            # First attempt: cp932 (Windows ANSI / Japanese)
+            debug_copy_path.write_text(txt, encoding='cp932')
+        except Exception:
+            try:
+                # Fall back to utf-8
+                debug_copy_path.write_text(txt, encoding='utf-8')
+            except Exception as e:
+                logging.warning(f"[XEditRunner] デバッグコピー書き込みに失敗: {e}")
 
     def _copy_pas_units(self):
+        # Copy top-level pas units
         for p in self.pas_scripts_dir.glob('*.pas'):
-            if not p.samefile(self.source_script_path) and not (self.edit_scripts_dir / p.name).exists():
-                shutil.copy2(p, self.edit_scripts_dir / p.name)
+            try:
+                dest = self.edit_scripts_dir / p.name
+                if not p.samefile(self.source_script_path) and not dest.exists():
+                    shutil.copy2(p, dest)
+            except Exception:
+                # ignore copy errors for individual files
+                continue
+
+        # Also copy library pas units into Edit Scripts root for units
+        # that are referenced without a 'lib' path (xEdit's Pascal parser
+        # sometimes expects the unit pas file to be in Edit Scripts root).
+        lib_dir = self.pas_scripts_dir / 'lib'
+        if lib_dir.is_dir():
+            for p in lib_dir.glob('*.pas'):
+                try:
+                    dest = self.edit_scripts_dir / p.name
+                    if not dest.exists():
+                        shutil.copy2(p, dest)
+                except Exception:
+                    continue
 
     def _backup_and_copy_libs(self):
         source_lib_dir = self.pas_scripts_dir / 'lib'

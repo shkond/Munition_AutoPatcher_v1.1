@@ -1,6 +1,16 @@
-2025-10-16 05:54:05,134 - INFO - 設定が config.ini に正常に保存されました。
-2025-10-16 05:54:05,149 - INFO - 全自動処理開始
-2025-10-16 05:54:05,149 - INFO - ステップ1: xEdit 抽出
-2025-10-16 05:55:32,410 - WARNING - [XEditRunner] ログに成功メッセージが見つかりません。
-2025-10-16 05:55:32,414 - CRITICAL - [Main] xEditによるデータ抽出に失敗しました。
-2025-10-16 05:55:32,415 - INFO - ==================== 全自動処理が終了しました ====================
+2025-10-16 08:51:42,796 - INFO - 設定が config.ini に正常に保存されました。
+2025-10-16 08:51:42,809 - INFO - 全自動処理開始
+2025-10-16 08:51:42,809 - INFO - ステップ1: xEdit 抽出
+2025-10-16 08:51:42,841 - WARNING - 既存のModOrganizerプロセス(name=ModOrganizer.exe)を終了させました。
+2025-10-16 08:51:42,842 - INFO - [XEditRunner] MO2 ショートカット経由でツールを起動します (プロファイル=new2, エントリ名=xEdit)
+2025-10-16 08:51:42,842 - INFO - [XEditRunner] 実行コマンド: 'E:\MO2\ModOrganizer.exe' -p new2 moshortcut://xEdit -a -fo4 -script:TEMP_1760572302_4cdc2d41fa3d4c69b3c661624d487dec.pas '-S:E:\fo4mod\xedit\Edit Scripts' -IKnowWhatImDoing -AllowMasterFilesEdit '-R:E:\Munition_AutoPatcher_v1.1\Output\logs\xEdit_session_1760572302.log' -report
+2025-10-16 08:52:38,237 - WARNING - [XEditRunner] ログに成功メッセージが見つかりません。
+2025-10-16 08:52:38,238 - INFO - [XEditRunner] 成果物の存在チェックを開始します...
+2025-10-16 08:52:38,239 - WARNING -   [✗] 未発見: weapon_omod_map.json
+2025-10-16 08:52:38,240 - WARNING -   [✗] 未発見: weapon_ammo_map.json
+2025-10-16 08:52:38,240 - WARNING -   [✗] 未発見: unique_ammo_for_mapping.ini
+2025-10-16 08:52:38,241 - WARNING -   [✗] 未発見: WeaponLeveledLists_Export.csv
+2025-10-16 08:52:38,241 - WARNING -   [✗] 未発見: munitions_ammo_ids.ini
+2025-10-16 08:52:38,241 - INFO - [XEditRunner] 5個の成果物のうち、0個が見つかりました。
+2025-10-16 08:52:38,243 - CRITICAL - [Main] xEditによるデータ抽出に失敗しました。
+2025-10-16 08:52:38,245 - INFO - ==================== 全自動処理が終了しました ====================

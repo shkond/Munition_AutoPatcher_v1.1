@@ -40,8 +40,8 @@ begin
     except
       AddMessage('[MINIMAL_PROBE] failed to AddMessage main');
       raise;
-    end;
-
+      _early: TStringList;
+      markerF: TextFile;
     // Indicate success explicitly
     AddMessage('[COMPLETE] Minimal probe (about to return 0)');
     AddMessage('[RETURN] 0');
@@ -57,4 +57,24 @@ begin
   end;
 end;
 
-end.
+        // Write a marker file into the project's Output/intermediate directory so
+        // the Orchestrator can detect success even if MO2/xEdit console output
+        // isn't available to the runner. Use a relative path under the script's
+        // working directory (xEdit's current dir will allow writing to the host
+        // filesystem in most setups).
+        try
+          // Write a simple marker file to C:\temp so Orchestrator can detect success.
+          outp := 'C:\\temp\\probe_done_' + IntToStr(Trunc(Now)) + '.txt';
+          try
+            AssignFile(markerF, outp);
+            {$I-}
+            Rewrite(markerF);
+            WriteLn(markerF, '[MINIMAL_PROBE_MARKER] OK');
+            CloseFile(markerF);
+            {$I+}
+          except
+            // ignore file write errors
+          end;
+        except
+          // ignore any outer errors
+        end;

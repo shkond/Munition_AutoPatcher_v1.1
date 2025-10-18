@@ -417,7 +417,7 @@ begin
       placeholder := TStringList.Create;
       try
         placeholder.Add('[]');
-        SaveAndCleanJSONToFile(placeholder, jsonPath, 0, True);
+  SaveAndCleanJSONToFile(placeholder, jsonPath, 0);
       finally
         placeholder.Free;
       end;
@@ -571,7 +571,7 @@ begin
 
   LogDebug(Format('Starting save of weapon_omod_map.json... (TStringList.Count: %d)', [jsonLines.Count]));
     // Use the library helper which logs success/failure and optionally fixes JSON quoting issues.
-    if not SaveAndCleanJSONToFile(jsonLines, jsonPath, weaponCount, True) then
+  if not SaveAndCleanJSONToFile(jsonLines, jsonPath, weaponCount) then
         try
           AddMessage(Format('[OMOD_DEBUG] %d,%s,%s', [weaponCount, weaponEditorID, weaponFormID]));
         except
