@@ -1,0 +1,576 @@
+________________
+
+
+1. Views 詳細設計
+
+
+ここでは、WPF (Windows Presentation Foundation) と XAML を用いたUIの構造設計を行います。モダンで直感的な操作性を提供することを目指します.
+
+
+1.1. MainWindow.xaml (メインウィンドウ)
+
+
+責務: アプリケーション全体のコンテナ（殻）となり、基本的なレイアウトを提供し、各画面 (View) をホストします。
+レイアウト:
+ウィンドウを大きく4つの領域に分割します。
+領域
+	使用コントロール
+	説明
+	上部: ヘッダー
+	Border or StackPanel
+	アプリケーションのタイトル (Munition AutoPatcher for RobCo) と、設定画面に移動するためのボタン (Button) を配置します。
+	左側: ステップナビゲーション
+	ItemsControl
+	処理のワークフローを「1. 設定」「2. 武器の抽出」「3. 弾薬マッピング」「4. INIファイル生成」のようにステップ表示します。現在のステップがハイライトされるようにし、ユーザーが今どの段階にいるかを視覚的に把握しやすくします。
+	中央: コンテンツ表示領域
+	ContentControl
+	アプリケーションの核となる領域。MainViewModel の状態に応じて、この領域に SettingsView や MapperView が動的に表示されます。処理中は進捗バー (ProgressBar) とメッセージを表示します。
+	下部: ログ・ステータス表示
+	Grid with StatusBar & TextBox
+	左下に簡単なステータスメッセージ (StatusBarItem) を、右側には詳細なログ (TextBox、読み取り専用・スクロール可能) を表示し、アプリケーションの動作を透過的にユーザーに伝えます。
+	XAML 構造 (抜粋):
+
+
+XML
+
+
+
+
+<Window x:Class="MunitionAutoPatcher.MainWindow" ... >
+   <Grid>
+       <Grid.ColumnDefinitions>
+           <ColumnDefinition Width="200"/> <ColumnDefinition Width="*"/>   </Grid.ColumnDefinitions>
+       <Grid.RowDefinitions>
+           <RowDefinition Height="Auto"/> <RowDefinition Height="*"/>    <RowDefinition Height="150"/>  </Grid.RowDefinitions>
+
+       <Border Grid.ColumnSpan="2" ... >
+           <StackPanel Orientation="Horizontal">
+               <TextBlock Text="Munition AutoPatcher for RobCo" ... />
+               <Button Content="設定" Command="{Binding NavigateToSettingsCommand}" ... />
+           </StackPanel>
+       </Border>
+
+       <ItemsControl Grid.Row="1" ItemsSource="{Binding Steps}" ... />
+
+       <ContentControl Grid.Row="1" Grid.Column="1" Content="{Binding CurrentView}" />
+
+       <Grid Grid.Row="2" Grid.ColumnSpan="2">
+           </Grid>
+   </Grid>
+</Window>
+
+________________
+
+
+1.2. SettingsView.xaml (設定画面)
+
+
+責務: Fallout 4やMOD管理ツールへのパスなど、アプリケーションの動作に必要な設定をユーザーに入力させるための専用UIを提供します。
+レイアウト:
+設定項目ごとにラベルとテキストボックス、そしてそれを補助するボタンを配置するシンプルなフォーム形式です。
+コントロール
+	説明
+	バインディング先 (ViewModel)
+	TextBlock
+	「Fallout 4 ディレクトリ」などの設定項目のラベル。
+	-
+	TextBox
+	ユーザーがパスを入力またはペーストするためのテキストボックス。
+	SettingsViewModel.GamePath
+	Button ("参照...")
+	フォルダ選択ダイアログを開き、ユーザーが視覚的にパスを選択できるようにします。
+	SelectGamePathCommand
+	Button ("自動検出")
+	一般的なインストール場所からパスを自動的に検索・設定します。
+	DetectPathsCommand
+	Button ("保存")
+	SettingsViewModel に現在の設定値を保存させます。
+	SaveSettingsCommand
+	XAML 構造 (抜粋):
+
+
+XML
+
+
+
+
+<UserControl x:Class="MunitionAutoPatcher.Views.SettingsView" ... >
+   <StackPanel Margin="20">
+       <TextBlock Text="Fallout 4 ディレクトリ" />
+       <Grid>
+           <TextBox Text="{Binding GamePath, UpdateSourceTrigger=PropertyChanged}" />
+           <Button Content="参照..." Command="{Binding SelectGamePathCommand}" />
+       </Grid>
+
+       <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+           <Button Content="自動検出" Command="{Binding DetectPathsCommand}" />
+           <Button Content="保存" Command="{Binding SaveSettingsCommand}" IsDefault="True" />
+       </StackPanel>
+   </StackPanel>
+</UserControl>
+
+________________
+
+
+1.3. MapperView.xaml (マッピング画面)
+
+
+責務: 抽出された武器データを一覧表示し、ユーザーが効率的にMunitions弾薬をマッピング（対応付け）できるようにするための、このアプリケーションで最も重要なUIです。
+レイアウト:
+画面の上部にフィルタリング機能、中央にメインとなるデータグリッド、下部にアクションボタンを配置します。
+領域
+	使用コントロール
+	説明
+	バインディング先 (ViewModel)
+	上部: フィルター
+	TextBox
+	武器名やプラグイン名でグリッドの内容をリアルタイムに絞り込むための検索ボックス。
+	MapperViewModel.FilterText
+	中央: データグリッド
+	DataGrid
+	武器マッピングを行うための表。大量のデータを扱うため、UI仮想化 (EnableRowVirtualization="True") を有効にし、パフォーマンスを確保します。
+	MapperViewModel.WeaponMappings
+	下部: アクション
+	Button
+	マッピング結果を保存し、最終的な.iniファイル生成プロセスを開始するためのボタン。
+	MapperViewModel.GenerateRobCoIniCommand
+	DataGrid の列定義:
+* DataGridTextColumn: プラグイン名 (PluginName)、武器名 (WeaponName)、EditorID (EditorId)、元の弾薬 (OriginalAmmo) を表示するための読み取り専用列。
+* DataGridTemplateColumn: 新しい弾薬の選択列。この列のセル内にComboBox（ドロップダウンリスト）を配置します。
+   * ComboBoxの選択肢 (ItemsSource) は WeaponMappingViewModel.AvailableMunitions にバインドします。
+   * ComboBoxで選択された項目 (SelectedItem) は WeaponMappingViewModel.SelectedMunition に双方向バインドします。これにより、ユーザーの選択が即座にViewModelに反映されます。
+XAML 構造 (抜粋):
+
+
+XML
+
+
+
+
+<UserControl x:Class="MunitionAutoPatcher.Views.MapperView" ...>
+   <Grid>
+       <Grid.RowDefinitions>
+           <RowDefinition Height="Auto" /> <RowDefinition Height="*" />   <RowDefinition Height="Auto" /> </Grid.RowDefinitions>
+
+       <TextBox Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" ... />
+
+       <DataGrid Grid.Row="1" ItemsSource="{Binding WeaponMappings}" AutoGenerateColumns="False" EnableRowVirtualization="True">
+           <DataGrid.Columns>
+               <DataGridTextColumn Header="プラグイン" Binding="{Binding PluginName}" IsReadOnly="True" />
+               <DataGridTextColumn Header="武器名" Binding="{Binding WeaponName}" IsReadOnly="True" />
+               <DataGridTemplateColumn Header="新しい弾薬">
+                   <DataGridTemplateColumn.CellTemplate>
+                       <DataTemplate>
+                           <ComboBox 
+                               ItemsSource="{Binding AvailableMunitions}"
+                               SelectedItem="{Binding SelectedMunition}"
+                               DisplayMemberPath="DisplayName" />
+                       </DataTemplate>
+                   </DataGridTemplateColumn.CellTemplate>
+               </DataGridTemplateColumn>
+           </DataGrid.Columns>
+       </DataGrid>
+
+       <Button Grid.Row="2" Content="RobCo .ini ファイルを生成" Command="{Binding GenerateRobCoIniCommand}" />
+   </Grid>
+</UserControl>
+
+________________
+承知いたしました。
+カテゴリ2「ViewModels (UIのロジックと状態管理)」の詳細設計を提案します。
+________________
+
+
+2. ViewModels 詳細設計
+ViewModelsは、UI (View) とビジネスロジック (Model) の間の橋渡し役です。UIの状態を保持し、ユーザーのアクションに応じてビジネスロジックを呼び出す責務を担います。INotifyPropertyChangedを実装した基本的なViewModelクラスを継承することを前提とします。
+2.1. MainViewModel.cs
+責務: アプリケーション全体の親ViewModelとして、現在の画面状態、グローバルなステータス、そして画面遷移のロジックを管理します。
+プロパティ:
+* public object CurrentView { get; set; }
+   * MainWindowの中央コンテンツ領域に表示する現在のViewModelを保持します。このプロパティの値をSettingsViewModelやMapperViewModelのインスタンスに切り替えることで、画面遷移を実現します。
+* public string StatusMessage { get; set; }
+   * ウィンドウ下部のステータスバーに表示する短いメッセージ（例：「準備完了」、「武器データを抽出中...」）です。
+* public bool IsBusy { get; set; }
+   * 長時間かかる処理（データ抽出など）の実行中にtrueになるフラグです。View側でこのフラグを使い、プログレスリングの表示やUIの無効化を行います。
+* public ObservableCollection<string> LogMessages { get; }
+   * 詳細ログエリアに表示するためのログメッセージのコレクションです。ObservableCollectionにすることで、ログの追加が自動的にUIに反映されます。
+* public ICommand StartExtractionCommand { get; }
+   * 「武器データを抽出」ボタンにバインドされるコマンドです。メインの処理フローを開始します。
+* public ICommand NavigateToSettingsCommand { get; }
+   * 設定画面へ遷移するためのコマンドです。
+コンストラクタとメソッド:
+* public MainViewModel(OrchestratorService orchestrator, ...)
+   * コンストラクタで、DIコンテナからOrchestratorServiceなどの必要なサービスを受け取ります。
+   * コマンドの初期化を行います。
+* private async Task ExecuteStartExtractionAsync()
+   * StartExtractionCommandから非同期で実行されるメソッドです。
+   * 処理フロー:
+      1. IsBusy = true; StatusMessage = "武器データを抽出しています...";
+      2. try { ... } catch { ... } ブロックでエラーハンドリングを行います。
+      3. var weaponData = await _orchestrator.ExtractWeaponDataAsync(); を呼び出し、ビジネスロジックを実行します。
+      4. 成功したら、MapperViewModelのインスタンスを生成し、weaponDataを渡します。
+      5. CurrentView = mapperViewModel; のように画面を切り替えます。
+      6. StatusMessage = "マッピングを行ってください。";
+      7. IsBusy = false;
+________________
+
+
+2.2. SettingsViewModel.cs
+責務: SettingsViewに対応し、設定情報の管理と、それに関連するユーザーアクション（保存、自動検出）を実行します。
+プロパティ:
+* public string GamePath { get; set; }
+   * Fallout 4のディレクトリパス。
+* public string ModManagerPath { get; set; }
+   * MO2/Vortexのパス。
+* public ICommand SaveSettingsCommand { get; }
+   * 設定をファイルに保存するコマンド。
+* public ICommand SelectGamePathCommand { get; }
+   * フォルダ選択ダイアログを開くコマンド。
+* public ICommand DetectPathsCommand { get; }
+   * パスを自動検出するコマンド。
+コンストラクタとメソッド:
+* public SettingsViewModel(IConfigService configService, ...)
+   * IConfigServiceを受け取り、起動時にconfigService.Load()を呼び出してプロパティを初期化します。
+* private void ExecuteSaveSettings()
+   * SaveSettingsCommandから実行されます。
+   * 現在のGamePathなどのプロパティ値を、_configService.Save()メソッドに渡してファイルに保存します。
+________________
+
+
+2.3. MapperViewModel.cs
+責務: MapperViewのロジックを担当する、このアプリケーションで最も中心的なViewModelです。武器リストの管理、フィルタリング、そして最終的な.iniファイル生成のトリガーとなります。
+プロパティ:
+* public ICollectionView WeaponMappingsView { get; }
+   * DataGridに実際にバインドされるデータソースです。ICollectionViewを使うことで、元のコレクションを直接操作することなく、効率的なフィルタリングやソートが可能になります。
+* private ObservableCollection<WeaponMappingViewModel> _allWeaponMappings;
+   * フィルタリングされていない、全ての武器ViewModelのマスターリストです。
+* public string FilterText { get; set; }
+   * 検索ボックスのテキスト。このプロパティのセッター内でWeaponMappingsView.Refresh()を呼び出し、フィルタリングを再適用します。
+* public List<AmmoViewModel> AllMunitions { get; }
+   * 選択可能な全てのMunitions弾薬のリスト。各行のComboBoxの選択肢の元となります。
+* public ICommand GenerateRobCoIniCommand { get; }
+   * 「RobCo .ini ファイルを生成」ボタンにバインドされるコマンド。
+コンストラクタとメソッド:
+* public MapperViewModel(IEnumerable<WeaponData> weaponData, List<AmmoCategory> ammoCategories, OrchestratorService orchestrator, ...)
+   * コンストラクタで、抽出済みのweaponDataと、弾薬のリストammoCategoriesを受け取ります。
+   * _allWeaponMappingsを初期化し、weaponData一件ごとにWeaponMappingViewModelを生成して追加します。
+   * WeaponMappingsView = CollectionViewSource.GetDefaultView(_allWeaponMappings); としてICollectionViewを作成します。
+   * WeaponMappingsView.Filter = FilterWeapons; のようにフィルター述語をセットします。
+* private bool FilterWeapons(object item)
+   * ICollectionViewのフィルタリングロジックです。
+   * itemをWeaponMappingViewModelにキャストし、その武器名やプラグイン名がFilterTextを含むかどうかを判定してtrue/falseを返します。
+* private async Task ExecuteGenerateRobCoIniAsync()
+   * GenerateRobCoIniCommandから非同期で実行されます。
+   * _allWeaponMappingsからユーザーがマッピングした結果 (List<WeaponMapping>) を構築します。
+   * await _orchestrator.GenerateRobCoIniAsync(mappings); を呼び出し、ビジネスロジックに処理を依頼します。
+________________
+
+
+2.4. WeaponMappingViewModel.cs
+責務: データグリッドの各行の状態を管理します。
+プロパティ:
+* public string WeaponName { get; } (読み取り専用)
+* public string PluginName { get; } (読み取り専用)
+* public string OriginalAmmo { get; } (読み取り専用)
+* public List<AmmoViewModel> AvailableMunitions { get; }
+   * この行のComboBoxに表示される弾薬の選択肢リスト。
+* public AmmoViewModel SelectedMunition { get; set; }
+   * このViewModelの核となるプロパティ。 ComboBoxでユーザーが選択した弾薬ViewModelを保持します。UIからの変更がここに反映されます。
+________________
+
+
+2.5. AmmoViewModel.cs
+責務: ComboBoxの選択肢一つ一つを表す、シンプルなデータコンテナです。
+プロパティ:
+* public string DisplayName { get; }
+   * UIに表示される文字列（例: [5.56mm] Munitions - 5.56mm Ammo）。
+* public FormKey FormKey { get; }
+   * .iniファイル生成時に必要となる、弾薬の実際のFormKeyデータ。
+________________
+
+
+承知いたしました。
+カテゴリ3「Models (ビジネスロジックとサービス)」の詳細設計を提案します。
+________________
+
+
+3. Models 詳細設計
+Modelsはアプリケーションのバックエンドであり、UIから完全に独立したビジネスロジックの実行を担当します。ここではインターフェースを定義し、具象クラスがそのインターフェースを実装する形をとることで、疎結合でテスト容易性の高い設計を目指します。
+3.1. OrchestratorService.cs
+責務:
+アプリケーション全体の処理フローを制御する司令塔（Orchestrator）です。ViewModelからの要求を受け、各専門サービスを正しい順序で呼び出します。
+インターフェース (IOrchestratorService):
+C#
+public interface IOrchestratorService
+{
+    Task<List<WeaponData>> ExtractWeaponDataAsync();
+    Task GenerateRobCoIniAsync(IEnumerable<WeaponMapping> weaponMappings);
+}
+
+
+依存関係:
+* IWeaponService: 武器データを抽出するため。
+* IRobCoIniGeneratorService: .iniファイルを生成するため。
+* ILoadOrderService: ロードオーダーを解決するため。
+* IConfigService: 設定情報を取得するため。
+メソッド実装の詳細:
+* public async Task<List<WeaponData>> ExtractWeaponDataAsync()
+   1. _loadOrderService を使って、現在の環境（ゲームディレクトリ、MO2など）のロードオーダーを取得します。
+   2. _configService から strategy.json の内容を読み込みます。
+   3. 取得したロードオーダーと設定を _weaponService.GetAllWeaponsAsync() に渡し、武器データのリストを取得します。
+   4. 取得した List<WeaponData> を呼び出し元 (ViewModel) に返します。処理中に発生した例外はここでキャッチし、ログに出力した上で再スローします。
+* public async Task GenerateRobCoIniAsync(IEnumerable<WeaponMapping> weaponMappings)
+   1. _configService から strategy.json の内容を読み込みます。
+   2. 引数で受け取った weaponMappings と設定を _robCoIniGeneratorService.GenerateAsync() に渡します。
+   3. 処理の完了を待ちます。
+3.2. WeaponService.cs
+責務:
+Mutagen APIを直接利用し、プラグインファイルから武器レコードの情報を読み取るロジックを専門に扱います。
+インターフェース (IWeaponService):
+C#
+public interface IWeaponService
+{
+    Task<List<WeaponData>> GetAllWeaponsAsync(ILoadOrder loadOrder, StrategyConfig strategy);
+}
+
+
+依存関係:
+* (なし) - Mutagen APIのライブラリに直接依存します。
+メソッド実装の詳細:
+* public async Task<List<WeaponData>> GetAllWeaponsAsync(ILoadOrder loadOrder, StrategyConfig strategy)
+   1. Task.Run() を使用して、CPU負荷の高い処理をバックグラウンドスレッドで実行し、UIのフリーズを防ぎます。
+   2. Mutagenの loadOrder.PriorityOrder.WinningOverrides<IWeaponGetter>() を呼び出して、ロードオーダーで有効になっている全ての武器レコード (IWeaponGetter) の反復子を取得します。
+   3. Parallel.ForEach などを使って、複数の武器レコードの処理を並列化し、パフォーマンスを向上させます。
+   4. 各武器レコードに対して以下の処理を実行:
+      * strategy.IgnorePlugins や strategy.ExcludeWeapons のリストに含まれていないかチェックし、対象外のものはスキップします。
+      * Mutagen APIを通じて、EditorID (weapon.EditorID)、名前 (weapon.FullName)、元の弾薬のFormKey (weapon.Ammo.FormKey) などを安全に取得します。
+      * WeaponData オブジェクトを新しく生成し、取得した情報を格納します。
+   5. 並列処理で生成された WeaponData オブジェクトのリストを集約し、呼び出し元に返します。
+3.3. RobCoIniGeneratorService.cs
+責務:
+ユーザーによるマッピング結果を基に、RobCo Patcherが解釈可能な複数の.iniファイルを生成し、ディスクに書き込みます。
+インターフェース (IRobCoIniGeneratorService):
+C#
+public interface IRobCoIniGeneratorService
+{
+    Task GenerateAsync(IEnumerable<WeaponMapping> weaponMappings, StrategyConfig strategy);
+}
+
+
+依存関係:
+* IConfigService: .iniファイルの出力先ディレクトリパスを取得するため。
+メソッド実装の詳細:
+* public async Task GenerateAsync(IEnumerable<WeaponMapping> weaponMappings, StrategyConfig strategy)
+   1. _configService から出力先ディレクトリのパスを取得します。
+   2. StringBuilder を4つ（各.iniファイルに1つ）初期化します。
+   3. weaponMappings リストをループ処理します。
+   4. 各マッピング情報 (mapping) に対して以下の処理を実行:
+      * strategy の除外ルールに合致しないか最終チェックします。
+      * SetAmmo: mapping.OriginalWeapon.FormKey と mapping.NewAmmo.FormKey を使い、"SomePlugin.esp|0x123=Munitions.esp|0xDEF" の形式の文字列を生成し、対応する StringBuilder に追加します。
+      * SetOMODProperty: 関連するOMOD情報があれば、同様に文字列を生成して追加します。
+      * AddFLST / RemoveFLST: レベルドリストに関する情報も同様に処理します。
+   5. ループ完了後、4つの StringBuilder の内容を、File.WriteAllTextAsync() を使ってそれぞれの.iniファイル（Munitions_Weapon_SetAmmo.ini など）に非同期で書き込みます。Task.WhenAll() を使うと、これらの書き込み処理を並行して実行できます。
+3.4. ConfigService.cs
+責務:
+アプリケーションの設定ファイル（JSON形式を推奨）の読み込み（デシリアライズ）と保存（シリアライズ）を抽象化します。
+インターフェース (IConfigService):
+C#
+public interface IConfigService
+{
+    // アプリケーション設定
+    AppSettings Settings { get; }
+    Task LoadAppSettingsAsync();
+    Task SaveAppSettingsAsync();
+
+
+    // Strategy設定
+    Task<StrategyConfig> LoadStrategyConfigAsync();
+}
+
+
+依存関係:
+* (なし) - System.Text.Json などのJSONライブラリに依存します。
+3.5. LoadOrderService.cs
+責務:
+Fallout 4のゲーム環境（バニラ、MO2、Vortex）を検出し、Mutagenが読み込むべきロードオーダー情報 (ILoadOrder) を構築します。
+インターフェース (ILoadOrderService):
+C#
+using Mutagen.Bethesda.Environments;
+
+
+public interface ILoadOrderService
+{
+    Task<ILoadOrder> GetLoadOrderAsync(string gamePath, string? modManagerPath = null);
+}
+
+
+依存関係:
+* (なし) - Mutagen APIの環境解決機能に依存します。
+メソッド実装の詳細:
+* public async Task<ILoadOrder> GetLoadOrderAsync(string gamePath, string? modManagerPath = null)
+   1. GameEnvironment.Typical.Builder(GameRelease.Fallout4) を使って環境ビルダーを初期化します。
+   2. gamePath をビルダーに設定します。
+   3. modManagerPath が指定されていれば、それがMO2かVortexかを判別し、適切な設定（例: .WithModOrganizer2Integration(mo2Path)）をビルダーに追加します。
+   4. builder.Build() を呼び出して IGameEnvironment を構築します。
+   5. environment.LoadOrder を取得し、呼び出し元に返します。
+________________
+
+
+承知いたしました。
+カテゴリ4「Data Models (データ構造の定義)」の詳細設計を提案します。
+________________
+
+
+4. Data Models 詳細設計
+Data Modelsは、アプリケーション内でデータを一貫して安全に扱うための設計図です。ここでは、各クラスをイミュータブル（不変）なrecord型として定義することを推奨します。これにより、データが意図せず変更されることを防ぎ、バグの少ない堅牢なコードになります。JSONからのデシリアライズも考慮し、System.Text.Json属性を使用します。
+4.1. FormKey.cs
+責務:
+プラグインファイル名とレコードのFormIDのペアを表現する、基本的な識別子です。MODデータのやり取りにおける最小単位となります。
+定義:
+C#
+using Mutagen.Bethesda; // ModKeyを参照するため
+
+
+/// <summary>
+/// プラグイン名とFormIDを表現する不変のレコード。
+/// </summary>
+public record FormKey(ModKey ModKey, uint FormID)
+{
+    /// <summary>
+    /// RobCo Patcherの.iniファイル形式の文字列（例: "Fallout4.esm|0x00012345"）を返す。
+    /// </summary>
+    public override string ToString()
+    {
+        // FormIDを8桁の16進数文字列にフォーマットする
+        return $"{ModKey.FileName}|0x{FormID:X8}";
+    }
+}
+
+
+* ModKey: Mutagenライブラリが提供する、プラグイン名と種別（.esm, .espなど）を管理する型を利用します。
+* record型: C# 9.0以降の機能で、不変性や値に基づいた等価性比較（a == b）を簡潔に実現できます。
+* ToString() オーバーライド: このオブジェクトを文字列に変換する際に、自動的に.iniファイルで要求されるフォーマットになるようにします。
+________________
+
+
+4.2. WeaponData.cs
+責務:
+WeaponServiceによってMutagen APIから抽出された、一つの武器レコードに関する生の情報を保持します。
+定義:
+C#
+public record WeaponData
+{
+    // 必須プロパティ
+    public required FormKey FormKey { get; init; }
+    public required string EditorID { get; init; }
+
+
+    // Null許容のプロパティ
+    public string? Name { get; init; } // フルネーム
+    public FormKey? OriginalAmmo { get; init; }
+
+
+    // 関連データのリスト
+    public List<FormKey> Omods { get; init; } = new(); // Object Modification records
+    public List<FormKey> LeveledListAppearances { get; init; } = new();
+}
+
+
+* required 修飾子: C# 11.0以降の機能で、オブジェクト初期化時にこれらのプロパティが必須であることをコンパイラに強制させます。
+* Null許容 (?): 武器によっては名前や弾薬が設定されていない場合があるため、それらのプロパティはnullを許容するように設計します。
+* Listの初期化: new()で初期化しておくことで、この武器に関連するOMODなどがなくても、リスト自体がnullになることを防ぎます。
+________________
+
+
+4.3. WeaponMapping.cs
+責務:
+マッピング画面 (MapperView) でユーザーが行った選択結果を保持します。抽出されたWeaponDataと、ユーザーが選択した新しい弾薬のFormKeyを組み合わせたものです。
+定義:
+C#
+public record WeaponMapping
+{
+    /// <summary>
+    /// 元となる武器のデータ。
+    /// </summary>
+    public required WeaponData OriginalWeapon { get; init; }
+
+
+    /// <summary>
+    /// ユーザーが選択した新しいMunitions弾薬のFormKey。
+    /// 選択されていない場合はnull。
+    /// </summary>
+    public FormKey? MappedAmmo { get; set; } // ViewModelで変更されるためsetを許可
+
+
+    /// <summary>
+    /// このマッピングを.iniファイル生成時に無視するかどうか。
+    /// </summary>
+    public bool IsIgnored { get; set; } = false;
+}
+
+
+* MappedAmmo に set を許可: このプロパティはViewModel内でユーザーの選択に応じて変更されるため、setを許可する必要があります。
+* IsIgnored: ユーザーが明示的に「この武器は処理しない」とマークするためのフラグです。
+________________
+
+
+4.4. StrategyConfig.cs
+責務:
+setting/strategy.jsonファイルの内容をC#オブジェクトとして表現します。どのプラグインや武器を処理から除外するかといったルールを定義します。
+定義:
+C#
+using System.Text.Json.Serialization;
+
+
+public record StrategyConfig
+{
+    [JsonPropertyName("ignore_plugins")]
+    public List<string> IgnorePlugins { get; init; } = new();
+
+
+    [JsonPropertyName("exclude_weapons_by_editor_id")]
+    public List<string> ExcludeWeaponsByEditorId { get; init; } = new();
+
+
+    [JsonPropertyName("exclude_weapons_by_form_key")]
+    public List<string> ExcludeWeaponsByFormKey { get; init; } = new();
+}
+
+
+* JsonPropertyName 属性: JSONファイル内のキー名（snake_case）とC#のプロパティ名（PascalCase）の間の差異を吸収します。
+________________
+
+
+4.5. AmmoCategory.cs
+責務:
+setting/ammo_categories.jsonの内容を表現します。Munitionsの弾薬をカテゴリ別にグループ化するためのデータ構造です。
+定義:
+C#
+using System.Text.Json.Serialization;
+
+
+public record AmmoCategory
+{
+    [JsonPropertyName("category_name")]
+    public required string CategoryName { get; init; }
+
+
+    [JsonPropertyName("ammos")]
+    public List<AmmoData> Ammos { get; init; } = new();
+}
+
+
+// AmmoCategory内で使用される個々の弾薬データ
+public record AmmoData
+{
+    [JsonPropertyName("name")]
+    public required string Name { get; init; }
+
+
+    [JsonPropertyName("form_key")]
+    public required string FormKeyString { get; init; } // "Munitions.esp|0x123ABC" 形式
+}
+
+
+* ネストされたレコード: AmmoCategoryがAmmoDataのリストを持つことで、JSONの階層構造をそのまま表現します。
+* FormKeyString: JSONではFormKeyを単純な文字列として保持し、ConfigServiceなどで読み込む際にパースしてFormKeyオブジェクトに変換する設計とします。
