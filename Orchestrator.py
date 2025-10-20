@@ -114,7 +114,6 @@ class XEditRunner:
             "-AllowMasterFilesEdit",
             # Provide both -R and -Log to maximize chance xEdit will write session logs
             f"-R:{self.session_log_path}",
-            f"-Log:{self.session_log_path}",
             "-report",
         ])
 
@@ -174,9 +173,64 @@ class XEditRunner:
             command_list = [str(self.xedit_executable_path)]
             # xedit_argsには既に-fo4のロジックが含まれているので、そのまま結合
             command_list.extend(xedit_args)
-            command_list.append(f"-D:{self.game_data_path}")
             return command_list
+    
+    def _wait_for_xedit_from_mo2(self, mo2_pid: int, timeout: int) -> Optional[psutil.Process]:
+        """
+        MO2 プロセスの子プロセスとして起動される xEdit を待ち、見つかったら
+        psutil.Process オブジェクトを返す。タイムアウト時は None を返す。
+        - mo2_pid: MO2 のプロセス ID
+        - timeout: 秒数（全体の待ち時間）
+        """
+        end_time = time.time() + timeout
+        target_name = self.xedit_executable_path.name.lower()
 
+        try:
+            parent = psutil.Process(mo2_pid)
+        except (psutil.NoSuchProcess, psutil.AccessDenied, Exception) as e:
+            logging.debug(f"[XEditRunner] MO2 プロセス取得失敗 (pid={mo2_pid}): {e}")
+            return None
+
+        # 子孫プロセスを再帰的に検索して xEdit 実行ファイル名と一致するものを探す
+        while time.time() < end_time:
+            try:
+                # children(recursive=True) は psutil の子孫を再帰的に列挙する
+                for child in parent.children(recursive=True):
+                    try:
+                        # 一致判定はプロセス名（小文字化）で行う
+                        if child.name().lower() == target_name:
+                            logging.info(f"[XEditRunner] MO2 の子プロセスとして xEdit を検出: pid={child.pid}, name={child.name()}")
+                            # psutil.Process を返す
+                            return psutil.Process(child.pid)
+                    except (psutil.NoSuchProcess, psutil.AccessDenied):
+                        # 子プロセスが消えた or アクセス拒否ならスキップ
+                        continue
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                # parent が消えたかアクセス不可になったらループを抜ける
+                break
+            except Exception as e:
+                logging.debug(f"[XEditRunner] 子プロセス走査中の例外: {e}")
+
+            time.sleep(0.5)
+
+        logging.debug(f"[XEditRunner] MO2(pid={mo2_pid}) の子から xEdit を検出できませんでした (timeout={timeout})")
+        return None
+    
+    def _wait_for_file_ready(self, path: Path, timeout_seconds: float = 10.0, poll_interval: float = 0.2) -> bool:
+        """
+        指定ファイルが 'ロックされていない'（開いて読める）状態になるまで待つ。
+        成功したら True、タイムアウトしたら False を返す。
+        """
+        end_time = time.time() + timeout_seconds
+        while time.time() < end_time:
+            try:
+                # 'rb' で開いてすぐ閉じることでロック状況を確認する
+                with open(path, 'rb'):
+                    return True
+            except Exception:
+                time.sleep(poll_interval)
+        return False
+    
     def _execute_and_monitor(self, command_list: list[str]) -> Optional[int]:
         """コマンドを実行し、プロセスを監視して終了コードを返す。"""
         # Detailed execution logging for debugging argument/pwd/env issues
@@ -203,13 +257,41 @@ class XEditRunner:
             pass
 
         with open(self.session_log_path, 'a', encoding='utf-8', errors='replace') as lf:
-            if self.use_mo2:
-                mo2_process = subprocess.Popen(command_list, stdout=lf, stderr=lf)
-                xedit_ps = self._find_xedit_process()
-                if not xedit_ps: return None
-                return xedit_ps.wait(timeout=self.timeout_seconds)
-            else:
-                return subprocess.run(command_list, stdout=lf, stderr=lf, timeout=self.timeout_seconds).returncode
+                if self.use_mo2:
+                    mo2_process = subprocess.Popen(command_list, stdout=lf, stderr=lf)
+                    # MO2 を起動した直後に追加
+                    logging.info(f"[DEBUG] Started MO2 pid={mo2_process.pid}")
+                    # 少し待って子を探す
+                    time.sleep(1)
+                    for p in psutil.process_iter(['pid','name','cmdline']):
+                        try:
+                            if p.info['pid'] == mo2_process.pid:
+                                logging.info(f"[DEBUG] MO2 process found: {p.info}")
+                                for child in p.children(recursive=True):
+                                    logging.info(f"[DEBUG] MO2 child: pid={child.pid} name={child.name()} cmdline={child.cmdline()}")
+                        except Exception:
+                            continue
+                    # 1) MO2 の子プロセスとして起動される xEdit を待つ（より robust）
+                    xedit_ps = self._wait_for_xedit_from_mo2(mo2_process.pid, timeout=self.timeout_seconds)
+                    if xedit_ps:
+                        try:
+                            # xEdit プロセスが終了するのを待つ
+                            return xedit_ps.wait(timeout=self.timeout_seconds)
+                        except psutil.TimeoutExpired:
+                            logging.error(f"[XEditRunner] xEdit プロセスの待機中にタイムアウト ({self.timeout_seconds}s)")
+                            return None
+                    # 2) フォールバック: グローバル検索
+                    logging.debug("[XEditRunner] MO2 経由での子プロセス検出に失敗。グローバル検索へフォールバックします。")
+                    xedit_ps = self._find_xedit_process()
+                    if xedit_ps:
+                        try:
+                            return xedit_ps.wait(timeout=self.timeout_seconds)
+                        except psutil.TimeoutExpired:
+                            logging.error(f"[XEditRunner] xEdit プロセスの待機中にタイムアウト ({self.timeout_seconds}s)")
+                            return None
+                    return None
+                else:
+                    return subprocess.run(command_list, stdout=lf, stderr=lf, timeout=self.timeout_seconds).returncode
 
     def _verify_execution(self, exit_code: Optional[int]) -> bool:
         """実行の成否を判定する。"""
@@ -292,16 +374,67 @@ class XEditRunner:
         return [str(mo2_path), "-p", profile, uri, "-a", *args], uri
 
     def _move_results_from_overwrite(self, filenames: Sequence[str]) -> bool:
-        """xEditの出力先から中間ディレクトリへ成果物をコピーする。"""
-        if not check_directory_access(self.intermediate_dir, check_write=True): return False
+        """xEditの出力先から中間ディレクトリへ成果物をコピーする（改良版）。"""
+        if not check_directory_access(self.intermediate_dir, check_write=True):
+            logging.error("[XEditRunner] intermediate_dir に書き込みできません: %s", self.intermediate_dir)
+            return False
+
         candidates = self._candidate_output_dirs()
-        if not candidates: return False
+        if not candidates:
+            logging.error("[XEditRunner] 候補出力ディレクトリが見つかりません。")
+            return False
+
         all_found = True
         for filename in filenames:
-            paths = [p for c in candidates if (p := c / filename).is_file()]
-            if not paths: all_found = False; logging.error(f"[XEditRunner] 成果物が見つかりません: {filename}"); continue
-            try: shutil.copy2(max(paths, key=lambda p: p.stat().st_mtime), self.intermediate_dir / filename)
-            except Exception as e: all_found = False; logging.error(f"[XEditRunner] 成果物のコピーに失敗: {filename}: {e}")
+            # 集められた候補のうち該当ファイルが存在するパス一覧を作る
+            paths = []
+            for c in candidates:
+                try:
+                    p = c / filename
+                    if p.is_file():
+                        # コピー先と同一ファイル（同じ path）なら除外する
+                        dest = self.intermediate_dir / filename
+                        try:
+                            if p.resolve() == dest.resolve():
+                                logging.debug(f"[XEditRunner] スキップ（同一ファイル）: {p}")
+                                continue
+                        except Exception:
+                            # resolve に失敗したら続行（安全のため）
+                            pass
+                        paths.append(p)
+                except Exception:
+                    continue
+
+            if not paths:
+                all_found = False
+                logging.error(f"[XEditRunner] 成果物が見つかりません: {filename}")
+                continue
+
+            # 最終更新日時が最大のものをソースとする
+            src = max(paths, key=lambda p: p.stat().st_mtime)
+            dest = self.intermediate_dir / filename
+
+            # コピー前にファイルが使える状態になるまで待つ
+            try:
+                if not self._wait_for_file_ready(src, timeout_seconds=15.0, poll_interval=0.2):
+                    logging.warning(f"[XEditRunner] タイムアウト: ファイルが使用中のままです: {src}")
+                    # ここでは失敗扱いにして次へ進める（必要ならリトライ回数を増やしてください）
+                    all_found = False
+                    continue
+
+                # コピー実行（dest が存在していれば上書き）
+                try:
+                    shutil.copy2(src, dest)
+                    logging.info(f"[XEditRunner] 成果物コピー完了: {src} -> {dest}")
+                except Exception as e:
+                    logging.error(f"[XEditRunner] 成果物のコピーに失敗: {filename}: {e}")
+                    all_found = False
+                    continue
+            except Exception as e:
+                logging.error(f"[XEditRunner] 未処理例外（コピー前チェック）: {e}")
+                all_found = False
+                continue
+
         return all_found
 
     def _candidate_output_dirs(self) -> list[Path]:
